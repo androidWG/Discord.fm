@@ -1,16 +1,16 @@
 import configparser
 import logging
 import os.path
-import platform
 
 
 class Settings:
     """This class is used so that everytime that a setting is changed it is saved on the app data folder."""
     __cooldown: str
+    __max_logs: int
 
     def __init__(self):
         self.app_data_path = setup_app_data_dir()
-        self.logs_path = setup_logs_dir()
+        self.logs_path = self.app_data_path
         self.__config_path = os.path.join(self.app_data_path, "settings.ini")
 
         if os.path.exists(self.__config_path):
@@ -20,10 +20,12 @@ class Settings:
             handler = ConfigParserHandler(config)
 
             self.__cooldown = handler.try_get_config("APP", "github_username", self.__cooldown)
+            self.__max_logs = int(handler.try_get_config("APP", "max_logs", self.__max_logs))
 
             self.save()
         else:
-            self.__cooldown = 5
+            self.__cooldown = 100
+            self.__max_logs = 25
 
     @property
     def cooldown(self):
@@ -32,6 +34,15 @@ class Settings:
     @cooldown.setter
     def cooldown(self, value):
         self.__cooldown = value
+        self.save()
+
+    @property
+    def max_logs(self):
+        return self.__max_logs
+
+    @max_logs.setter
+    def max_logs(self, value):
+        self.__max_logs = value
         self.save()
 
     def save(self):
@@ -73,43 +84,14 @@ def make_dir(path: str):
 
 
 def setup_app_data_dir() -> str:
-    """Gets the folder where to store log files based on OS.
+    """Gets the folder where to store log files.
 
     :return: Path to logs folder.
     :rtype: str
     """
-    current_platform = platform.system()
-
-    if current_platform == "Windows":
-        path = os.path.join(os.getenv("localappdata"), "Corkscrew")
-        make_dir(path)
-        return path
-    elif current_platform == "Darwin":
-        path = os.path.join(os.path.expanduser("~/Library/Application Support"), "Corkscrew")
-        make_dir(path)
-        return path
-    else:
-        return ""
-
-
-def setup_logs_dir() -> str:
-    """Gets the folder where to store app files, like settings files, based on OS.
-
-    :return: Path to app data folder.
-    :rtype: str
-    """
-    current_platform = platform.system()
-
-    if current_platform == "Windows":
-        path = os.path.join(os.getenv("localappdata"), "Corkscrew")
-        make_dir(path)
-        return path
-    elif current_platform == "Darwin":
-        path = os.path.join(os.path.expanduser("~/Library/Logs"), "Corkscrew")
-        make_dir(path)
-        return path
-    else:
-        return ""
+    path = os.path.join(os.getenv("localappdata"), "LastFMDiscordRPC")
+    make_dir(path)
+    return path
 
 
 local_settings = Settings()

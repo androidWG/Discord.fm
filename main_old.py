@@ -7,8 +7,8 @@ import tkinter
 from tkinter import messagebox
 from PIL import Image
 from pystray import Icon, Menu, MenuItem as item
-from Last_fm_api import LastFmUser
-import DiscordRPC
+from last_fm import LastFMUser
+import discord_rich_presence
 
 rpc_state = True
 
@@ -38,7 +38,7 @@ except FileNotFoundError as identifier:
 
 username = f.read()
 print("Last.fm username: "+username)
-User = LastFmUser(username, 2)
+User = LastFMUser(username, 2)
 
 menu_icon = Menu(item('User: '+username, None), item('Enable Rich Presence',
                                                      toggle_rpc, checked=lambda item: rpc_state), Menu.SEPARATOR, item('Exit', exit))
@@ -49,10 +49,10 @@ def RPCFunction(loop):
     print("Starting RPC")
     asyncio.set_event_loop(loop)
     while True:
-        if rpc_state == True:
+        if rpc_state:
             User.now_playing()
         else:
-            DiscordRPC.disconnect()
+            discord_rich_presence.disconnect()
             time.sleep(2)
 
 loop = asyncio.new_event_loop()
