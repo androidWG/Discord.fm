@@ -1,66 +1,45 @@
+import logging
 from pypresence import Presence
 import datetime
 
 client_id = '702984897496875072'
-RPC = Presence(client_id)
+discord_presence = Presence(client_id)
 already_enabled = False
 already_disabled = True
 start_time = None
 LastTrack = None
 
 
-def enable_RPC():
-    global already_enabled,already_disabled
-    if already_enabled == False:
-        RPC.connect()
-        print('Connected with Discord')
-        already_enabled = True
-        already_disabled = False
+def connect():
+    discord_presence.connect()
+    logging.debug("Connected to Discord")
 
 
-def update_Status(track, album, time_remaining):
+def disconnect():
+    discord_presence.clear()
+    discord_presence.close()
+    print('Disconnected from Discord')
+
+
+def update_status(track):
     global start_time, LastTrack
     if LastTrack == track:
         pass
     else:
-        print("Now Playing: " + track)
+        logging.info("Now Playing: " + track)
+
         start_time = datetime.datetime.now().timestamp()
         LastTrack = track
-        trackList = track.split('-')
-        time_remaining = str(time_remaining)[0:3]
+        time_remaining = float(str(track.duration)[0:3]) + start_time
         if time_remaining != '0':
-            if album != 'None':
-                RPC.update(details=trackList[1], state=album, end=float(time_remaining)+start_time,
-                    large_image='icon', large_text='Last.fm Discord Rich Presence')
-            else:
-                RPC.update(details=trackList[1], state=trackList[0], end=float(time_remaining)+start_time,
-                    large_image='icon', large_text='Last.fm Discord Rich Presence')
+            discord_presence.update(details=track.name, state=track.album, end=time_remaining,
+                                    large_image='icon', large_text='Last.fm Discord Rich Presence')
         else:
-            if album != 'None':
-                RPC.update(details=trackList[1], state=album,
-                    large_image='icon', large_text='Last.fm Discord Rich Presence')
-            else:
-                RPC.update(details=trackList[1], state=trackList[0],
-                    large_image='icon', large_text='Last.fm Discord Rich Presence')
+            discord_presence.update(details=track.name, state=track.album,
+                                    large_image='icon', large_text='Last.fm Discord Rich Presence')
 
 
 def disable_RPC():
-    global already_enabled
-    global already_disabled
-    if already_disabled == False:
-        RPC.clear()
-        RPC.close()
-        print('Disconnected from Discord due to inactivity on Last.fm')
-        already_disabled = True
-        already_enabled = False
-
-def disconnect():
-    global already_enabled
-    global already_disabled
-    if already_disabled == False:
-        RPC.clear()
-        RPC.close()
-        print('Disconnected from Discord')
-        already_disabled = True
-        already_enabled = False
-
+    discord_presence.clear()
+    discord_presence.close()
+    print('Disconnected from Discord due to inactivity on Last.fm')

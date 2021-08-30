@@ -1,0 +1,40 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyGlobalUndefinedInspection" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="2">
+            <item index="0" class="java.lang.String" itemvalue="Registry" />
+            <item index="1" class="java.lang.String" itemvalue="infi" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="E402" />
+          <option value="E722" />
+          <option value="E114" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyTypeCheckerInspection" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="str.__or__" />
+          <option value="gi.repository.Gtk.Builder.*" />
+          <option value="installer.windows" />
+          <option value="gi.repository.Gtk.MessageDialog.*" />
+          <option value="main.MillisecondFormatter.strftime" />
+          <option value="sys._MEIPASS" />
+          <option value="util.log_setup.MillisecondFormatter.*" />
+          <option value="os.*" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

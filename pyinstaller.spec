@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-# pyinstaller --clean --hidden-import="pystray._win32" --additional-hooks-dir="hooks" --onefile --name="Last.fm Discord Rich Presence" --icon="assets\icon.ico" --noconsole main.py   
+# pyinstaller --clean --hidden-import="pystray._win32" --additional-hooks-dir="hooks" --onefile --name="Last.fm Discord Rich Presence" --icon="assets\icon.ico" --noconsole main_old.py
 
 block_cipher = None
 
