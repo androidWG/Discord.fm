@@ -8,7 +8,7 @@ from last_fm import LastFMUser
 from util import log_setup, settings
 from util.repeated_timer import RepeatedTimer
 
-user = LastFMUser("andodide")
+user = LastFMUser(settings.get("username"))
 check_track_timer = None
 tray_icon = None
 rpc_state = True

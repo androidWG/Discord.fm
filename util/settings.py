@@ -1,90 +1,5 @@
-import configparser
-import logging
+import json
 import os.path
-
-
-class Settings:
-    """This class is used so that everytime that a setting is changed it is saved on the app data folder."""
-    __cooldown: int
-    __username: str
-    __max_logs: int
-
-    def __init__(self):
-        self.app_data_path = setup_app_data_dir()
-        self.logs_path = self.app_data_path
-        self.__config_path = os.path.join(self.app_data_path, "settings.ini")
-
-        self.__cooldown = 2
-        self.__username = "andodide"
-        self.__max_logs = 25
-
-        if os.path.exists(self.__config_path):
-            config = configparser.ConfigParser()
-            config.read(self.__config_path)
-
-            handler = ConfigParserHandler(config)
-
-            self.__cooldown = int(handler.try_get_config("APP", "cooldown", self.__cooldown))
-            self.__username = handler.try_get_config("APP", "username", self.__username)
-            self.__max_logs = int(handler.try_get_config("APP", "max_logs", self.__max_logs))
-
-        self.save()
-
-    @property
-    def cooldown(self):
-        return self.__cooldown
-
-    @cooldown.setter
-    def cooldown(self, value):
-        self.__cooldown = value
-        self.save()
-
-    @property
-    def username(self):
-        return self.__username
-
-    @username.setter
-    def username(self, value):
-        self.__username = value
-        self.save()
-
-    @property
-    def max_logs(self):
-        return self.__max_logs
-
-    @max_logs.setter
-    def max_logs(self, value):
-        self.__max_logs = value
-        self.save()
-
-    def save(self):
-        config = configparser.ConfigParser()
-
-        if not os.path.exists(self.__config_path):
-            logging.debug("Creating config file...")
-            config.add_section("APP")
-        else:
-            config.read(self.__config_path)
-
-        config["APP"]["cooldown"] = str(self.__cooldown)
-        config["APP"]["username"] = self.__username
-        config["APP"]["max_logs"] = str(self.__max_logs)
-        with open(self.__config_path, "w") as file:
-            config.write(file)
-
-
-class ConfigParserHandler:
-    """Handles KeyErrors when getting config values, returning the original value passed if key wasn't found."""
-
-    def __init__(self, parser: configparser.ConfigParser):
-        self.__parser__ = parser
-
-    def try_get_config(self, group, key, original_value):
-        try:
-            value = self.__parser__[group][key]
-            return value
-        except KeyError:
-            return original_value
 
 
 def make_dir(path: str):
@@ -102,9 +17,43 @@ def setup_app_data_dir() -> str:
     :return: Path to logs folder.
     :rtype: str
     """
-    path = os.path.join(os.getenv("localappdata"), "LastFMDiscordRPC")
+    path = os.path.join(os.getenv("localappdata"), "Discord.fm")
     make_dir(path)
     return path
 
 
-local_settings = Settings()
+def save():
+    json_string = json.dumps(__settings_dict, indent=4)
+
+    with open(config_path, "w") as file:
+        file.write(json_string)
+
+
+__settings_dict: dict
+
+app_data_path = setup_app_data_dir()
+logs_path = app_data_path
+config_path = os.path.join(app_data_path, "settings.json")
+
+try:
+    with open(config_path) as file:
+        __settings_dict = json.load(file)
+except FileNotFoundError:
+    __settings_dict = {  # Put default setting values here
+        "cooldown": 2,
+        "username": "andodide",
+        "max_logs": 25
+    }
+    save()
+
+
+def get(name):
+    return __settings_dict[name]
+
+
+def define(name, value):
+    if __settings_dict.keys().__contains__(name):
+        __settings_dict[name] = value
+        save()
+    else:
+        raise KeyError("Key not found in settings dictionary")

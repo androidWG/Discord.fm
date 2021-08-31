@@ -3,7 +3,7 @@ import logging
 import os
 import datetime as dt
 import sys
-from util.settings import local_settings
+from util import settings
 
 
 class MillisecondFormatter(logging.Formatter):
@@ -27,20 +27,20 @@ def delete_old_logs(name: str):
     :type name: str
     """
     logs = []
-    for file in os.listdir(local_settings.logs_path):
+    for file in os.listdir(settings.logs_path):
         if file.endswith(".log") and file.__contains__(name):
             logs.append(file)
 
     logs.sort(reverse=True)
-    del logs[:local_settings.max_logs - 1]
+    del logs[:settings.get("max_logs") - 1]
 
     for log in logs:
-        os.remove(os.path.join(local_settings.logs_path, log))
+        os.remove(os.path.join(settings.logs_path, log))
 
 
 def setup_logging(name: str):
     filename = name + datetime.datetime.utcnow().strftime("%Y-%m-%d %H-%M-%S") + ".log"
-    log_path = os.path.join(local_settings.logs_path, filename)
+    log_path = os.path.join(settings.logs_path, filename)
 
     delete_old_logs(name)
 

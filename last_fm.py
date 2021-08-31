@@ -22,7 +22,7 @@ class LastFMUser:
                 track = track_info.TrackInfo(current_track)
                 return track
         except pylast.WSError:
-            logging.info(f"Connection problem at web service, retrying connection in {settings.local_settings.cooldown} seconds")
+            logging.info(f"Connection problem at web service, retrying connection in {settings.get('cooldown')} seconds")
         except pylast.NetworkError:
             logging.warning("Unable to communicate with last.fm servers, check your internet connection!")
         except pylast.MalformedResponseError:

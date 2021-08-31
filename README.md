@@ -1,4 +1,4 @@
-# Last.fm Discord Rich Presence
+# Discord.fm
 Background service that shows what you're listening to on Discord from a Last.fm account.
 
 ![Screenshot of the app showing Rich Presence info on Discord.](https://i.imgur.com/t4TCs0T.png)
