@@ -1,9 +1,8 @@
 import logging
-import discord_rich_presence
+import discord_rich_presence as discord_rp
+import util
 from PIL import Image
 from pystray import Icon, Menu, MenuItem as item
-
-import util
 from last_fm import LastFMUser
 from util import log_setup, settings
 from util.repeated_timer import RepeatedTimer
@@ -21,18 +20,19 @@ def toggle_rpc(icon, item):
     if rpc_state:
         check_track_timer.start()
 
-        discord_rich_presence.connect()
+        discord_rp.connect()
         update()
 
         logging.info("Started Discord Rich Presence")
     else:
         check_track_timer.stop()
-        discord_rich_presence.disconnect()
+        discord_rp.disconnect()
         logging.info("Stopped Discord Rich Presence")
 
 
 def close_from_tray(Icon, item):
     tray_icon.stop()
+    discord_rp.exit_rp()
 
 
 def update():
@@ -40,17 +40,18 @@ def update():
 
     if track is None:
         logging.debug("No song playing")
+        discord_rp.disconnect()
     else:
-        discord_rich_presence.update_status(track)
+        discord_rp.update_status(track)
 
 
 def main():
     global check_track_timer, tray_icon
     log_setup.setup_logging("main")
 
-    discord_rich_presence.connect()
+    discord_rp.connect()
 
-    cooldown = settings.local_settings.cooldown
+    cooldown = settings.get("cooldown")
     update()
     check_track_timer = RepeatedTimer(cooldown, update, )
 

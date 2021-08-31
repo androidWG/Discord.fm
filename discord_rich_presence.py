@@ -15,7 +15,13 @@ def connect():
 
 def disconnect():
     discord_presence.clear()
-    print('Disconnected from Discord')
+    logging.debug('Disconnected from Discord')
+
+
+def exit_rp():
+    discord_presence.clear()
+    discord_presence.close()
+    logging.info("Closed Discord Rich Presence")
 
 
 def update_status(track):
@@ -28,7 +34,7 @@ def update_status(track):
 
         start_time = datetime.datetime.now().timestamp()
         last_track = track
-        time_remaining = float(track.duration/1000) + start_time
+        time_remaining = float(track.duration / 1000) + start_time
         if track.duration != 0:
             discord_presence.update(details=track.name, state=track.artist, end=time_remaining,
                                     large_image='lastfm', large_text='Last.fm Discord Rich Presence')
