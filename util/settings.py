@@ -24,7 +24,7 @@ class Settings:
 
             self.save()
         else:
-            self.__cooldown = 100
+            self.__cooldown = 2
             self.__max_logs = 25
 
     @property

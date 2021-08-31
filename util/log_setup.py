@@ -47,7 +47,7 @@ def setup_logging(name: str):
     logging.basicConfig(
         filename=log_path,
         filemode="w",
-        level=logging.DEBUG)
+        level=logging.INFO)
 
     # Set custom Formatter to support DateFormats with milliseconds
     formatter = MillisecondFormatter(fmt="%(asctime)s | %(levelname)-8s | %(message)s",

@@ -34,7 +34,7 @@ def update():
     track = user.now_playing()
 
     if track is None:
-        logging.info("No song playing")
+        logging.debug("No song playing")
     else:
         discord_rich_presence.update_status(track)
 
@@ -46,7 +46,6 @@ def main():
     discord_rich_presence.connect()
 
     cooldown = settings.local_settings.cooldown
-    update()
     update()
     check_track_timer = RepeatedTimer(cooldown, update, )
 

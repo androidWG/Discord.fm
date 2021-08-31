@@ -15,7 +15,6 @@ def connect():
 
 def disconnect():
     discord_presence.clear()
-    discord_presence.close()
     print('Disconnected from Discord')
 
 
@@ -30,15 +29,9 @@ def update_status(track):
         start_time = datetime.datetime.now().timestamp()
         last_track = track
         time_remaining = float(track.duration/1000) + start_time
-        if time_remaining != '0':
+        if track.duration != 0:
             discord_presence.update(details=track.name, state=track.artist, end=time_remaining,
-                                    large_image='icon', large_text='Last.fm Discord Rich Presence')
+                                    large_image='lastfm', large_text='Last.fm Discord Rich Presence')
         else:
             discord_presence.update(details=track.name, state=track.artist,
-                                    large_image='icon', large_text='Last.fm Discord Rich Presence')
-
-
-def disable_RPC():
-    discord_presence.clear()
-    discord_presence.close()
-    print('Disconnected from Discord due to inactivity on Last.fm')
+                                    large_image='lastfm', large_text='Last.fm Discord Rich Presence')
