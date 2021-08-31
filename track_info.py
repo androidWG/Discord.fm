@@ -24,5 +24,5 @@ class TrackInfo:
             # don't attempt to compare against unrelated types
             return NotImplemented
 
-        is_equal = self.name == other.name and self.artist == other.artist and self.album == other.album and self.duration == other.duration
+        is_equal = self.name == other.name and self.artist == other.artist and self.album == other.album
         return is_equal
