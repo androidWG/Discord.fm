@@ -10,6 +10,7 @@ from util.repeated_timer import RepeatedTimer
 
 user = LastFMUser("andodide")
 check_track_timer = None
+tray_icon = None
 rpc_state = True
 
 
@@ -30,6 +31,10 @@ def toggle_rpc(icon, item):
         logging.info("Stopped Discord Rich Presence")
 
 
+def close_from_tray(Icon, item):
+    tray_icon.stop()
+
+
 def update():
     track = user.now_playing()
 
@@ -40,7 +45,7 @@ def update():
 
 
 def main():
-    global check_track_timer
+    global check_track_timer, tray_icon
     log_setup.setup_logging("main")
 
     discord_rich_presence.connect()
@@ -53,7 +58,7 @@ def main():
     icon = Image.open(image_path)
 
     menu_icon = Menu(item('Enable Rich Presence', toggle_rpc, checked=lambda item: rpc_state), Menu.SEPARATOR,
-                     item('Exit', exit))
+                     item('Exit', close_from_tray))
     tray_icon = Icon('Last.fm Discord Rich Presence', icon=icon,
                      title="Last.fm Discord Rich Presence", menu=menu_icon)
 

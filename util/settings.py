@@ -5,7 +5,8 @@ import os.path
 
 class Settings:
     """This class is used so that everytime that a setting is changed it is saved on the app data folder."""
-    __cooldown: str
+    __cooldown: int
+    __username: str
     __max_logs: int
 
     def __init__(self):
@@ -13,19 +14,21 @@ class Settings:
         self.logs_path = self.app_data_path
         self.__config_path = os.path.join(self.app_data_path, "settings.ini")
 
+        self.__cooldown = 2
+        self.__username = "andodide"
+        self.__max_logs = 25
+
         if os.path.exists(self.__config_path):
             config = configparser.ConfigParser()
             config.read(self.__config_path)
 
             handler = ConfigParserHandler(config)
 
-            self.__cooldown = handler.try_get_config("APP", "github_username", self.__cooldown)
+            self.__cooldown = int(handler.try_get_config("APP", "cooldown", self.__cooldown))
+            self.__username = handler.try_get_config("APP", "username", self.__username)
             self.__max_logs = int(handler.try_get_config("APP", "max_logs", self.__max_logs))
 
-            self.save()
-        else:
-            self.__cooldown = 2
-            self.__max_logs = 25
+        self.save()
 
     @property
     def cooldown(self):
@@ -34,6 +37,15 @@ class Settings:
     @cooldown.setter
     def cooldown(self, value):
         self.__cooldown = value
+        self.save()
+
+    @property
+    def username(self):
+        return self.__username
+
+    @username.setter
+    def username(self, value):
+        self.__username = value
         self.save()
 
     @property
@@ -54,7 +66,8 @@ class Settings:
         else:
             config.read(self.__config_path)
 
-        config["APP"]["github_username"] = self.github_username
+        config["APP"]["cooldown"] = str(self.__cooldown)
+        config["APP"]["username"] = self.__username
         config["APP"]["max_logs"] = str(self.__max_logs)
         with open(self.__config_path, "w") as file:
             config.write(file)
