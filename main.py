@@ -8,6 +8,7 @@ from util import log_setup, settings
 from util.repeated_timer import RepeatedTimer
 
 user = LastFMUser(settings.get("username"))
+no_song_counter = 0
 check_track_timer = None
 tray_icon = None
 rpc_state = True
@@ -36,12 +37,18 @@ def close_from_tray(Icon, item):
 
 
 def update():
+    global no_song_counter
     track = user.now_playing()
 
     if track is None:
         logging.debug("No song playing")
-        discord_rp.disconnect()
+        no_song_counter += 1
+
+        if no_song_counter == 5:  # Last.fm takes a while to update on song change, make sure user is listening to
+            # nothing to clear RP
+            discord_rp.disconnect()
     else:
+        no_song_counter = 0
         discord_rp.update_status(track)
 
 
