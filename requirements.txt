@@ -1,3 +1,5 @@
-pypresence==4.1.2
-pylast==4.1.0
-pystray==0.17.2
+pypresence~=4.1.2
+pylast~=4.1.0
+pystray~=0.17.2
+future~=0.18.2
+Pillow~=8.3.1

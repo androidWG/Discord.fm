@@ -7,6 +7,8 @@ from last_fm import LastFMUser
 from util import log_setup, settings
 from util.repeated_timer import RepeatedTimer
 
+__version = "0.0.1"
+
 user = LastFMUser(settings.get("username"))
 no_song_counter = 0
 check_track_timer = None
@@ -62,7 +64,7 @@ def main():
     update()
     check_track_timer = RepeatedTimer(cooldown, update, )
 
-    image_path = util.resource_path("assets/icon.png")
+    image_path = util.resource_path("resources/tray_icon.png")
     icon = Image.open(image_path)
 
     menu_icon = Menu(item('Enable Rich Presence', toggle_rpc, checked=lambda item: rpc_state), Menu.SEPARATOR,

@@ -8,8 +8,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
 develop-eggs/
+pyinstaller_temp/
 dist/
 downloads/
 eggs/
@@ -138,3 +138,5 @@ dmypy.json
 cython_debug/
 
 .idea/
+.temp
+upx/
