@@ -35,9 +35,12 @@ def update_status(track):
         start_time = datetime.datetime.now().timestamp()
         last_track = track
         time_remaining = float(track.duration / 1000) + start_time
-        if track.duration != 0:
-            discord_presence.update(details=track.name, state=track.artist, end=time_remaining,
-                                    large_image='lastfm', large_text='Last.fm Discord Rich Presence')
-        else:
-            discord_presence.update(details=track.name, state=track.artist,
-                                    large_image='lastfm', large_text='Last.fm Discord Rich Presence')
+        try:
+            if track.duration != 0:
+                discord_presence.update(details=track.name, state=track.artist, end=time_remaining,
+                                        large_image='lastfm', large_text='Last.fm Discord Rich Presence')
+            else:
+                discord_presence.update(details=track.name, state=track.artist,
+                                        large_image='lastfm', large_text='Last.fm Discord Rich Presence')
+        except RuntimeError:
+            logging.warning("pypresence said update thread was already running")
