@@ -3,3 +3,5 @@ pylast~=4.1.0
 pystray~=0.17.2
 future~=0.18.2
 Pillow~=8.3.1
+pyinstaller~=4.5
+Eel~=0.14.0
