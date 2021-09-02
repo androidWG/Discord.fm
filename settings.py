@@ -30,11 +30,17 @@ def save():
         file.write(json_string)
 
 
-__settings_dict: dict
-
 app_data_path = setup_app_data_dir()
 logs_path = app_data_path
 config_path = os.path.join(app_data_path, "settings.json")
+
+__settings_dict = {  # Put default setting values here
+        "cooldown": 2,
+        "username": "andodide",
+        "max_logs": 10,
+        "tray_icon": True,
+        "auto_update": True
+    }
 
 try:
     with open(config_path) as file:
@@ -45,11 +51,6 @@ try:
 
         __settings_dict = loaded_dict
 except FileNotFoundError:
-    __settings_dict = {  # Put default setting values here
-        "cooldown": 2,
-        "username": "andodide",
-        "max_logs": 25
-    }
     save()
 
 
