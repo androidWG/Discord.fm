@@ -1,5 +1,4 @@
 import logging
-
 import pylast
 import track_info
 from util import settings
