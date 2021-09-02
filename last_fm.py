@@ -1,7 +1,7 @@
 import logging
 import pylast
 import track_info
-from util import settings
+import settings
 
 API_KEY = "0484c201554ae2b4fd440de08a0466b3"
 API_SECRET = "1da2fb7fa90a7f9238d0441b39f0002d"

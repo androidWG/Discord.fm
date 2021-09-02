@@ -1,10 +1,11 @@
 import logging
 import discord_rich_presence as discord_rp
 import util
+import settings
 from PIL import Image
 from pystray import Icon, Menu, MenuItem as item
 from last_fm import LastFMUser
-from util import log_setup, settings
+from util import log_setup
 from util.repeated_timer import RepeatedTimer
 
 __version = "0.0.1"

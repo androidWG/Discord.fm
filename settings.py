@@ -1,4 +1,5 @@
 import json
+import logging
 import os.path
 
 
@@ -48,11 +49,13 @@ except FileNotFoundError:
 
 
 def get(name):
+    logging.debug(f"Getting {name} setting")
     return __settings_dict[name]
 
 
 def define(name, value):
     if __settings_dict.keys().__contains__(name):
+        logging.debug(f"Setting value of {name} setting to {value}")
         __settings_dict[name] = value
         save()
     else:

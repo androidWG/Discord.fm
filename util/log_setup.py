@@ -3,7 +3,7 @@ import logging
 import os
 import datetime as dt
 import sys
-from util import settings
+import settings
 
 
 class MillisecondFormatter(logging.Formatter):
