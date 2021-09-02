@@ -38,7 +38,12 @@ config_path = os.path.join(app_data_path, "settings.json")
 
 try:
     with open(config_path) as file:
-        __settings_dict = json.load(file)
+        loaded_dict = json.load(file)
+        for s in __settings_dict.keys():
+            if not loaded_dict.keys().__contains__(s):
+                loaded_dict[s] = __settings_dict[s]
+
+        __settings_dict = loaded_dict
 except FileNotFoundError:
     __settings_dict = {  # Put default setting values here
         "cooldown": 2,
