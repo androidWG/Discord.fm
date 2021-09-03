@@ -4,7 +4,7 @@ let mainWindow;
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 400,
-        height: 400,
+        height: 365,
         resizable: false,
         webPreferences: {
             nodeIntegration: true,

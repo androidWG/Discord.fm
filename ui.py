@@ -1,3 +1,5 @@
+import random
+
 import settings
 import eel.browsers
 import os
@@ -16,6 +18,13 @@ def save_setting(name, value):
 @eel.expose
 def get_settings():
     return settings.get_dict()
+
+
+@eel.expose
+def get_running_status():
+    # Temporary function that will later return running status
+    random_running = random.randint(0, 50)
+    return bool(random_running)
 
 
 @eel.expose
