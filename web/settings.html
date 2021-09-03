@@ -1,10 +1,10 @@
 <head>
-    <link href="bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link href="./bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
     <script type="text/javascript" src="/eel.js"></script>
     <title>Discord.fm Settings</title>
 </head>
 <body>
-    <div class="container px-4">
+    <div class="container px-4 my-2" onload="setInitialValues()">
         <div class="mb-3">
             <label for="formGroupExampleInput" class="form-label"
                 >Last.fm Username</label
@@ -13,15 +13,24 @@
                 class="form-control"
                 type="text"
                 placeholder="Last.fm Username"
+                id="username"
+                onchange="eel.save_setting('username', this.value)"
             />
         </div>
-        <label for="cooldown" class="form-label">Cooldown (2s)</label>
+        <label for="cooldown" class="form-label"
+            >Cooldown
+            <span id="cooldown-time-badge" class="badge bg-secondary ms-1"
+                >2s</span
+            ></label
+        >
         <input
             type="range"
             class="form-range"
             min="2"
             max="60"
             step="1"
+            oninput="updateBadge(this.value)"
+            onchange="eel.save_setting('cooldown', parseInt(this.value))"
             id="cooldown"
         />
         <div class="form-check my-3">
@@ -29,7 +38,8 @@
                 class="form-check-input"
                 type="checkbox"
                 value=""
-                id="flexCheckDefault"
+                id="tray-icon"
+                onchange="eel.save_setting('tray_icon', this.checked)"
             />
             <label class="form-check-label" for="flexCheckDefault">
                 Tray Icon
@@ -40,7 +50,8 @@
                 class="form-check-input"
                 type="checkbox"
                 value=""
-                id="flexCheckDefault"
+                id="auto-update"
+                onchange="eel.save_setting('auto_update', this.checked)"
             />
             <label class="form-check-label" for="flexCheckDefault">
                 Auto Update
@@ -59,5 +70,6 @@
             </div>
         </div>
     </div>
-    <script src="bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="./bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="./renderer.js"></script>
 </body>

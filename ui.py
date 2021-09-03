@@ -1,4 +1,18 @@
+import settings
 import eel.browsers
+from util import log_setup
+
+log_setup.setup_logging("ui")
+
+
+@eel.expose
+def save_setting(name, value):
+    settings.define(name, value)
+
+
+@eel.expose
+def get_settings():
+    return settings.get_dict()
 
 
 eel.init("web")

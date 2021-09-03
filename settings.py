@@ -59,6 +59,10 @@ def get(name):
     return __settings_dict[name]
 
 
+def get_dict():
+    return __settings_dict
+
+
 def define(name, value):
     if __settings_dict.keys().__contains__(name):
         logging.debug(f"Setting value of {name} setting to {value}")
