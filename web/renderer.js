@@ -14,3 +14,6 @@ function setInitialValues() {
             settings["auto_update"];
     });
 }
+
+window.addEventListener("load", setInitialValues, false);
+setInterval(updateRunning, 500);

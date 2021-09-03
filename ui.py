@@ -1,5 +1,8 @@
 import settings
 import eel.browsers
+import os
+import platform
+import subprocess
 from util import log_setup
 
 log_setup.setup_logging("ui")
@@ -13,6 +16,16 @@ def save_setting(name, value):
 @eel.expose
 def get_settings():
     return settings.get_dict()
+
+
+@eel.expose
+def open_logs_folder():
+    if platform.system() == "Windows":
+        os.startfile(settings.logs_path)
+    elif platform.system() == "Darwin":
+        subprocess.Popen(["open", settings.logs_path])
+    else:
+        subprocess.Popen(["xdg-open", settings.logs_path])
 
 
 eel.init("web")

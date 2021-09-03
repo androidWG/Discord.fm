@@ -1,18 +1,22 @@
 <head>
-    <link href="./bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link
+        href="./bootstrap/bootstrap.min.css"
+        rel="stylesheet"
+        crossorigin="anonymous"
+    />
     <script type="text/javascript" src="/eel.js"></script>
     <title>Discord.fm Settings</title>
 </head>
 <body>
     <div class="container px-4 my-2" onload="setInitialValues()">
         <div class="mb-3">
-            <label for="formGroupExampleInput" class="form-label"
+            <label for="username" class="form-label"
                 >Last.fm Username</label
             >
             <input
                 class="form-control"
                 type="text"
-                placeholder="Last.fm Username"
+                placeholder="Username"
                 id="username"
                 onchange="eel.save_setting('username', this.value)"
             />
@@ -41,7 +45,7 @@
                 id="tray-icon"
                 onchange="eel.save_setting('tray_icon', this.checked)"
             />
-            <label class="form-check-label" for="flexCheckDefault">
+            <label class="form-check-label" for="tray-icon">
                 Tray Icon
             </label>
         </div>
@@ -53,13 +57,17 @@
                 id="auto-update"
                 onchange="eel.save_setting('auto_update', this.checked)"
             />
-            <label class="form-check-label" for="flexCheckDefault">
+            <label class="form-check-label" for="auto-update">
                 Auto Update
             </label>
         </div>
         <div class="row">
             <div class="col">
-                <button type="button" class="btn btn-secondary w-100">
+                <button
+                    type="button"
+                    class="btn btn-secondary w-100"
+                    onclick="eel.open_logs_folder()"
+                >
                     Open Logs Folder
                 </button>
             </div>
@@ -70,6 +78,9 @@
             </div>
         </div>
     </div>
-    <script src="./bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script
+        src="./bootstrap/bootstrap.bundle.min.js"
+        crossorigin="anonymous"
+    ></script>
     <script src="./renderer.js"></script>
 </body>
