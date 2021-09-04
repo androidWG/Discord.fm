@@ -20,6 +20,8 @@ Forked from [Last.fm-Discord-Rich-Presence](https://github.com/Gust4Oliveira/Las
 
 A tray icon will appear where you can enable or disable the Rich Presence status or close the app. Later an installer will be provided in later releases to set up things automatically.
 
+**NOTE:** Tray Icon, Auto Update and the Service Running button currently don't work in the UI
+
 ## Building/Setting up dev environment
 Eel has a small problem which causes an exception when running it inside PyInstaller with the `--no-console` param, so we'll need to modify a single line in Eel's source code.
 

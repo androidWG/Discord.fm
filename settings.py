@@ -36,7 +36,7 @@ config_path = os.path.join(app_data_path, "settings.json")
 
 __settings_dict = {  # Put default setting values here
         "cooldown": 2,
-        "username": "andodide",
+        "username": "",
         "max_logs": 10,
         "tray_icon": True,
         "auto_update": True

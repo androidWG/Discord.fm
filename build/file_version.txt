@@ -30,13 +30,13 @@ VSVersionInfo(
       StringTable(
         u'000004b0',
         [StringStruct(u'Comments', u''),
-        StringStruct(u'LegalCopyright', u'©androidWG, available under the GNU GPLv3'),
+        StringStruct(u'LegalCopyright', u'©androidWG, available under the MIT license'),
         StringStruct(u'CompanyName', u'androidWG'),
-        StringStruct(u'FileDescription', u'Discord.fm'),
+        StringStruct(u'FileDescription', u'#DESCRIPTION#'),
         StringStruct(u'FileVersion', u'#VERSION#'),
         StringStruct(u'ProductVersion', u'#VERSION#'),
         StringStruct(u'InternalName', u'Discord.fm'),
-        StringStruct(u'OriginalFilename', u'Discord.fm.exe'),
+        StringStruct(u'OriginalFilename', u'#FILENAME#.exe'),
         StringStruct(u'ProductName', u'Discord.fm')])
       ]), 
     VarFileInfo([VarStruct(u'Translation', [0, 1200])])

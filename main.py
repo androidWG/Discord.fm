@@ -8,7 +8,7 @@ from last_fm import LastFMUser
 from util import log_setup, resource_path
 from util.repeated_timer import RepeatedTimer
 
-__version = "0.0.1"
+__version = "0.1.0"
 
 log_setup.setup_logging("main")
 

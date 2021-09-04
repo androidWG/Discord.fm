@@ -7,7 +7,7 @@ the script from generating an installer.
 `UPX <https://upx.github.io/>`_ can be used by PyInstaller by adding a folder named "upx" inside the project
 root containing a UPX release's files.
 
-To build the Windows installer you'll need Inno Setup 6 installed."""
+To build the Windows installer you'll need Inno Setup 6."""
 import os
 import platform
 import shutil
@@ -16,21 +16,31 @@ import sys
 # import installer
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import main
+from main import __version
 import util
 
 current_platform = platform.system()
+version = __version
 
-version = main.__version
+# Make Version Info files for Windows
 version_split = version.split(".")
-
-# Make Version Info file for Windows
-temp_ver_info_file = "file_version_info.temp"
-tags = [
+temp_ver_main_file = "file_version_main.temp"
+temp_ver_ui_file = "file_version_ui.temp"
+main_tags = [
     ("#VERSION#", version),
-    ("#VERSION_TUPLE#", f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0")
+    ("#VERSION_TUPLE#", f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0"),
+    ("#DESCRIPTION#", "Discord.fm Service Executable"),
+    ("#FILENAME#", "discord_fm")
 ]
-util.replace_instances("build/file_version.txt", tags, temp_ver_info_file)
+ui_tags = [
+    ("#VERSION#", version),
+    ("#VERSION_TUPLE#", f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0"),
+    ("#DESCRIPTION#", "Discord.fm Settings UI"),
+    ("#FILENAME#", "settings_ui")
+]
+
+util.replace_instances("build/file_version.txt", main_tags, temp_ver_main_file)
+util.replace_instances("build/file_version.txt", main_tags, temp_ver_ui_file)
 
 # Choose right icon
 if current_platform == "Darwin":
@@ -40,21 +50,23 @@ elif current_platform == "Windows":
 
 main_args = [
     "main.py",
-    "--icon=%s" % icon_file,
+    f"--icon={icon_file}",
     "--name=discord_fm",
-    "--version-file=%s" % temp_ver_info_file,
+    f"--version-file={temp_ver_main_file}",
     f"--add-data=resources/tray_icon.png{os.pathsep}resources",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
     "--osx-bundle-identifier=com.androidwg.discordfm",
+    "--upx-dir=upx/",
     "-y",
+    "--onefile",
     "--noconsole",
 ]
 
 ui_args = [
     "ui.py",
     "--name=settings_ui",
-    "--version-file=%s" % temp_ver_info_file,
+    f"--version-file={temp_ver_ui_file}",
     "--hidden-import=bottle_websocket",
     f"--add-data=eel/eel/eel.js{os.pathsep}eel",
     f"--add-data=electron{os.pathsep}electron",
@@ -64,24 +76,22 @@ ui_args = [
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
     "--osx-bundle-identifier=com.androidwg.discordfm.ui",
+    "--upx-dir=upx/",
     "-y",
     "--noconsole",
     "--onefile",
 ]
 
-# If UPX folder is found inside root, make sure that PyInstaller uses it
-if os.path.exists("upx/"):
-    ui_args.append("--upx-dir=%s" % "upx/")
-
 # Run PyInstaller
-print("Running PyInstaller for main.py...")
+print("\nRunning PyInstaller for main.py...")
 PyInstaller.__main__.run(main_args)
 
-print("Running PyInstaller for ui.py...")
+print("\nRunning PyInstaller for ui.py...")
 PyInstaller.__main__.run(ui_args)
 
 # Clean temp file after use
-os.remove(temp_ver_info_file)
+os.remove(temp_ver_main_file)
+os.remove(temp_ver_ui_file)
 try:
     shutil.rmtree("pyinstaller_temp")
 except FileNotFoundError:
