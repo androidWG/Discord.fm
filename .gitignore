@@ -162,7 +162,7 @@ upx/
 /dist/
 node_modules/
 SHASUMS256.txt
-package-lock.json
+*/package-lock.json
 compile_commands.json
 .envrc
 
@@ -197,3 +197,5 @@ ts-gen
 patches/mtime-cache.json
 
 spec/fixtures/logo.png
+
+electron/

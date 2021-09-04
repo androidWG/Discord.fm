@@ -5,7 +5,7 @@ import eel.browsers
 import os
 import platform
 import subprocess
-from util import log_setup
+from util import log_setup, resource_path
 
 log_setup.setup_logging("ui")
 
@@ -38,5 +38,5 @@ def open_logs_folder():
 
 
 eel.init("web")
-eel.browsers.set_path("electron", "C:\\Users\\samu-\\Repos\\Discord.fm\\node_modules\\electron\\dist\\electron.exe")
+eel.browsers.set_path("electron", resource_path(os.path.join("electron", "electron.exe")))
 eel.start("settings.html", mode="electron")

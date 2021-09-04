@@ -27,9 +27,9 @@ version_split = version.split(".")
 # Make Version Info file for Windows
 temp_ver_info_file = "file_version_info.temp"
 tags = [
-        ("#VERSION#", version),
-        ("#VERSION_TUPLE#", f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0")
-    ]
+    ("#VERSION#", version),
+    ("#VERSION_TUPLE#", f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0")
+]
 util.replace_instances("build/file_version.txt", tags, temp_ver_info_file)
 
 # Choose right icon
@@ -38,35 +38,47 @@ if current_platform == "Darwin":
 elif current_platform == "Windows":
     icon_file = "resources/icon.ico"
 
-args = [
+main_args = [
     "main.py",
     "--icon=%s" % icon_file,
-    "--name=Discord.fm",
+    "--name=discord_fm",
     "--version-file=%s" % temp_ver_info_file,
-    #"--noconsole",
-    "--onefile",
-    "-y",
+    f"--add-data=resources/tray_icon.png{os.pathsep}resources",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
-    "--osx-bundle-identifier=com.androidwg.discordfm"
+    "--osx-bundle-identifier=com.androidwg.discordfm",
+    "-y",
+    "--noconsole",
 ]
 
-files_to_bundle = ["resources/tray_icon.png;resources"]
-
-for file in files_to_bundle:
-    file_formatted = file
-    if current_platform != "Windows":
-        file_formatted = file.replace(";", ":")
-
-    arg = "--add-data=%s" % file_formatted
-    args.append(arg)
+ui_args = [
+    "ui.py",
+    "--name=settings_ui",
+    "--version-file=%s" % temp_ver_info_file,
+    "--hidden-import=bottle_websocket",
+    f"--add-data=venv/Lib/site-packages/eel/eel.js{os.pathsep}eel",
+    f"--add-data=electron{os.pathsep}electron",
+    f"--add-data=web{os.pathsep}web",
+    f"--add-data=main.js{os.pathsep}electron/resources/app",
+    f"--add-data=package.json{os.pathsep}electron/resources/app",
+    "--additional-hooks-dir=hooks",
+    "--workpath=pyinstaller_temp",
+    "--osx-bundle-identifier=com.androidwg.discordfm.ui",
+    "-y",
+    "--noconsole",
+    "--onefile",
+]
 
 # If UPX folder is found inside root, make sure that PyInstaller uses it
-if os.path.exists("../upx/"):
-    args.append("--upx-dir=%s" % "upx/")
+if os.path.exists("upx/"):
+    ui_args.append("--upx-dir=%s" % "upx/")
 
 # Run PyInstaller
-PyInstaller.__main__.run(args)
+print("Running PyInstaller for main.py...")
+PyInstaller.__main__.run(main_args)
+
+print("Running PyInstaller for ui.py...")
+PyInstaller.__main__.run(ui_args)
 
 # Clean temp file after use
 os.remove(temp_ver_info_file)
@@ -78,8 +90,8 @@ except FileNotFoundError:
 # Make platform installer
 if not sys.argv.__contains__("--no-installer") and not sys.argv.__contains__("-NI"):
     if current_platform == "Windows":
-        pass # installer.make_windows_installer(version)
+        pass  # installer.make_windows_installer(version)
     elif current_platform == "Darwin":
-        pass # installer.make_macos_installer(version)
+        pass  # installer.make_macos_installer(version)
 
 print(f"Finished building version {version}")
