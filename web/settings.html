@@ -1,0 +1,86 @@
+<head>
+    <link
+        href="./bootstrap/bootstrap.min.css"
+        rel="stylesheet"
+        crossorigin="anonymous"
+    />
+    <script type="text/javascript" src="/eel.js"></script>
+    <title>Discord.fm Settings</title>
+</head>
+<body>
+    <div class="container px-4 my-2" onload="setInitialValues()">
+        <div class="mb-3">
+            <label for="username" class="form-label"
+                >Last.fm Username</label
+            >
+            <input
+                class="form-control"
+                type="text"
+                placeholder="Username"
+                id="username"
+                onchange="eel.save_setting('username', this.value)"
+            />
+        </div>
+        <label for="cooldown" class="form-label"
+            >Cooldown
+            <span id="cooldown-time-badge" class="badge bg-secondary ms-1"
+                >2s</span
+            ></label
+        >
+        <input
+            type="range"
+            class="form-range"
+            min="2"
+            max="60"
+            step="1"
+            oninput="updateBadge(this.value)"
+            onchange="eel.save_setting('cooldown', parseInt(this.value))"
+            id="cooldown"
+        />
+        <div class="form-check my-3">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="tray-icon"
+                onchange="eel.save_setting('tray_icon', this.checked)"
+            />
+            <label class="form-check-label" for="tray-icon">
+                Tray Icon
+            </label>
+        </div>
+        <div class="form-check my-3">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="auto-update"
+                onchange="eel.save_setting('auto_update', this.checked)"
+            />
+            <label class="form-check-label" for="auto-update">
+                Auto Update
+            </label>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button
+                    type="button"
+                    class="btn btn-secondary w-100"
+                    onclick="eel.open_logs_folder()"
+                >
+                    Open Logs Folder
+                </button>
+            </div>
+            <div class="col">
+                <button id="run" type="button" class="btn btn-primary w-100">
+                    Start Service
+                </button>
+            </div>
+        </div>
+    </div>
+    <script
+        src="./bootstrap/bootstrap.bundle.min.js"
+        crossorigin="anonymous"
+    ></script>
+    <script src="./renderer.js"></script>
+</body>

@@ -1,6 +1,6 @@
 import os
 import sys
-import util.timeout
+import psutil
 
 
 # From https://stackoverflow.com/a/13790741/8286014
@@ -48,3 +48,19 @@ def replace_instances(file: str, tags: list, out_file: str = "temp_", encoding: 
     if out_file == "temp_":
         shutil.move("temp_", file)
         print("Renamed temp_ file")
+
+
+# From https://thispointer.com/python-check-if-a-process-is-running-by-name-and-find-its-process-id-pid/
+def check_process_running(process_name):
+    '''
+    Check if there is any running process that contains the given name processName.
+    '''
+    # Iterate over the all the running process
+    for proc in psutil.process_iter():
+        try:
+            # Check if process name contains the given name string.
+            if process_name.lower() in proc.name().lower():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+    return False;

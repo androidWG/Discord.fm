@@ -1,37 +1,55 @@
-import tkinter as tk
+import logging
+import random
+import sys
+import settings
+import eel.browsers
+import os
+import platform
+import subprocess
+from util import log_setup, resource_path
 
-window = tk.Tk()
-window.resizable(0, 0)
-window.title("Discord.fm")
+log_setup.setup_logging("ui")
 
-frame_user = tk.Frame(master=window)
 
-entry_user = tk.Entry(master=frame_user, width=12)
-lbl_user = tk.Label(master=frame_user, text="Last.fm Username")
-entry_user.grid(row=0, column=1, sticky="w")
-lbl_user.grid(row=0, column=0, sticky="e")
+# From https://stackoverflow.com/a/16993115/8286014
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
 
-frame_cooldown = tk.Frame(master=window)
+    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
 
-entry_cooldown = tk.Entry(master=frame_cooldown, width=8)
-lbl_cooldown = tk.Label(master=frame_cooldown, text="Cooldown")
-entry_cooldown.grid(row=0, column=1, sticky="w")
-lbl_cooldown.grid(row=0, column=0, sticky="e")
 
-check_tray = tk.Checkbutton(text="Tray Icon")
-check_update = tk.Checkbutton(text="Auto Update")
+sys.excepthook = handle_exception
 
-frame_buttons = tk.Frame(master=window)
 
-btn_open_logs = tk.Button(master=frame_buttons, text="Open Logs Folder")
-btn_restart = tk.Button(master=frame_buttons, text="Restart Service")
-btn_open_logs.grid(row=0, column=0, sticky="w")
-btn_restart.grid(row=0, column=1, sticky="e")
+@eel.expose
+def save_setting(name, value):
+    settings.define(name, value)
 
-frame_user.grid(row=0, column=0, padx=10)
-frame_cooldown.grid(row=1, column=0, padx=10)
-check_tray.grid(row=2, column=0, padx=10)
-check_update.grid(row=3, column=0, padx=10)
-frame_buttons.grid(row=4, column=0, padx=10)
 
-window.mainloop()
+@eel.expose
+def get_settings():
+    return settings.get_dict()
+
+
+@eel.expose
+def get_running_status():
+    # Temporary function that will later return running status
+    random_running = random.randint(0, 50)
+    return bool(random_running)
+
+
+@eel.expose
+def open_logs_folder():
+    if platform.system() == "Windows":
+        os.startfile(settings.logs_path)
+    elif platform.system() == "Darwin":
+        subprocess.Popen(["open", settings.logs_path])
+    else:
+        subprocess.Popen(["xdg-open", settings.logs_path])
+
+
+eel.init("web")
+eel.browsers.set_path("electron", resource_path(os.path.join("electron", "electron.exe")))
+eel.start("settings.html", mode="electron")
