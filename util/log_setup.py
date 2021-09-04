@@ -44,20 +44,18 @@ def setup_logging(name: str):
 
     delete_old_logs(name)
 
-    logging.basicConfig(
-        filename=log_path,
-        filemode="w",
-        level=logging.DEBUG)
-
     # Set custom Formatter to support DateFormats with milliseconds
     formatter = MillisecondFormatter(fmt="%(asctime)s | %(levelname)-8s | %(message)s",
                                      datefmt="%H:%M:%S.%f")
-    log_handler = logging.getLogger().handlers[0]
-    log_handler.setFormatter(formatter)
+    root_logger = logging.getLogger()
+    root_logger.removeHandler(root_logger.handlers[0])  # Remove stderr handler to prevent duplicate printing
+    root_logger.setLevel(logging.DEBUG)
 
-    # Add stdout to log exceptions and also idk why but it makes logging calls print to console too
-    # Part of code from https://stackoverflow.com/a/16993115/8286014
-    system_handler = logging.StreamHandler(stream=sys.stdout)
-    logging.getLogger().addHandler(system_handler)
+    file_handler = logging.FileHandler(log_path)
+    file_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    root_logger.addHandler(console_handler)
 
     logging.info("Logging setup finished")

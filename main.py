@@ -11,6 +11,8 @@ from util.repeated_timer import RepeatedTimer
 
 __version = "0.0.1"
 
+log_setup.setup_logging("main")
+
 user = LastFMUser(settings.get("username"))
 no_song_counter = 0
 check_track_timer = None
@@ -66,10 +68,8 @@ def update():
 
 
 def main():
-    sys.excepthook = handle_exception
-
     global check_track_timer, tray_icon
-    log_setup.setup_logging("main")
+    sys.excepthook = handle_exception
 
     discord_rp.connect()
 
