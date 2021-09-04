@@ -12,12 +12,6 @@ __version = "0.0.1"
 
 log_setup.setup_logging("main")
 
-user = LastFMUser(settings.get("username"))
-no_song_counter = 0
-check_track_timer = None
-tray_icon = None
-rpc_state = True
-
 
 # From https://stackoverflow.com/a/16993115/8286014
 def handle_exception(exc_type, exc_value, exc_traceback):
@@ -26,6 +20,15 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         return
 
     logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+
+sys.excepthook = handle_exception
+
+user = LastFMUser(settings.get("username"))
+no_song_counter = 0
+check_track_timer = None
+tray_icon = None
+rpc_state = True
 
 
 def toggle_rpc(icon, item):
@@ -46,13 +49,18 @@ def toggle_rpc(icon, item):
         logging.info("Stopped Discord Rich Presence")
 
 
-def close_from_tray(Icon, item):
-    tray_icon.stop()
+def close_from_tray(icon, item):
+    global check_track_timer
+    icon.visible = False
+    icon.stop()
     discord_rp.exit_rp()
+    check_track_timer.stop()
+
+    sys.exit()
 
 
 def update():
-    global no_song_counter
+    global no_song_counter, user
     track = user.now_playing()
 
     if track is None:
@@ -80,10 +88,10 @@ def main():
     image_path = resource_path("resources/tray_icon.png")
     icon = Image.open(image_path)
 
-    menu_icon = Menu(item('Enable Rich Presence', toggle_rpc, checked=lambda item: rpc_state), Menu.SEPARATOR,
-                     item('Exit', close_from_tray))
-    tray_icon = Icon('Last.fm Discord Rich Presence', icon=icon,
-                     title="Last.fm Discord Rich Presence", menu=menu_icon)
+    menu_icon = Menu(MenuItem("Enable Rich Presence", toggle_rpc, checked=lambda item: rpc_state), Menu.SEPARATOR,
+                     MenuItem("Exit", close_from_tray))
+    tray_icon = Icon("Discord.fm", icon=icon,
+                     title="Discord.fm", menu=menu_icon)
 
     tray_icon.run()
 
