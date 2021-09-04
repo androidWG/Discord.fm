@@ -1,12 +1,11 @@
 import logging
 import sys
 import discord_rich_presence as discord_rp
-import util
 import settings
 from PIL import Image
-from pystray import Icon, Menu, MenuItem as item
+from pystray import Icon, Menu, MenuItem
 from last_fm import LastFMUser
-from util import log_setup
+from util import log_setup, resource_path
 from util.repeated_timer import RepeatedTimer
 
 __version = "0.0.1"
@@ -43,6 +42,7 @@ def toggle_rpc(icon, item):
     else:
         check_track_timer.stop()
         discord_rp.disconnect()
+
         logging.info("Stopped Discord Rich Presence")
 
 
@@ -77,7 +77,7 @@ def main():
     update()
     check_track_timer = RepeatedTimer(cooldown, update, )
 
-    image_path = util.resource_path("resources/tray_icon.png")
+    image_path = resource_path("resources/tray_icon.png")
     icon = Image.open(image_path)
 
     menu_icon = Menu(item('Enable Rich Presence', toggle_rpc, checked=lambda item: rpc_state), Menu.SEPARATOR,

@@ -28,7 +28,6 @@ def update_status(track):
     global start_time, last_track
     if last_track == track:
         logging.debug(f"Track {track.name} is the same as last track {last_track.name}, not updating")
-        pass
     else:
         logging.info("Now playing: " + track.name)
 
