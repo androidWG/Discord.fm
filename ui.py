@@ -1,5 +1,6 @@
+import logging
 import random
-
+import sys
 import settings
 import eel.browsers
 import os
@@ -8,6 +9,18 @@ import subprocess
 from util import log_setup, resource_path
 
 log_setup.setup_logging("ui")
+
+
+# From https://stackoverflow.com/a/16993115/8286014
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+
+sys.excepthook = handle_exception
 
 
 @eel.expose

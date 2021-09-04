@@ -2,6 +2,7 @@ import os
 import sys
 import psutil
 
+
 # From https://stackoverflow.com/a/13790741/8286014
 def resource_path(relative_path: str) -> str:
     """Gets the absolute path to a file, dealing with temp resources folders from PyInstaller
@@ -54,7 +55,7 @@ def check_process_running(process_name):
     '''
     Check if there is any running process that contains the given name processName.
     '''
-    #Iterate over the all the running process
+    # Iterate over the all the running process
     for proc in psutil.process_iter():
         try:
             # Check if process name contains the given name string.

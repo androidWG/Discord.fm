@@ -1,4 +1,5 @@
 import logging
+import sys
 import discord_rich_presence as discord_rp
 import util
 import settings
@@ -15,6 +16,15 @@ no_song_counter = 0
 check_track_timer = None
 tray_icon = None
 rpc_state = True
+
+
+# From https://stackoverflow.com/a/16993115/8286014
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
 
 
 def toggle_rpc(icon, item):
@@ -56,6 +66,8 @@ def update():
 
 
 def main():
+    sys.excepthook = handle_exception
+
     global check_track_timer, tray_icon
     log_setup.setup_logging("main")
 
