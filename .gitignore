@@ -199,3 +199,5 @@ patches/mtime-cache.json
 spec/fixtures/logo.png
 
 electron/
+
+eel/
