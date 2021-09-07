@@ -6,6 +6,7 @@ function createWindow() {
         width: 400,
         height: 365,
         resizable: false,
+        title: "Discord.fm Settings",
         webPreferences: {
             nodeIntegration: true,
         },

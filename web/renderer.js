@@ -4,10 +4,10 @@ function updateBadge(value) {
 
 function updateRunning() {
     eel.get_running_status()().then((isRunning) => {
-        button = document.getElementById("run");
-        runningBadge = document.createElement("running-badge");
-        runningBadge.classList.add("badge");
-        runningBadge.classList.add("mx-1");
+        let button = document.getElementById("run");
+        let runningBadge = document.getElementById("running-badge");
+        runningBadge.classList.remove("text-dark");
+        runningBadge.classList.remove("bg-warning");
 
         if (isRunning) {
             runningBadge.innerText = "Running";

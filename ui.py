@@ -1,6 +1,6 @@
 import logging
-import random
 import sys
+import psutil
 import settings
 import eel.browsers
 import os
@@ -35,9 +35,15 @@ def get_settings():
 
 @eel.expose
 def get_running_status():
-    # Temporary function that will later return running status
-    random_running = random.randint(0, 50)
-    return bool(random_running)
+    for proc in psutil.process_iter():
+        try:
+            # Check if process name contains the given name string.
+            if "discord_fm".lower() in proc.name().lower():
+                return True
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+
+    return False
 
 
 @eel.expose
