@@ -46,7 +46,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit"/>
+        <widget class="QLineEdit" name="usernameLineEdit">
+         <property name="placeholderText">
+          <string comment="LastfmUsernameHint">Username</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -60,7 +64,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="spinBox"/>
+        <widget class="QSpinBox" name="cooldownSpinBox">
+         <property name="minimum">
+          <number>2</number>
+         </property>
+         <property name="maximum">
+          <number>60</number>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QLabel" name="label_4">
@@ -85,7 +96,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="trayIconCheckBox">
        <property name="text">
         <string comment="TrayIconChkLabel">Show tray icon</string>
        </property>
@@ -95,7 +106,10 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="checkBox_2">
+      <widget class="QCheckBox" name="autoUpdateCheckBox">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string comment="AutoUpdateChkLabel">Auto update</string>
        </property>
@@ -123,7 +137,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="processStatusLbl">
        <property name="text">
         <string comment="ProcessStatusLabel">Waiting...</string>
        </property>
