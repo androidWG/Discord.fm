@@ -2,6 +2,7 @@ import os
 import platform
 import subprocess
 import sys
+import threading
 import psutil
 import settings
 from PySide6.QtUiTools import QUiLoader
@@ -9,17 +10,20 @@ from PySide6.QtWidgets import QApplication, QCheckBox, QLabel, QLineEdit, QMainW
 from PySide6.QtCore import QFile, QIODevice, Slot, QTimer
 
 status_lbl = None
+dataReadEvent = None
 
 
 def get_running_status():
     global status_lbl
-    for proc in psutil.process_iter():
-        try:
-            # Check if process name contains the given name string.
-            if "discord_fm".lower() in proc.name().lower():
-                status_lbl.setText("Running")
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            status_lbl.setText("Stopped")
+    if dataReadEvent.is_set():
+        for proc in psutil.process_iter():
+            try:
+                # Check if process name contains the given name string.
+                if "discord_fm".lower() in proc.name().lower():
+                    status_lbl.setText("Running")
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                status_lbl.setText("Stopped")
+        dataReadEvent.clear()
 
 
 @Slot()
@@ -48,12 +52,14 @@ def set_update(value):
     settings.define("auto_update", bool(value))
 
 
-@Slot()
-def say_hello():
-    print("Hello!!")
+def UpdateProcessStatus():
+    global dataReadEvent
+    dataReadEvent.set()
+    threading.Timer(1.0, UpdateProcessStatus).start()
 
 
-if __name__ == "__main__":
+def main():
+    global status_lbl
     app = QApplication(sys.argv)
 
     ui_file_name = "settings.ui"
@@ -72,7 +78,7 @@ if __name__ == "__main__":
 
     # Connect button methods
     service_btn = window.findChild(QPushButton, "serviceBtn")
-    service_btn.clicked.connect(say_hello)
+    # service_btn.clicked.connect(say_hello)
 
     logs_btn = window.findChild(QPushButton, "logsBtn")
     logs_btn.clicked.connect(open_logs_folder)
@@ -100,4 +106,10 @@ if __name__ == "__main__":
     check_process_timer.timeout.connect(get_running_status)
     check_process_timer.start()
 
-    sys.exit(app.exec())
+    app.exec()
+
+
+if __name__ == "__main__":
+    dataReadEvent = threading.Event()
+    threading.Thread(target=UpdateProcessStatus).start()
+    threading.Thread(target=main).start()
