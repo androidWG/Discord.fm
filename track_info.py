@@ -5,7 +5,7 @@ class TrackInfo:
     name: str
     artist: str
     album: str
-    duration: str
+    duration: int
 
     def __init__(self, lastfm_track):
         try:
