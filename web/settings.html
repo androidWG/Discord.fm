@@ -8,18 +8,15 @@
     <title>Discord.fm Settings</title>
 </head>
 <body>
-    <div class="container px-4 my-2" onload="setInitialValues()">
-        <div class="mb-3">
-            <label for="username" class="form-label"
-                >Last.fm Username</label
-            >
+    <div class="container px-4 my-4" onload="setInitialValues()">
+        <div class="form-floating mb-3">
             <input
-                class="form-control"
-                type="text"
-                placeholder="Username"
-                id="username"
-                onchange="eel.save_setting('username', this.value)"
-            />
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    placeholder="Last.fm Username"
+                    onchange="eel.save_setting('username', this.value)">
+            <label for="username">Last.fm Username</label>
         </div>
         <label for="cooldown" class="form-label"
             >Cooldown
@@ -46,7 +43,7 @@
                 onchange="eel.save_setting('tray_icon', this.checked)"
             />
             <label class="form-check-label" for="tray-icon">
-                Tray Icon
+                Show tray icon
             </label>
         </div>
         <div class="form-check my-3">
@@ -56,9 +53,10 @@
                 value=""
                 id="auto-update"
                 onchange="eel.save_setting('auto_update', this.checked)"
+                disabled
             />
             <label class="form-check-label" for="auto-update">
-                Auto Update
+                Automatically download and install updates
             </label>
         </div>
         <div class="row">
@@ -72,7 +70,12 @@
                 </button>
             </div>
             <div class="col">
-                <button id="run" type="button" class="btn btn-primary w-100">
+                <button
+                    id="run"
+                    type="button"
+                    class="btn btn-primary w-100"
+                    onclick="eel.start_stop_service()"
+                >
                     Start Service
                     <span id="running-badge" class="badge bg-warning text-dark mx-1">
                         Checking...

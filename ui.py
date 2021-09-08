@@ -1,12 +1,11 @@
 import logging
 import sys
-import psutil
 import settings
 import eel.browsers
 import os
 import platform
 import subprocess
-from util import log_setup, resource_path
+from util import log_setup, resource_path, process
 
 log_setup.setup_logging("ui")
 
@@ -21,6 +20,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 
 sys.excepthook = handle_exception
+process_name = "discord_fm"
 
 
 @eel.expose
@@ -35,15 +35,15 @@ def get_settings():
 
 @eel.expose
 def get_running_status():
-    for proc in psutil.process_iter():
-        try:
-            # Check if process name contains the given name string.
-            if "discord_fm".lower() in proc.name().lower():
-                return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
+    return process.check_process_running(process_name)
 
-    return False
+
+@eel.expose
+def start_stop_service():
+    if process.check_process_running(process_name):
+        process.kill_process(process_name)
+    else:
+        subprocess.Popen("C:\\Users\\samu-\\Repos\\Discord.fm\\dist\\discord_fm.exe")
 
 
 @eel.expose
