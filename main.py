@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 import discord_rich_presence as discord_rp
 import settings
@@ -11,15 +12,22 @@ from util.repeated_timer import RepeatedTimer
 __version = "0.2.0"
 
 log_setup.setup_logging("main")
+pid = str(os.getpid())
+pidfile = "discord_fm.pid"
+
+if os.path.isfile(pidfile):
+    print(f"{pidfile} already exists, exiting")
+    # sys.exit()
+open(pidfile, "w").write(pid)
 
 
 # From https://stackoverflow.com/a/16993115/8286014
 def handle_exception(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-
-    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+        logging.debug("Received KeyboardInterrupt, stopping...")
+        close_app(tray_icon, None)
+    else:
+        logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
 
 
 sys.excepthook = handle_exception
@@ -49,13 +57,15 @@ def toggle_rpc(icon, item):
         logging.info("Stopped Discord Rich Presence")
 
 
-def close_from_tray(icon, item):
+def close_app(icon, item):
     global check_track_timer
-    icon.visible = False
-    icon.stop()
+    if icon is not None:
+        icon.visible = False
+        icon.stop()
     discord_rp.exit_rp()
     check_track_timer.stop()
 
+    os.remove(pidfile)
     sys.exit()
 
 
@@ -75,8 +85,7 @@ def update():
         discord_rp.update_status(track)
 
 
-def main():
-    global check_track_timer, tray_icon
+if __name__ == "__main__":
     sys.excepthook = handle_exception
 
     discord_rp.connect()
@@ -89,12 +98,8 @@ def main():
     icon = Image.open(image_path)
 
     menu_icon = Menu(MenuItem("Enable Rich Presence", toggle_rpc, checked=lambda item: rpc_state), Menu.SEPARATOR,
-                     MenuItem("Exit", close_from_tray))
+                     MenuItem("Exit", close_app))
     tray_icon = Icon("Discord.fm", icon=icon,
                      title="Discord.fm", menu=menu_icon)
 
     tray_icon.run()
-
-
-if __name__ == "__main__":
-    main()

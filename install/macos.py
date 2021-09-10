@@ -12,7 +12,7 @@ def get_app_version(app_path: str) -> tuple:
 
     :param app_path: Path to .app of Discord.fm
     :type app_path: str
-    :return: Tuple with installation path an version string respectively. If an installation is not found, a tuple of
+    :return: Tuple with installation path and a version string respectively. If an installation is not found, a tuple of
     None and None are returned.
     :rtype: tuple
     """

@@ -8,7 +8,8 @@ import util.timeout
 def get_install_folder_and_version() -> tuple:
     """Gets the version and install path of Discord.fm from the Windows Registry.
 
-    :return: Tuple with installation path an version string respectively. If an installation is not found, a tuple of None and None are returned.
+    :return: Tuple with installation path and a version string respectively. If an installation is not found,
+    a tuple of None and None are returned.
     :rtype: tuple
     """
     # Only Windows has the winreg package, so make sure the script doesn't go apeshit in other systems
