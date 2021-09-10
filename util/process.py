@@ -1,6 +1,4 @@
 import logging
-import subprocess
-
 import psutil
 
 

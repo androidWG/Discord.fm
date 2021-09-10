@@ -1,5 +1,6 @@
 import logging
 import sys
+import install
 import settings
 import eel.browsers
 import os
@@ -35,7 +36,10 @@ def get_settings():
 
 @eel.expose
 def get_running_status():
-    return process.check_process_running(process_name)
+    if getattr(sys, 'frozen', False):
+        return process.check_process_running(process_name)
+    else:
+        return os.path.isfile(os.path.abspath("discord_fm.pid"))
 
 
 @eel.expose
@@ -43,7 +47,8 @@ def start_stop_service():
     if process.check_process_running(process_name):
         process.kill_process(process_name)
     else:
-        subprocess.Popen("C:\\Users\\samu-\\Repos\\Discord.fm\\dist\\discord_fm.exe")
+        discord_fm_install = install.get_executable("/Applications/Discord.fm.app")
+        subprocess.Popen(args=discord_fm_install)
 
 
 @eel.expose
