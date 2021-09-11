@@ -4,15 +4,19 @@ let mainWindow;
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 400,
-        height: 365,
+        height: 370,
         resizable: false,
         title: "Discord.fm Settings",
+        show: false,
         webPreferences: {
             nodeIntegration: true,
         },
     });
     mainWindow.loadURL("http://localhost:8000/settings.html");
     mainWindow.setMenu(null);
+    mainWindow.webContents.on('did-finish-load', function() {
+        mainWindow.show();
+    });
     mainWindow.on("closed", function () {
         mainWindow = null;
     });
