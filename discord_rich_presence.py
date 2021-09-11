@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import datetime
 from os import environ
@@ -13,13 +14,14 @@ last_track = None
 
 
 def connect():
+    asyncio.set_event_loop(asyncio.new_event_loop())
     discord_presence.connect()
     logging.debug("Connected to Discord")
 
 
 def disconnect():
     discord_presence.clear()
-    logging.debug('Disconnected from Discord')
+    logging.debug("Cleared Discord status")
 
 
 def exit_rp():

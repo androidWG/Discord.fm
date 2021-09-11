@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import sched
@@ -12,15 +13,6 @@ from last_fm import LastFMUser
 from util import log_setup, resource_path
 
 __version = "0.2.0"
-
-log_setup.setup_logging("main")
-pid = str(os.getpid())
-pidfile = "discord_fm.pid"
-
-if os.path.isfile(pidfile):
-    print(f"{pidfile} already exists, exiting")
-    sys.exit()
-open(pidfile, "w").write(pid)
 
 
 # From https://stackoverflow.com/a/16993115/8286014
@@ -114,6 +106,14 @@ def handle_update():
 
 
 if __name__ == "__main__":
+    log_setup.setup_logging("main")
+    pidfile = "discord_fm.pid"
+
+    if os.path.isfile(pidfile):
+        print(f"{pidfile} already exists, exiting")
+        sys.exit()
+    open(pidfile, "w").write(str(os.getpid()))
+
     discord_rp.connect()
 
     tray_thread = Thread(target=create_tray_icon)
