@@ -36,10 +36,7 @@ def get_settings():
 
 @eel.expose
 def get_running_status():
-    if getattr(sys, 'frozen', False):
-        return process.check_process_running(process_name)
-    else:
-        return os.path.isfile(os.path.abspath("discord_fm.pid"))
+    return os.path.isfile(os.path.abspath("discord_fm.pid"))
 
 
 @eel.expose

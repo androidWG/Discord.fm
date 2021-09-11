@@ -82,8 +82,9 @@ def create_tray_icon():
 
 def handle_update():
     cooldown = settings.get("cooldown")
-    sc = sched.scheduler(time.time, time.sleep)
+    sc = sched.scheduler(time.time)
 
+    # noinspection PyUnboundLocalVariable,PyShadowingNames
     def update(scheduler):
         global no_song_counter, enable
         if enable:
@@ -98,10 +99,11 @@ def handle_update():
             else:
                 no_song_counter = 0
                 discord_rp.update_status(track)
+            cooldown = settings.get("cooldown")
 
-        sc.enterabs(cooldown, 1, update, (scheduler,))
+        sc.enter(cooldown, 1, update, (scheduler,))
 
-    sc.enterabs(cooldown, 1, update, (sc,))
+    sc.enter(cooldown, 1, update, (sc,))
     sc.run()
 
 
@@ -116,8 +118,9 @@ if __name__ == "__main__":
 
     discord_rp.connect()
 
-    tray_thread = Thread(target=create_tray_icon)
-    tray_thread.start()
+    if settings.get("tray_icon"):
+        tray_thread = Thread(target=create_tray_icon)
+        tray_thread.start()
 
     try:
         handle_update()
