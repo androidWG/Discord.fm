@@ -1,7 +1,10 @@
 import atexit
 import logging
+import os
+import subprocess
 import sys
 import discord_rich_presence as discord_rp
+from pypresence import InvalidPipe
 from sched import scheduler
 from time import sleep, time
 from settings import get
@@ -46,6 +49,15 @@ def toggle_rpc(icon, item):
         logging.info("Sent kill signal to thread")
 
 
+def open_settings():
+    settings_executable = "settings_ui"
+    if os.path.isfile(settings_executable) or os.path.isfile(settings_executable + ".exe"):
+        logging.debug("Opening settings UI")
+        subprocess.Popen(os.path.abspath(settings_executable))
+    else:
+        logging.debug("Unable to find settings_ui executable")
+
+
 def close_app(icon=None, item=None):
     global enable
     logging.info("Closing app...")
@@ -67,10 +79,13 @@ def create_tray_icon():
     image_path = resource_path("resources/tray_icon.png")
     icon = Image.open(image_path)
 
-    menu_icon = Menu(MenuItem("Enable Rich Presence", toggle_rpc, checked=lambda item: rpc_state), Menu.SEPARATOR,
-                     MenuItem("Exit", close_app))
+    menu = Menu(
+        MenuItem("Enable Rich Presence", toggle_rpc, checked=lambda item: rpc_state),
+        MenuItem("Open Settings", open_settings),
+        Menu.SEPARATOR,
+        MenuItem("Exit", close_app))
     tray_icon = Icon("Discord.fm", icon=icon,
-                     title="Discord.fm", menu=menu_icon)
+                     title="Discord.fm", menu=menu)
 
     tray_icon.run()
 
@@ -107,10 +122,16 @@ if __name__ == "__main__":
     atexit.register(close_app)
     pidfile = "discord_fm.pid"
 
-    while not process.check_process_running("discord"):
-        logging.info("Discord not running, trying again in 8 seconds")
-        sleep(8)
-    discord_rp.connect()
+    def connect_to_discord():
+        try:
+            discord_rp.connect()
+        except InvalidPipe:
+            logging.info("Discord not running, trying again in 8 seconds")
+            sleep(8)
+            connect_to_discord()
+
+
+    connect_to_discord()
 
     if get("tray_icon"):
         tray_thread = Thread(target=create_tray_icon)

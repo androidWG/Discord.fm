@@ -17,14 +17,16 @@ class SettingsWindow(QWidget):
         username_layout = QHBoxLayout()
         username_layout.setSpacing(7)
         self.username_input = QLineEdit(placeholderText="Username")
-        self.username_input.editingFinished.connect(lambda: self.save_setting("username", self.username_input.text()))
+        self.username_input.editingFinished.connect(
+            lambda: self.save_setting("username", self.username_input.text()))
         username_layout.addWidget(QLabel("Last.fm Username"))
         username_layout.addWidget(self.username_input)
 
         cooldown_layout = QHBoxLayout()
         cooldown_layout.setSpacing(7)
         self.cooldown_spinner = QSpinBox(minimum=2, maximum=60, value=2)
-        self.cooldown_spinner.valueChanged.connect(lambda: self.save_setting("cooldown", self.cooldown_spinner.value()))
+        self.cooldown_spinner.valueChanged.connect(
+            lambda: self.save_setting("cooldown", self.cooldown_spinner.value()))
         cooldown_layout.addWidget(QLabel("Cooldown"))
         cooldown_layout.addWidget(self.cooldown_spinner)
         cooldown_layout.addWidget(QLabel("seconds"))
