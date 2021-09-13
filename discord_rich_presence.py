@@ -4,8 +4,9 @@ import datetime
 from os import environ
 from pypresence import Presence
 from dotenv import load_dotenv
+from util import resource_path
 
-load_dotenv()
+load_dotenv(resource_path(".env"))
 
 client_id = environ.get("discord_app_id")
 discord_presence = Presence(client_id)

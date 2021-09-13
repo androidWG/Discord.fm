@@ -4,8 +4,9 @@ import track_info
 import settings
 from os import environ
 from dotenv import load_dotenv
+from util import resource_path
 
-load_dotenv()
+load_dotenv(resource_path(".env"))
 
 API_KEY = environ.get("lastfm_key")
 API_SECRET = environ.get("lastfm_secret")
