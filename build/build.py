@@ -65,21 +65,15 @@ main_args = [
 ]
 
 ui_args = [
-    "ui.py",
+    "ui/ui.py",
     "--name=settings_ui",
     f"--version-file={temp_ver_ui_file}",
-    "--hidden-import=bottle_websocket",
-    f"--add-data=eel/eel/eel.js{os.pathsep}eel",
-    f"--add-data=electron{os.pathsep}electron",
-    f"--add-data=web{os.pathsep}web",
-    f"--add-data=main.js{os.pathsep}electron/resources/app",
-    f"--add-data=package.json{os.pathsep}electron/resources/app",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
     "--osx-bundle-identifier=com.androidwg.discordfm.ui",
     "--upx-dir=upx/",
     "-y",
-    "--noconsole",
+    "--windowed",
     "--onefile",
 ]
 

@@ -4,9 +4,11 @@ import subprocess
 import psutil
 import settings
 from platform import system
-from PySide6.QtCore import QSize, QTimer
-from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QSizePolicy, \
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, \
     QSpacerItem, QSpinBox, QVBoxLayout, QWidget
+from install import get_executable
+from util import process
 
 
 def save_setting(name, value):
@@ -23,7 +25,16 @@ def open_logs_folder():
 
 
 def start_stop_service():
-    print("bruh")
+    if process.check_process_running("discord_fm"):
+        process.kill_process("discord_fm")
+    else:
+        path = os.path.abspath("discord_fm.exe")
+        if os.path.isfile(path):
+            logging.debug("Found Discord.fm in current working folder")
+            discord_fm_install = path
+        else:
+            discord_fm_install = get_executable("/Applications/Discord.fm.app")
+        subprocess.Popen(args=discord_fm_install)
 
 
 class SettingsWindow(QWidget):
@@ -37,7 +48,7 @@ class SettingsWindow(QWidget):
         username_layout = QHBoxLayout()
         username_layout.setSpacing(7)
         self.username_input = QLineEdit(placeholderText="Username")
-        self.username_input.textChanged.connect(lambda: save_setting("username", self.username_input.text()))
+        self.username_input.editingFinished.connect(lambda: save_setting("username", self.username_input.text()))
         username_layout.addWidget(QLabel("Last.fm Username"))
         username_layout.addWidget(self.username_input)
 
@@ -73,16 +84,28 @@ class SettingsWindow(QWidget):
         layout.addLayout(buttons_layout)
         layout.addWidget(self.status_label)
 
-        self.get_running_status()
+        self.set_running_status()
 
         self.timer = QTimer()
-        self.timer.timeout.connect(self.get_running_status)
+        self.timer.timeout.connect(self.set_running_status)
         self.timer.start(1000)
+
+        self.load_settings()
 
         self.setLayout(layout)
 
-    def get_running_status(self):
+    def load_settings(self):
+        settings_dict = settings.get_dict()
+        self.username_input.setText(settings_dict["username"])
+        self.cooldown_spinner.setValue(settings_dict["cooldown"])
+        self.tray_icon_check.setChecked(settings_dict["tray_icon"])
+        self.auto_update_check.setChecked(settings_dict["auto_update"])
+
+    def set_running_status(self):
         logging.debug("Getting running status...")
+
+        # PID checking
+        # return os.path.isfile(os.path.abspath("discord_fm.pid"))
 
         self.status_label.setText("Stopped")
         for proc in psutil.process_iter():
