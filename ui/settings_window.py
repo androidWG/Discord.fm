@@ -1,112 +1,96 @@
 import logging
 import os
-import platform
 import subprocess
-import sys
-import threading
 import psutil
 import settings
-from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QApplication, QCheckBox, QLabel, QLineEdit, QPushButton, QSpinBox
-from PySide6.QtCore import QFile, QIODevice, Slot, QTimer
-from util.log_setup import setup_logging
-
-setup_logging("qt_settings")
+from platform import system
+from PySide6.QtCore import QSize, QTimer
+from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QSizePolicy, \
+    QSpacerItem, QSpinBox, QVBoxLayout, QWidget
 
 
-def get_running_status():
-    global status_lbl
-    logging.debug("Getting running status...")
-    for proc in psutil.process_iter():
-        try:
-            # Check if process name contains the given name string.
-            if "discord_fm".lower() in proc.name().lower():
-                status_lbl.setText("Running")
-                break
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            status_lbl.setText("Stopped")
-        finally:
-            status_lbl.repaint()
-            app.processEvents()
+def save_setting(name, value):
+    settings.define(name, value)
 
 
-@Slot()
 def open_logs_folder():
-    if platform.system() == "Windows":
+    if system() == "Windows":
         os.startfile(settings.logs_path)
-    elif platform.system() == "Darwin":
+    elif system() == "Darwin":
         subprocess.Popen(["open", settings.logs_path])
     else:
         subprocess.Popen(["xdg-open", settings.logs_path])
 
 
-def set_username(value):
-    settings.define("username", value)
+def start_stop_service():
+    print("bruh")
 
 
-def set_cooldown(value):
-    settings.define("cooldown", value)
+class SettingsWindow(QWidget):
+    def __init__(self, parent=None):
+        super(SettingsWindow, self).__init__(parent)
+        self.setWindowTitle("Discord.fm Settings")
 
+        layout = QVBoxLayout()
+        layout.setSpacing(5)
 
-def set_tray(value):
-    settings.define("tray_icon", bool(value))
+        username_layout = QHBoxLayout()
+        username_layout.setSpacing(7)
+        self.username_input = QLineEdit(placeholderText="Username")
+        self.username_input.textChanged.connect(lambda: save_setting("username", self.username_input.text()))
+        username_layout.addWidget(QLabel("Last.fm Username"))
+        username_layout.addWidget(self.username_input)
 
+        cooldown_layout = QHBoxLayout()
+        cooldown_layout.setSpacing(7)
+        self.cooldown_spinner = QSpinBox(minimum=2, maximum=60, value=2)
+        self.cooldown_spinner.valueChanged.connect(lambda: save_setting("cooldown", self.cooldown_spinner.value()))
+        cooldown_layout.addWidget(QLabel("Cooldown"))
+        cooldown_layout.addWidget(self.cooldown_spinner)
+        cooldown_layout.addWidget(QLabel("seconds"))
+        cooldown_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
 
-def set_update(value):
-    settings.define("auto_update", bool(value))
+        buttons_layout = QHBoxLayout()
+        buttons_layout.setSpacing(7)
+        self.logs_button = QPushButton("Open Logs Folder")
+        self.logs_button.clicked.connect(open_logs_folder)
+        self.service_button = QPushButton("Start Service")
+        self.service_button.clicked.connect(start_stop_service)
+        buttons_layout.addWidget(self.logs_button)
+        buttons_layout.addWidget(self.service_button)
 
+        self.tray_icon_check = QCheckBox("Show tray icon")
+        self.tray_icon_check.stateChanged.connect(lambda: save_setting("tray_icon", self.tray_icon_check.isChecked()))
+        self.auto_update_check = QCheckBox("Automatically download and install updates", enabled=False)
+        self.auto_update_check.stateChanged.connect(
+            lambda: save_setting("auto_update", self.auto_update_check.isChecked()))
+        self.status_label = QLabel("Waiting...")
 
-def update_data_read_event():
-    global data_read_event
-    data_read_event.set()
-    threading.Timer(1.0, update_data_read_event).start()
+        layout.addLayout(username_layout)
+        layout.addLayout(cooldown_layout)
+        layout.addWidget(self.tray_icon_check)
+        layout.addWidget(self.auto_update_check)
+        layout.addLayout(buttons_layout)
+        layout.addWidget(self.status_label)
 
+        self.get_running_status()
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.get_running_status)
+        self.timer.start(1000)
 
-    ui_file_name = "settings.ui"
-    ui_file = QFile(ui_file_name)
-    if not ui_file.open(QIODevice.ReadOnly):
-        print(f"Cannot open {ui_file_name}: {ui_file.errorString()}")
-        sys.exit(-1)
+        self.setLayout(layout)
 
-    loader = QUiLoader()
-    window = loader.load(ui_file)
-    ui_file.close()
-    if not window:
-        print(loader.errorString())
-        sys.exit(-1)
-    window.show()
+    def get_running_status(self):
+        logging.debug("Getting running status...")
 
-    # Connect button methods
-    service_btn = window.findChild(QPushButton, "serviceBtn")
-    # service_btn.clicked.connect(say_hello)
+        self.status_label.setText("Stopped")
+        for proc in psutil.process_iter():
+            try:
+                if "discord_fm" in proc.name().lower():
+                    self.status_label.setText("Running")
+                    break
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
 
-    logs_btn = window.findChild(QPushButton, "logsBtn")
-    logs_btn.clicked.connect(open_logs_folder)
-
-    username_txt = window.findChild(QLineEdit, "usernameLineEdit")
-    username_txt.setText(str(settings.get("username")))
-    username_txt.textChanged.connect(set_username)
-
-    cooldown_txt = window.findChild(QSpinBox, "cooldownSpinBox")
-    cooldown_txt.setValue(settings.get("cooldown"))
-    cooldown_txt.valueChanged.connect(set_cooldown)
-
-    tray_icon_chk = window.findChild(QCheckBox, "trayIconCheckBox")
-    tray_icon_chk.setChecked(settings.get("tray_icon"))
-    tray_icon_chk.stateChanged.connect(set_tray)
-
-    auto_update_chk = window.findChild(QCheckBox, "autoUpdateCheckBox")
-    auto_update_chk.setChecked(settings.get("auto_update"))
-    auto_update_chk.stateChanged.connect(set_update)
-
-    status_lbl = window.findChild(QLabel, "processStatusLbl")
-
-    check_process_timer = QTimer(window)
-    check_process_timer.setInterval(1000)
-    check_process_timer.timeout.connect(get_running_status)
-    check_process_timer.start()
-
-    sys.exit(app.exec())
+        self.status_label.repaint()
