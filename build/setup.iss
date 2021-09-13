@@ -17,9 +17,9 @@ AppPublisherURL={#InfoURL}
 AppSupportURL={#InfoURL}
 AppUpdatesURL={#InfoURL}
 DefaultDirName={localappdata}\Programs\{#Name}
-DisableProgramGroupPage=auto
+DisableProgramGroupPage=no
 CloseApplications=force
-AllowNoIcons=yes
+AllowNoIcons=no
 OutputDir={#LocalPath}\dist
 OutputBaseFilename=discord.fm-win-#VERSION#
 SetupIconFile={#LocalPath}\resources\icon.ico
@@ -40,6 +40,10 @@ DisableWelcomePage=False
 UsePreviousSetupType=False
 UsePreviousLanguage=False
 AlwaysShowGroupOnReadyPage=True
+AlwaysUsePersonalGroup=True
+AppendDefaultGroupName=False
+UsePreviousGroup=False
+DefaultGroupName=Discord.fm
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

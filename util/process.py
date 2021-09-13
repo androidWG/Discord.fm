@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import psutil
+from platform import system
 from install import get_executable
 
 
@@ -33,7 +34,7 @@ def start_stop_service(name, windows_exe_name, macos_app_name):
     if check_process_running(name):
         kill_process(name)
     else:
-        path = os.path.abspath(windows_exe_name)
+        path = os.path.abspath(windows_exe_name) if system() == "Windows" else os.path.abspath(name)
         if os.path.isfile(path):
             logging.debug("Found executable in current working folder")
             install_path = path

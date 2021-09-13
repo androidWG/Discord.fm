@@ -4,6 +4,8 @@ import subprocess
 import tempfile
 import package_build
 import sys
+from time import sleep
+from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import util
@@ -37,7 +39,8 @@ def make_windows_installer(version: str):
     print("\n")
 
     inno = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    inno.wait()
+    while stream_process(inno):
+        sleep(0.1)
     print(f"ISCC finished with return code {inno.returncode}")
 
     os.remove(temp_setup_script)
