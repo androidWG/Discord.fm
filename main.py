@@ -62,8 +62,6 @@ def close_app(icon=None, item=None):
         tray_icon.stop()
     enable = False
 
-    if os.path.isfile(pidfile):
-        os.remove(pidfile)
     sys.exit()
 
 
@@ -109,13 +107,12 @@ def handle_update():
 
 if __name__ == "__main__":
     log_setup.setup_logging("main")
+    atexit.register(close_app)
     pidfile = "discord_fm.pid"
 
-    if os.path.isfile(pidfile):
-        print(f"{pidfile} already exists, exiting")
-        sys.exit()
-    open(pidfile, "w").write(str(os.getpid()))
-
+    while not process.check_process_running("discord"):
+        logging.info("Discord not running, trying again in 8 seconds")
+        sleep(8)
     discord_rp.connect()
 
     if settings.get("tray_icon"):
