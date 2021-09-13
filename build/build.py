@@ -13,7 +13,7 @@ import platform
 import shutil
 import PyInstaller.__main__
 import sys
-# import installer
+import installer
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from main import __version
@@ -78,11 +78,12 @@ ui_args = [
 ]
 
 # Run PyInstaller
-print("\nRunning PyInstaller for main.py...")
-PyInstaller.__main__.run(main_args)
+if not sys.argv.__contains__("--no-build") and not sys.argv.__contains__("-NB"):
+    print("\nRunning PyInstaller for main.py...")
+    PyInstaller.__main__.run(main_args)
 
-print("\nRunning PyInstaller for ui.py...")
-PyInstaller.__main__.run(ui_args)
+    print("\nRunning PyInstaller for ui.py...")
+    PyInstaller.__main__.run(ui_args)
 
 # Clean temp file after use
 os.remove(temp_ver_main_file)
@@ -95,7 +96,7 @@ except FileNotFoundError:
 # Make platform installer
 if not sys.argv.__contains__("--no-installer") and not sys.argv.__contains__("-NI"):
     if current_platform == "Windows":
-        pass  # installer.make_windows_installer(version)
+        installer.make_windows_installer(version)
     elif current_platform == "Darwin":
         pass  # installer.make_macos_installer(version)
 
