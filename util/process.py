@@ -40,3 +40,10 @@ def start_stop_service(name, windows_exe_name, macos_app_name):
         else:
             install_path = get_executable(f"/Applications/{macos_app_name}.app")
         subprocess.Popen(args=install_path)
+
+
+def stream_process(process):
+    go = process.poll() is None
+    for line in process.stdout:
+        print(line.decode("utf-8"), end="")
+    return go

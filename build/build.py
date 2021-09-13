@@ -11,9 +11,11 @@ To build the Windows installer you'll need Inno Setup 6."""
 import os
 import platform
 import shutil
-import PyInstaller.__main__
+import subprocess
 import sys
 import installer
+from time import sleep
+from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from main import __version
@@ -48,6 +50,7 @@ if current_platform == "Darwin":
 elif current_platform == "Windows":
     icon_file = "resources/icon.ico"
 
+# noinspection PyUnboundLocalVariable
 main_args = [
     "main.py",
     f"--icon={icon_file}",
@@ -79,11 +82,22 @@ ui_args = [
 
 # Run PyInstaller
 if not sys.argv.__contains__("--no-build") and not sys.argv.__contains__("-NB"):
+    executable_format = ".exe" if platform.system() == "Windows" else ""
+    run_command = [f"{os.path.abspath('venv/Scripts/python') + executable_format} -O -m PyInstaller"]
+
     print("\nRunning PyInstaller for main.py...")
-    PyInstaller.__main__.run(main_args)
+    process = subprocess.Popen(" ".join(run_command + main_args), shell=True,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT)
+    while stream_process(process):
+        sleep(0.1)
 
     print("\nRunning PyInstaller for ui.py...")
-    PyInstaller.__main__.run(ui_args)
+    process = subprocess.Popen(" ".join(run_command + ui_args), shell=True,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT)
+    while stream_process(process):
+        sleep(0.1)
 
 # Clean temp file after use
 os.remove(temp_ver_main_file)
