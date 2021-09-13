@@ -1,40 +1,9 @@
 import logging
-import os
-import subprocess
-import psutil
 import settings
-from platform import system
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, \
     QSpacerItem, QSpinBox, QVBoxLayout, QWidget
-from install import get_executable
-from util import process
-
-
-def save_setting(name, value):
-    settings.define(name, value)
-
-
-def open_logs_folder():
-    if system() == "Windows":
-        os.startfile(settings.logs_path)
-    elif system() == "Darwin":
-        subprocess.Popen(["open", settings.logs_path])
-    else:
-        subprocess.Popen(["xdg-open", settings.logs_path])
-
-
-def start_stop_service():
-    if process.check_process_running("discord_fm"):
-        process.kill_process("discord_fm")
-    else:
-        path = os.path.abspath("discord_fm.exe")
-        if os.path.isfile(path):
-            logging.debug("Found Discord.fm in current working folder")
-            discord_fm_install = path
-        else:
-            discord_fm_install = get_executable("/Applications/Discord.fm.app")
-        subprocess.Popen(args=discord_fm_install)
+from util import process, open_logs_folder
 
 
 class SettingsWindow(QWidget):
@@ -48,14 +17,14 @@ class SettingsWindow(QWidget):
         username_layout = QHBoxLayout()
         username_layout.setSpacing(7)
         self.username_input = QLineEdit(placeholderText="Username")
-        self.username_input.editingFinished.connect(lambda: save_setting("username", self.username_input.text()))
+        self.username_input.editingFinished.connect(lambda: self.save_setting("username", self.username_input.text()))
         username_layout.addWidget(QLabel("Last.fm Username"))
         username_layout.addWidget(self.username_input)
 
         cooldown_layout = QHBoxLayout()
         cooldown_layout.setSpacing(7)
         self.cooldown_spinner = QSpinBox(minimum=2, maximum=60, value=2)
-        self.cooldown_spinner.valueChanged.connect(lambda: save_setting("cooldown", self.cooldown_spinner.value()))
+        self.cooldown_spinner.valueChanged.connect(lambda: self.save_setting("cooldown", self.cooldown_spinner.value()))
         cooldown_layout.addWidget(QLabel("Cooldown"))
         cooldown_layout.addWidget(self.cooldown_spinner)
         cooldown_layout.addWidget(QLabel("seconds"))
@@ -66,15 +35,19 @@ class SettingsWindow(QWidget):
         self.logs_button = QPushButton("Open Logs Folder")
         self.logs_button.clicked.connect(open_logs_folder)
         self.service_button = QPushButton("Start Service")
-        self.service_button.clicked.connect(start_stop_service)
+        self.service_button.clicked.connect(
+            lambda: process.start_stop_service("discord_fm", "discord_fm.exe", "Discord.fm"))
         buttons_layout.addWidget(self.logs_button)
         buttons_layout.addWidget(self.service_button)
 
         self.tray_icon_check = QCheckBox("Show tray icon")
-        self.tray_icon_check.stateChanged.connect(lambda: save_setting("tray_icon", self.tray_icon_check.isChecked()))
+        self.tray_icon_check.stateChanged.connect(
+            lambda: self.save_setting("tray_icon", self.tray_icon_check.isChecked()))
+
+        # noinspection PyTypeChecker
         self.auto_update_check = QCheckBox("Automatically download and install updates", enabled=False)
         self.auto_update_check.stateChanged.connect(
-            lambda: save_setting("auto_update", self.auto_update_check.isChecked()))
+            lambda: self.save_setting("auto_update", self.auto_update_check.isChecked()))
         self.status_label = QLabel("Waiting...")
 
         layout.addLayout(username_layout)
@@ -91,8 +64,11 @@ class SettingsWindow(QWidget):
         self.timer.start(1000)
 
         self.load_settings()
-
         self.setLayout(layout)
+
+    @staticmethod
+    def save_setting(name, value):
+        settings.define(name, value)
 
     def load_settings(self):
         settings_dict = settings.get_dict()
@@ -104,16 +80,9 @@ class SettingsWindow(QWidget):
     def set_running_status(self):
         logging.debug("Getting running status...")
 
-        # PID checking
-        # return os.path.isfile(os.path.abspath("discord_fm.pid"))
-
-        self.status_label.setText("Stopped")
-        for proc in psutil.process_iter():
-            try:
-                if "discord_fm" in proc.name().lower():
-                    self.status_label.setText("Running")
-                    break
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
+        if process.check_process_running("discord_fm"):
+            self.status_label.setText("Running")
+        else:
+            self.status_label.setText("Stopped")
 
         self.status_label.repaint()

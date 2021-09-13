@@ -1,6 +1,9 @@
 import os
 import shutil
 import sys
+import subprocess
+import settings
+from platform import system
 
 
 # From https://stackoverflow.com/a/13790741/8286014
@@ -48,3 +51,13 @@ def replace_instances(file: str, tags: list, out_file: str = "temp_", encoding: 
     if out_file == "temp_":
         shutil.move("temp_", file)
         print("Renamed temp_ file")
+
+
+def open_logs_folder():
+    """Opens the app's log folder on the system's file explorer"""
+    if system() == "Windows":
+        os.startfile(settings.logs_path)
+    elif system() == "Darwin":
+        subprocess.Popen(["open", settings.logs_path])
+    else:
+        subprocess.Popen(["xdg-open", settings.logs_path])

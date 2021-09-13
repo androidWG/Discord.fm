@@ -1,16 +1,15 @@
-import asyncio
+import atexit
 import logging
-import os
-import sched
 import sys
-import time
 import discord_rich_presence as discord_rp
-import settings
+from sched import scheduler
+from time import sleep, time
+from settings import get
 from threading import Thread
 from PIL import Image
 from pystray import Icon, Menu, MenuItem
 from last_fm import LastFMUser
-from util import log_setup, resource_path
+from util import log_setup, resource_path, process
 
 __version = "0.2.0"
 
@@ -26,7 +25,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = handle_exception
 
-user = LastFMUser(settings.get("username"))
+user = LastFMUser(get("username"))
 no_song_counter = 0
 tray_icon = None
 rpc_state = True
@@ -53,10 +52,8 @@ def close_app(icon=None, item=None):
 
     try:
         discord_rp.exit_rp()
-    except RuntimeError:
-        logging.debug("Got RuntimeError")
-    except AttributeError:
-        logging.debug("Got AttributeError")
+    except (RuntimeError, AttributeError, AssertionError) as e:
+        logging.debug("Caught exception while closing Discord RP", exc_info=e)
 
     if tray_icon is not None:
         tray_icon.stop()
@@ -79,8 +76,8 @@ def create_tray_icon():
 
 
 def handle_update():
-    cooldown = settings.get("cooldown")
-    sc = sched.scheduler(time.time)
+    cooldown = get("cooldown")
+    sc = scheduler(time)
 
     # noinspection PyUnboundLocalVariable,PyShadowingNames
     def update(scheduler):
@@ -97,7 +94,7 @@ def handle_update():
             else:
                 no_song_counter = 0
                 discord_rp.update_status(track)
-            cooldown = settings.get("cooldown")
+            cooldown = get("cooldown")
 
         sc.enter(cooldown, 1, update, (scheduler,))
 
@@ -115,7 +112,7 @@ if __name__ == "__main__":
         sleep(8)
     discord_rp.connect()
 
-    if settings.get("tray_icon"):
+    if get("tray_icon"):
         tray_thread = Thread(target=create_tray_icon)
         tray_thread.start()
 
