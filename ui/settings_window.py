@@ -1,3 +1,4 @@
+import logging
 import os
 import platform
 import subprocess
@@ -6,24 +7,27 @@ import threading
 import psutil
 import settings
 from PySide6.QtUiTools import QUiLoader
-from PySide6.QtWidgets import QApplication, QCheckBox, QLabel, QLineEdit, QMainWindow, QPushButton, QSpinBox
+from PySide6.QtWidgets import QApplication, QCheckBox, QLabel, QLineEdit, QPushButton, QSpinBox
 from PySide6.QtCore import QFile, QIODevice, Slot, QTimer
+from util.log_setup import setup_logging
 
-status_lbl = None
-dataReadEvent = None
+setup_logging("qt_settings")
 
 
 def get_running_status():
     global status_lbl
-    if dataReadEvent.is_set():
-        for proc in psutil.process_iter():
-            try:
-                # Check if process name contains the given name string.
-                if "discord_fm".lower() in proc.name().lower():
-                    status_lbl.setText("Running")
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                status_lbl.setText("Stopped")
-        dataReadEvent.clear()
+    logging.debug("Getting running status...")
+    for proc in psutil.process_iter():
+        try:
+            # Check if process name contains the given name string.
+            if "discord_fm".lower() in proc.name().lower():
+                status_lbl.setText("Running")
+                break
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            status_lbl.setText("Stopped")
+        finally:
+            status_lbl.repaint()
+            app.processEvents()
 
 
 @Slot()
@@ -52,14 +56,13 @@ def set_update(value):
     settings.define("auto_update", bool(value))
 
 
-def UpdateProcessStatus():
-    global dataReadEvent
-    dataReadEvent.set()
-    threading.Timer(1.0, UpdateProcessStatus).start()
+def update_data_read_event():
+    global data_read_event
+    data_read_event.set()
+    threading.Timer(1.0, update_data_read_event).start()
 
 
-def main():
-    global status_lbl
+if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     ui_file_name = "settings.ui"
@@ -84,12 +87,12 @@ def main():
     logs_btn.clicked.connect(open_logs_folder)
 
     username_txt = window.findChild(QLineEdit, "usernameLineEdit")
-    username_txt.setText(settings.get("username"))
+    username_txt.setText(str(settings.get("username")))
     username_txt.textChanged.connect(set_username)
 
     cooldown_txt = window.findChild(QSpinBox, "cooldownSpinBox")
     cooldown_txt.setValue(settings.get("cooldown"))
-    cooldown_txt.valueChanged.connect(set_username)
+    cooldown_txt.valueChanged.connect(set_cooldown)
 
     tray_icon_chk = window.findChild(QCheckBox, "trayIconCheckBox")
     tray_icon_chk.setChecked(settings.get("tray_icon"))
@@ -106,10 +109,4 @@ def main():
     check_process_timer.timeout.connect(get_running_status)
     check_process_timer.start()
 
-    app.exec()
-
-
-if __name__ == "__main__":
-    dataReadEvent = threading.Event()
-    threading.Thread(target=UpdateProcessStatus).start()
-    threading.Thread(target=main).start()
+    sys.exit(app.exec())

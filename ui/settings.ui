@@ -111,7 +111,7 @@
         <bool>false</bool>
        </property>
        <property name="text">
-        <string comment="AutoUpdateChkLabel">Auto update</string>
+        <string comment="AutoUpdateChkLabel">Automatically download and install updates</string>
        </property>
        <property name="checkable">
         <bool>false</bool>
