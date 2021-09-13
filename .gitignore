@@ -138,7 +138,7 @@ dmypy.json
 cython_debug/
 
 .idea/
-.temp
+*.temp
 upx/
 
 .DS_Store
@@ -199,5 +199,6 @@ patches/mtime-cache.json
 spec/fixtures/logo.png
 
 electron/
-
 eel/
+*/bdist*/
+*.pid

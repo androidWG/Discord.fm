@@ -35,7 +35,10 @@ def delete_old_logs(name: str):
     del logs[:settings.get("max_logs") - 1]
 
     for log in logs:
-        os.remove(os.path.join(settings.logs_path, log))
+        try:
+            os.remove(os.path.join(settings.logs_path, log))
+        except PermissionError as e:
+            logging.warning("Permission error while deleting old logs", exc_info=e)
 
 
 def setup_logging(name: str):
@@ -51,7 +54,7 @@ def setup_logging(name: str):
     root_logger.removeHandler(root_logger.handlers[0])  # Remove stderr handler to prevent duplicate printing
     root_logger.setLevel(logging.DEBUG)
 
-    file_handler = logging.FileHandler(log_path)
+    file_handler = logging.FileHandler(log_path, encoding="utf-8")
     file_handler.setFormatter(formatter)
     root_logger.addHandler(file_handler)
 

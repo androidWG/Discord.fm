@@ -1,21 +1,27 @@
+import asyncio
 import logging
-from pypresence import Presence
 import datetime
+from os import environ
+from pypresence import Presence
+from dotenv import load_dotenv
 
-client_id = "881950079240536135"
+load_dotenv()
+
+client_id = environ.get("discord_app_id")
 discord_presence = Presence(client_id)
 start_time = None
 last_track = None
 
 
 def connect():
+    asyncio.set_event_loop(asyncio.new_event_loop())
     discord_presence.connect()
     logging.debug("Connected to Discord")
 
 
 def disconnect():
     discord_presence.clear()
-    logging.debug('Disconnected from Discord')
+    logging.debug("Cleared Discord status")
 
 
 def exit_rp():
@@ -33,13 +39,13 @@ def update_status(track):
 
         start_time = datetime.datetime.now().timestamp()
         last_track = track
-        time_remaining = float(track.duration / 1000) + start_time
+        time_remaining = (track.duration / 1000) + start_time
         try:
             if track.duration != 0:
                 discord_presence.update(details=track.name, state=track.artist, end=time_remaining,
-                                        large_image='lastfm', large_text='Last.fm Discord Rich Presence')
+                                        large_image="lastfm", large_text="Discord.fm")
             else:
                 discord_presence.update(details=track.name, state=track.artist,
-                                        large_image='lastfm', large_text='Last.fm Discord Rich Presence')
+                                        large_image="lastfm", large_text="Discord.fm")
         except RuntimeError:
             logging.warning("pypresence said update thread was already running")

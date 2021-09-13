@@ -54,6 +54,7 @@ main_args = [
     "--name=discord_fm",
     f"--version-file={temp_ver_main_file}",
     f"--add-data=resources/tray_icon.png{os.pathsep}resources",
+    f"--add-data=.env{os.pathsep}.",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
     "--osx-bundle-identifier=com.androidwg.discordfm",

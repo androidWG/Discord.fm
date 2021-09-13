@@ -2,9 +2,13 @@ import logging
 import pylast
 import track_info
 import settings
+from os import environ
+from dotenv import load_dotenv
 
-API_KEY = "0484c201554ae2b4fd440de08a0466b3"
-API_SECRET = "1da2fb7fa90a7f9238d0441b39f0002d"
+load_dotenv()
+
+API_KEY = environ.get("lastfm_key")
+API_SECRET = environ.get("lastfm_secret")
 
 network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
 
