@@ -7,7 +7,7 @@ class TrackInfo:
     album: str
     duration: int
 
-    def __init__(self, lastfm_track):
+    def __init__(self, lastfm_track: pylast.Track):
         try:
             self.name = lastfm_track.title
             self.artist = lastfm_track.artist.name

@@ -10,7 +10,6 @@ load_dotenv(resource_path(".env"))
 
 client_id = environ.get("discord_app_id")
 discord_presence = Presence(client_id)
-start_time = None
 last_track = None
 
 
@@ -32,7 +31,7 @@ def exit_rp():
 
 
 def update_status(track):
-    global start_time, last_track
+    global last_track
     if last_track == track:
         logging.debug(f"Track {track.name} is the same as last track {last_track.name}, not updating")
     else:
