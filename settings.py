@@ -25,7 +25,7 @@ class Settings:
                     if not loaded_dict.keys().__contains__(s):
                         loaded_dict[s] = self.__settings_dict[s]
 
-                __settings_dict = loaded_dict
+                self.__settings_dict = loaded_dict
         except (FileNotFoundError, json.decoder.JSONDecodeError,):
             self.save()
 
