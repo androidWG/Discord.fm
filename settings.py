@@ -4,7 +4,83 @@ import os.path
 from platform import system
 
 
+class Settings:
+    def __init__(self, app_name, settings_filename="settings.json"):
+        self.app_data_path = setup_app_data_dir(app_name)
+        self.logs_path = setup_logs_dir(app_name)
+        self.config_path = os.path.join(self.app_data_path, settings_filename)
+
+        self.__settings_dict = {  # Put default setting values here
+            "cooldown": 2,
+            "username": "",
+            "max_logs": 10,
+            "tray_icon": True,
+            "auto_update": True
+        }
+
+        try:
+            with open(self.config_path) as file:
+                loaded_dict = json.load(file)
+                for s in self.__settings_dict.keys():
+                    if not loaded_dict.keys().__contains__(s):
+                        loaded_dict[s] = self.__settings_dict[s]
+
+                __settings_dict = loaded_dict
+        except (FileNotFoundError, json.decoder.JSONDecodeError,):
+            self.save()
+
+    def save(self):
+        """Saves the settings dictionary as a JSON in a file specified by config_path."""
+        json_string = json.dumps(self.__settings_dict, indent=4)
+
+        try:
+            with open(self.config_path, "w") as f:
+                f.write(json_string)
+        except PermissionError as e:
+            logging.error("Permission denied while attempting to save settings file", exc_info=e)
+
+    def define(self, name: str, value: any):
+        """Set a setting and save it to the settings file.
+
+        :param name: Name of the key for the setting.
+        :type name: str
+        :param value: Value to set the setting to.
+        :type value: any
+        """
+        if self.__settings_dict.keys().__contains__(name):
+            logging.debug(f"Setting value of {name} setting to {value}")
+            self.__settings_dict[name] = value
+            self.save()
+        else:
+            raise KeyError("Key not found in settings dictionary")
+
+    def get(self, name: str) -> any:
+        """Get a setting from it's key name.
+
+        :param name: Name of key for the setting.
+        :type name: str
+        :return: The value of the setting. Return type is the same as the one in the parsed JSON file.
+        :rtype: any
+        """
+        logging.debug(f"Getting {name} setting")
+        return self.__settings_dict[name]
+
+    @property
+    def settings_dict(self):
+        """Get settings dictionary with all settings.
+
+        :return: Settings dictionary.
+        :rtype: dict
+        """
+        return self.__settings_dict
+
+
 def make_dir(path: str):
+    """Creates a directory specified in path if it doesn't exist, ignoring it if it does.
+
+    :param path: Path of the directory to be created.
+    :type path: str
+    """
     print(f"Path chosen for app data: {path}")
     try:
         os.mkdir(path)
@@ -15,97 +91,49 @@ def make_dir(path: str):
         logging.error(f"Unable to create application dir \"{path}\"!", exc_info=e)
 
 
-def setup_app_data_dir() -> str:
+def setup_app_data_dir(folder_name: str) -> str:
     """Gets the folder where to store log files.
 
+    :param folder_name: Name of the folder to create inside the system's app data directory.
+    :type folder_name: str
     :return: Path to logs folder.
     :rtype: str
     """
     current_platform = system()
 
     if current_platform == "Windows":
-        path = os.path.join(os.getenv("localappdata"), "Corkscrew")
+        path = os.path.join(os.getenv("localappdata"), folder_name)
         make_dir(path)
         return path
     elif current_platform == "Darwin":
-        path = os.path.join(os.path.expanduser("~/Library/Application Support"), "Corkscrew")
+        path = os.path.join(os.path.expanduser("~/Library/Application Support"), folder_name)
         make_dir(path)
         return path
     else:
         raise NotImplementedError("Linux is currently unsupported")
 
 
-def setup_logs_dir() -> str:
+def setup_logs_dir(folder_name: str) -> str:
     """Gets the folder where to store log files based on OS.
 
+    :param folder_name: Name of the folder to create inside the system's logs directory (for Windows, it will be the
+    same as app data directory)
+    :type folder_name: str
     :return: Path to logs folder.
     :rtype: str
     """
     current_platform = system()
 
     if current_platform == "Windows":
-        path = os.path.join(os.getenv("localappdata"), "Corkscrew")
+        path = os.path.join(os.getenv("localappdata"), folder_name)
         make_dir(path)
         return path
     elif current_platform == "Darwin":
-        path = os.path.join(os.path.expanduser("~/Library/Logs"), "Corkscrew")
+        path = os.path.join(os.path.expanduser("~/Library/Logs"), folder_name)
         make_dir(path)
         return path
     else:
         raise NotImplementedError("Linux is currently unsupported")
 
 
-def save(path):
-    """Saves the settings dictionary as a JSON in a file specified by config_path.
-
-    :type path: str
-    """
-    json_string = json.dumps(__settings_dict, indent=4)
-
-    try:
-        with open(path, "w") as f:
-            f.write(json_string)
-    except PermissionError as e:
-        logging.error("Permission denied while attempting to save settings file!", exc_info=e)
-
-
-app_data_path = setup_app_data_dir()
-logs_path = setup_logs_dir()
-config_path = os.path.join(app_data_path, "settings.json")
-
-__settings_dict = {  # Put default setting values here
-    "cooldown": 2,
-    "username": "",
-    "max_logs": 10,
-    "tray_icon": True,
-    "auto_update": True
-}
-
-try:
-    with open(config_path) as file:
-        loaded_dict = json.load(file)
-        for s in __settings_dict.keys():
-            if not loaded_dict.keys().__contains__(s):
-                loaded_dict[s] = __settings_dict[s]
-
-        __settings_dict = loaded_dict
-except (FileNotFoundError, json.decoder.JSONDecodeError,):
-    save(config_path)
-
-
-def get(name):
-    logging.debug(f"Getting {name} setting")
-    return __settings_dict[name]
-
-
-def get_dict():
-    return __settings_dict
-
-
-def define(name, value):
-    if __settings_dict.keys().__contains__(name):
-        logging.debug(f"Setting value of {name} setting to {value}")
-        __settings_dict[name] = value
-        save(config_path)
-    else:
-        raise KeyError("Key not found in settings dictionary")
+local_settings = Settings("Discord.fm")

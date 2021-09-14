@@ -7,12 +7,12 @@ import discord_rich_presence as discord_rp
 from pypresence import InvalidPipe
 from sched import scheduler
 from time import sleep, time
-from settings import get
+from settings import local_settings
 from threading import Thread
 from PIL import Image
 from pystray import Icon, Menu, MenuItem
 from last_fm import LastFMUser
-from util import log_setup, resource_path, process
+from util import log_setup, resource_path
 
 __version = "0.2.0"
 
@@ -28,7 +28,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = handle_exception
 
-user = LastFMUser(get("username"))
+user = LastFMUser(local_settings.get("username"))
 no_song_counter = 0
 tray_icon = None
 rpc_state = True
@@ -91,7 +91,7 @@ def create_tray_icon():
 
 
 def handle_update():
-    cooldown = get("cooldown")
+    cooldown = local_settings.get("cooldown")
     sc = scheduler(time)
 
     # noinspection PyUnboundLocalVariable,PyShadowingNames
@@ -109,7 +109,7 @@ def handle_update():
             else:
                 no_song_counter = 0
                 discord_rp.update_status(track)
-            cooldown = get("cooldown")
+            cooldown = local_settings.get("cooldown")
 
         sc.enter(cooldown, 1, update, (scheduler,))
 
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
     connect_to_discord()
 
-    if get("tray_icon"):
+    if local_settings.get("tray_icon"):
         tray_thread = Thread(target=create_tray_icon)
         tray_thread.start()
 

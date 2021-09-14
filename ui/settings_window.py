@@ -1,5 +1,5 @@
 import logging
-import settings
+from settings import local_settings
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, \
     QSpacerItem, QSpinBox, QVBoxLayout, QWidget
@@ -70,10 +70,10 @@ class SettingsWindow(QWidget):
 
     @staticmethod
     def save_setting(name, value):
-        settings.define(name, value)
+        local_settings.define(name, value)
 
     def load_settings(self):
-        settings_dict = settings.get_dict()
+        settings_dict = local_settings.settings_dict
         self.username_input.setText(settings_dict["username"])
         self.cooldown_spinner.setValue(settings_dict["cooldown"])
         self.tray_icon_check.setChecked(settings_dict["tray_icon"])
