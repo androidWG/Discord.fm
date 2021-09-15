@@ -3,12 +3,11 @@ import logging
 import os
 import subprocess
 import sys
+import util
 import discord_rich_presence as discord_rp
 from pypresence import InvalidPipe
 from sched import scheduler
 from time import sleep, time
-
-import util
 from settings import local_settings
 from threading import Thread
 from PIL import Image
@@ -105,7 +104,7 @@ def handle_update():
         if not enable:
             return
 
-        global no_song_counter, enable
+        global no_song_counter
         track = user.now_playing()
         if track is None:
             logging.debug("No song playing")

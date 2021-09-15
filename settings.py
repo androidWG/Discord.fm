@@ -48,11 +48,11 @@ class Settings:
         :type value: any
         """
         if self.__settings_dict.keys().__contains__(name):
-            logging.debug(f"Setting value of {name} setting to {value}")
+            logging.debug(f"Setting value of \"{name}\" setting to \"{value}\"")
             self.__settings_dict[name] = value
             self.save()
         else:
-            raise KeyError("Key not found in settings dictionary")
+            raise KeyError(f"Key \"{name}\" not found in settings dictionary")
 
     def get(self, name: str) -> any:
         """Get a setting from it's key name.

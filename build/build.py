@@ -80,7 +80,7 @@ ui_args = [
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
     "--osx-bundle-identifier=com.androidwg.discordfm.ui",
-    "--upx-dir=upx/",
+    "--noupx",
     "-y",
     "--windowed",
     "--onefile",
