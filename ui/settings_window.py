@@ -1,8 +1,8 @@
 import logging
 import os
-from PySide6.QtGui import QIcon
 from settings import local_settings
-from PySide6.QtCore import QSize, QTimer
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, \
     QSpacerItem, QSpinBox, QVBoxLayout, QWidget
 from util import process, open_logs_folder, resource_path, check_dark_mode

@@ -4,15 +4,15 @@ import os
 import subprocess
 import sys
 import util
+import time
+import pystray
+import last_fm
 import discord_rich_presence as discord_rp
 from pypresence import InvalidPipe
 from sched import scheduler
-from time import sleep, time
 from settings import local_settings
 from threading import Thread
 from PIL import Image
-from pystray import Icon, Menu, MenuItem
-from last_fm import LastFMUser
 from util import log_setup, resource_path
 
 __version = "0.2.0"
@@ -29,7 +29,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 sys.excepthook = handle_exception
 
-user = LastFMUser(local_settings.get("username"))
+user = last_fm.LastFMUser(local_settings.get("username"))
 no_song_counter = 0
 tray_icon = None
 rpc_state = True
@@ -83,13 +83,13 @@ def create_tray_icon():
                                else "resources/black/icon.png")
     icon = Image.open(image_path)
 
-    menu = Menu(
-        MenuItem("Enable Rich Presence", toggle_rpc, checked=lambda item: rpc_state),
-        MenuItem("Open Settings", open_settings),
-        Menu.SEPARATOR,
-        MenuItem("Exit", close_app))
-    tray_icon = Icon("Discord.fm", icon=icon,
-                     title="Discord.fm", menu=menu)
+    menu = pystray.Menu(
+        pystray.MenuItem("Enable Rich Presence", toggle_rpc, checked=lambda item: rpc_state),
+        pystray.MenuItem("Open Settings", open_settings),
+        pystray.Menu.SEPARATOR,
+        pystray.MenuItem("Exit", close_app))
+    tray_icon = pystray.Icon("Discord.fm", icon=icon,
+                             title="Discord.fm", menu=menu)
 
     tray_icon.run()
 
@@ -97,7 +97,7 @@ def create_tray_icon():
 def handle_update():
     cooldown = local_settings.get("cooldown")
     misc_cooldown = 30
-    sc = scheduler(time)
+    sc = scheduler(time.time)
 
     # noinspection PyUnboundLocalVariable,PyShadowingNames
     def lastfm_update(scheduler):
@@ -150,7 +150,7 @@ if __name__ == "__main__":
             discord_rp.connect()
         except InvalidPipe:
             logging.info("Discord not running, trying again in 8 seconds")
-            sleep(8)
+            time.sleep(8)
             connect_to_discord()
 
 
