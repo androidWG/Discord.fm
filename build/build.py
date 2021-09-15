@@ -48,7 +48,7 @@ util.replace_instances("build/file_version.txt", main_tags, temp_ver_ui_file)
 if current_platform == "Darwin":
     icon_file = "resources/icon.icns"
 elif current_platform == "Windows":
-    icon_file = "resources/icon.ico"
+    icon_file = "resources/icon_white.ico"
 
 # noinspection PyUnboundLocalVariable
 main_args = [
@@ -56,7 +56,7 @@ main_args = [
     f"--icon={icon_file}",
     "--name=discord_fm",
     f"--version-file={temp_ver_main_file}",
-    f"--add-data=resources/tray_icon.png{os.pathsep}resources",
+    f"--add-data=resources/.{os.pathsep}resources",
     f"--add-data=.env{os.pathsep}.",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",

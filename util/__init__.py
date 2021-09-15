@@ -61,3 +61,31 @@ def open_logs_folder():
         subprocess.Popen(["open", local_settings.logs_path])
     else:
         subprocess.Popen(["xdg-open", local_settings.logs_path])
+
+
+def check_dark_mode() -> bool:
+    """Returns true if dark mode is enabled on Windows or macOS.
+
+    :return: If dark mode is turned on.
+    :rtype: bool
+    """
+    if system() == "Windows":
+        import winreg
+
+        access_registry = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
+        key_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+        try:
+            access_key = winreg.OpenKey(access_registry, key_path)
+        except FileNotFoundError:
+            return False
+
+        try:
+            value = winreg.QueryValueEx(access_key, "SystemUsesLightTheme")[0]
+        except FileNotFoundError:
+            return False
+        return value == 0
+    elif system() == "Darwin": # TODO: test this on macOS
+        cmd = 'defaults read -g AppleInterfaceStyle'
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, shell=True)
+        return bool(p.communicate()[0])

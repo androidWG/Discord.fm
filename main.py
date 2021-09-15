@@ -7,6 +7,8 @@ import discord_rich_presence as discord_rp
 from pypresence import InvalidPipe
 from sched import scheduler
 from time import sleep, time
+
+import util
 from settings import local_settings
 from threading import Thread
 from PIL import Image
@@ -76,7 +78,8 @@ def close_app(icon=None, item=None):
 
 def create_tray_icon():
     global tray_icon
-    image_path = resource_path("resources/tray_icon.png")
+
+    image_path = resource_path("resources/icon_white.png" if util.check_dark_mode() else "resources/icon_black.png")
     icon = Image.open(image_path)
 
     menu = Menu(
@@ -92,35 +95,54 @@ def create_tray_icon():
 
 def handle_update():
     cooldown = local_settings.get("cooldown")
+    misc_cooldown = 30
     sc = scheduler(time)
 
     # noinspection PyUnboundLocalVariable,PyShadowingNames
-    def update(scheduler):
+    def lastfm_update(scheduler):
+        if not enable:
+            return
+
         global no_song_counter, enable
-        if enable:
-            track = user.now_playing()
-            if track is None:
-                logging.debug("No song playing")
-                no_song_counter += 1
+        track = user.now_playing()
+        if track is None:
+            logging.debug("No song playing")
+            no_song_counter += 1
 
-                if no_song_counter == 5:  # Last.fm takes a while to update on song change, make sure user is
-                    # listening to nothing to clear RP
-                    discord_rp.disconnect()
-            else:
-                no_song_counter = 0
-                discord_rp.update_status(track)
-            cooldown = local_settings.get("cooldown")
+            if no_song_counter == 5:  # Last.fm takes a while to update on song change, make sure user is
+                # listening to nothing to clear RP
+                discord_rp.disconnect()
+        else:
+            no_song_counter = 0
+            discord_rp.update_status(track)
 
-        sc.enter(cooldown, 1, update, (scheduler,))
+        sc.enter(cooldown, 1, lastfm_update, (scheduler,))
 
-    sc.enter(cooldown, 1, update, (sc,))
+    def misc_update(misc_scheduler):
+        logging.debug("Running misc update")
+
+        if not enable:
+            return
+
+        nonlocal cooldown
+        cooldown = local_settings.get("cooldown")
+
+        if tray_icon is not None:
+            image_path = resource_path("resources/icon_white.png"
+                                       if util.check_dark_mode() else "resources/icon_black.png")
+            icon = Image.open(image_path)
+            tray_icon.icon = icon
+
+        sc.enter(misc_cooldown, 2, misc_update, (misc_scheduler,))
+
+    sc.enter(cooldown, 1, lastfm_update, (sc,))
+    sc.enter(misc_cooldown, 2, misc_update, (sc,))
     sc.run()
 
 
 if __name__ == "__main__":
     log_setup.setup_logging("main")
     atexit.register(close_app)
-    pidfile = "discord_fm.pid"
 
     def connect_to_discord():
         try:
@@ -139,5 +161,5 @@ if __name__ == "__main__":
 
     try:
         handle_update()
-    except KeyboardInterrupt or SystemExit:
+    except (KeyboardInterrupt, SystemExit):
         close_app()
