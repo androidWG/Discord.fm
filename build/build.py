@@ -21,6 +21,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from main import __version
 import util
 
+
+def arg_exists(*args):
+    for arg in args:
+        if sys.argv.__contains__(arg):
+            return True
+
+    return False
+
+
 current_platform = platform.system()
 version = __version
 
@@ -87,23 +96,25 @@ ui_args = [
 ]
 
 # Run PyInstaller
-if not sys.argv.__contains__("--no-build") and not sys.argv.__contains__("-NB"):
+if not arg_exists("--no-build", "-NB"):
     executable_format = ".exe" if platform.system() == "Windows" else ""
     run_command = [f"{os.path.abspath('venv/Scripts/python') + executable_format} -O -m PyInstaller"]
 
-    print("\nRunning PyInstaller for main.py...")
-    process = subprocess.Popen(" ".join(run_command + main_args), shell=True,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
-    while stream_process(process):
-        sleep(0.1)
+    if not arg_exists("--ui-only"):
+        print("\nRunning PyInstaller for main.py...")
+        process = subprocess.Popen(" ".join(run_command + main_args), shell=True,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
+        while stream_process(process):
+            sleep(0.1)
 
-    print("\nRunning PyInstaller for ui.py...")
-    process = subprocess.Popen(" ".join(run_command + ui_args), shell=True,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
-    while stream_process(process):
-        sleep(0.1)
+    if not arg_exists("--main-only"):
+        print("\nRunning PyInstaller for ui.py...")
+        process = subprocess.Popen(" ".join(run_command + ui_args), shell=True,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
+        while stream_process(process):
+            sleep(0.1)
 
 # Clean temp file after use
 os.remove(temp_ver_main_file)
@@ -114,7 +125,7 @@ except FileNotFoundError:
     pass
 
 # Make platform installer
-if not sys.argv.__contains__("--no-installer") and not sys.argv.__contains__("-NI"):
+if not arg_exists("--no-installer", "-NI"):
     if current_platform == "Windows":
         installer.make_windows_installer(version)
     elif current_platform == "Darwin":
