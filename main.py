@@ -79,7 +79,9 @@ def close_app(icon=None, item=None):
 def create_tray_icon():
     global tray_icon
 
-    image_path = resource_path("resources/icon_white.png" if util.check_dark_mode() else "resources/icon_black.png")
+    image_path = resource_path("resources/white/icon.png"
+                               if util.check_dark_mode()
+                               else "resources/black/icon.png")
     icon = Image.open(image_path)
 
     menu = Menu(
@@ -128,8 +130,8 @@ def handle_update():
         cooldown = local_settings.get("cooldown")
 
         if tray_icon is not None:
-            image_path = resource_path("resources/icon_white.png"
-                                       if util.check_dark_mode() else "resources/icon_black.png")
+            image_path = resource_path("resources/white/icon.png"
+                                       if util.check_dark_mode() else "resources/black/icon.png")
             icon = Image.open(image_path)
             tray_icon.icon = icon
 

@@ -1,15 +1,25 @@
 import logging
+import os
+
+from PySide6.QtGui import QIcon
 from settings import local_settings
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QSize, QTimer
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, \
     QSpacerItem, QSpinBox, QVBoxLayout, QWidget
-from util import process, open_logs_folder
+from util import process, open_logs_folder, resource_path, check_dark_mode
 
 
 class SettingsWindow(QWidget):
     def __init__(self, parent=None):
         super(SettingsWindow, self).__init__(parent)
         self.setWindowTitle("Discord.fm Settings")
+
+        icon_color = "white" if check_dark_mode() else "black"
+        icon_path = os.path.join("resources", f"{icon_color}", "settings.png")
+
+        icon = QIcon(resource_path(icon_path, ".."))
+        self.setWindowIcon(icon)
+        self.setMaximumSize(270, 200)
 
         layout = QVBoxLayout()
         layout.setSpacing(5)

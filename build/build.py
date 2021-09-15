@@ -46,17 +46,20 @@ util.replace_instances("build/file_version.txt", main_tags, temp_ver_ui_file)
 
 # Choose right icon
 if current_platform == "Darwin":
-    icon_file = "resources/icon.icns"
+    main_icon = "resources/icon.icns"
+    settings_icon = "resources/settings.icns"
 elif current_platform == "Windows":
-    icon_file = "resources/icon_white.ico"
+    main_icon = "resources/icon.ico"
+    settings_icon = "resources/settings.ico"
 
 # noinspection PyUnboundLocalVariable
 main_args = [
     "main.py",
-    f"--icon={icon_file}",
+    f"--icon={main_icon}",
     "--name=discord_fm",
     f"--version-file={temp_ver_main_file}",
-    f"--add-data=resources/.{os.pathsep}resources",
+    f"--add-data=resources/black/.{os.pathsep}resources/black",
+    f"--add-data=resources/white/.{os.pathsep}resources/white",
     f"--add-data=.env{os.pathsep}.",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
@@ -69,8 +72,11 @@ main_args = [
 
 ui_args = [
     "ui/ui.py",
+    f"--icon={settings_icon}",
     "--name=settings_ui",
     f"--version-file={temp_ver_ui_file}",
+    f"--add-data=resources/black/.{os.pathsep}resources/black",
+    f"--add-data=resources/white/.{os.pathsep}resources/white",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
     "--osx-bundle-identifier=com.androidwg.discordfm.ui",

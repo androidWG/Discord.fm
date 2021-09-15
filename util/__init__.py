@@ -7,11 +7,13 @@ from platform import system
 
 
 # From https://stackoverflow.com/a/13790741/8286014
-def resource_path(relative_path: str) -> str:
+def resource_path(relative_path: str, base_path: str = ".") -> str:
     """Gets the absolute path to a file, dealing with temp resources folders from PyInstaller
 
     :param relative_path: Path of a file in relative space
     :type relative_path: str
+    :param base_path: Base path to get absolute path. Default is . to get it relative to the current working directory.
+    :type base_path: str
     :return: Absolute path to a resources
     :rtype: str
     """
@@ -19,7 +21,7 @@ def resource_path(relative_path: str) -> str:
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
     except AttributeError:
-        base_path = os.path.abspath(".")
+        base_path = os.path.abspath(base_path)
 
     return os.path.join(base_path, relative_path)
 
