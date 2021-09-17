@@ -95,7 +95,9 @@ class SettingsWindow(QWidget):
 
         if process.check_process_running("discord_fm"):
             self.status_label.setText("Running")
+            self.service_button.setText("Stop Service")
         else:
             self.status_label.setText("Stopped")
+            self.service_button.setText("Start Service")
 
         self.status_label.repaint()
