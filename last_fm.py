@@ -24,11 +24,11 @@ class LastFMUser:
             if current_track is not None:
                 track = track_info.TrackInfo(current_track)
                 return track
-        except pylast.WSError:
-            logging.info(f"Connection problem at web service")
-        except pylast.NetworkError:
-            logging.warning("Unable to communicate with Last.fm servers, check your internet connection")
-        except pylast.MalformedResponseError:
-            logging.info("Last.fm internal server error, retrying connection")
+        except pylast.WSError as e:
+            logging.info(f"Connection problem at web service", exc_info=e)
+        except pylast.NetworkError as e:
+            logging.warning("Unable to communicate with Last.fm servers, check your internet connection", exc_info=e)
+        except pylast.MalformedResponseError as e:
+            logging.info("Last.fm internal server error, retrying connection", exc_info=e)
 
         return None
