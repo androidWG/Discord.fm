@@ -29,13 +29,15 @@ version = __version
 main_args = [
     "discord_fm_mac.spec",
     "--distpath=./dist",
-    "--workpath=pyinstaller_temp"
+    "--workpath=pyinstaller_temp",
+    "-y"
 ]
 
 ui_args = [
     "settings_ui_mac.spec",
     "--distpath=./dist",
-    "--workpath=pyinstaller_temp"
+    "--workpath=pyinstaller_temp",
+    "-y"
 ]
 
 # Run PyInstaller

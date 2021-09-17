@@ -34,7 +34,14 @@ def start_stop_service(name, windows_exe_name, macos_app_name):
     if check_process_running(name):
         kill_process(name)
     else:
-        path = os.path.abspath(windows_exe_name) if system() == "Windows" else os.path.abspath(name)
+        current_os = system()
+        if current_os == "Windows":
+            path = os.path.abspath(windows_exe_name)
+        elif current_os == "Darwin":
+            path = os.path.abspath(macos_app_name)
+        else:
+            path = os.path.abspath(name)
+
         if os.path.isfile(path):
             logging.debug("Found executable in current working folder")
             install_path = path

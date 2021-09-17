@@ -1,5 +1,7 @@
 import logging
 import os
+from platform import system
+
 from settings import local_settings
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTimer

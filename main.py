@@ -3,7 +3,6 @@ import logging
 import os
 import subprocess
 import sys
-import util
 import time
 import pystray
 import last_fm
@@ -13,9 +12,9 @@ from sched import scheduler
 from settings import local_settings
 from threading import Thread
 from PIL import Image
-from util import log_setup, resource_path
+from util import log_setup, resource_path, check_dark_mode
 
-__version = "0.2.0"
+__version = "0.3.0"
 
 
 # From https://stackoverflow.com/a/16993115/8286014
@@ -79,7 +78,7 @@ def create_tray_icon():
     global tray_icon
 
     image_path = resource_path("resources/white/icon.png"
-                               if util.check_dark_mode()
+                               if check_dark_mode()
                                else "resources/black/icon.png")
     icon = Image.open(image_path)
 
@@ -130,7 +129,7 @@ def handle_update():
 
         if tray_icon is not None:
             image_path = resource_path("resources/white/icon.png"
-                                       if util.check_dark_mode() else "resources/black/icon.png")
+                                       if check_dark_mode() else "resources/black/icon.png")
             icon = Image.open(image_path)
             tray_icon.icon = icon
 
