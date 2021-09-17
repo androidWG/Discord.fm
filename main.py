@@ -157,10 +157,15 @@ if __name__ == "__main__":
     connect_to_discord()
 
     if local_settings.get("tray_icon"):
-        tray_thread = Thread(target=create_tray_icon)
-        tray_thread.start()
+        secondary_thread = Thread(target=handle_update)
+        secondary_thread.start()
 
-    try:
-        handle_update()
-    except (KeyboardInterrupt, SystemExit):
-        close_app()
+        try:
+            create_tray_icon()
+        except (KeyboardInterrupt, SystemExit):
+            close_app()
+    else:
+        try:
+            handle_update()
+        except (KeyboardInterrupt, SystemExit):
+            close_app()
