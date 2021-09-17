@@ -30,7 +30,6 @@ def arg_exists(*args):
     return False
 
 
-current_platform = platform.system()
 version = __version
 
 # Make Version Info files for Windows
@@ -53,18 +52,10 @@ ui_tags = [
 util.replace_instances("build/file_version.txt", main_tags, temp_ver_main_file)
 util.replace_instances("build/file_version.txt", main_tags, temp_ver_ui_file)
 
-# Choose right icon
-if current_platform == "Darwin":
-    main_icon = "resources/icon.icns"
-    settings_icon = "resources/settings.icns"
-elif current_platform == "Windows":
-    main_icon = "resources/icon.ico"
-    settings_icon = "resources/settings.ico"
-
 # noinspection PyUnboundLocalVariable
 main_args = [
     "main.py",
-    f"--icon={main_icon}",
+    f"--icon=resources/icon.ico",
     "--name=discord_fm",
     f"--version-file={temp_ver_main_file}",
     f"--add-data=resources/black/.{os.pathsep}resources/black",
@@ -81,7 +72,7 @@ main_args = [
 
 ui_args = [
     "ui/ui.py",
-    f"--icon={settings_icon}",
+    f"--icon=resources/settings.ico",
     "--name=settings_ui",
     f"--version-file={temp_ver_ui_file}",
     f"--add-data=resources/black/.{os.pathsep}resources/black",
@@ -97,8 +88,7 @@ ui_args = [
 
 # Run PyInstaller
 if not arg_exists("--no-build", "-NB"):
-    executable_format = ".exe" if platform.system() == "Windows" else ""
-    run_command = [f"{os.path.abspath('venv/Scripts/python') + executable_format} -O -m PyInstaller"]
+    run_command = [f"{os.path.abspath('venv/Scripts/python.exe')} -O -m PyInstaller"]
 
     if not arg_exists("--ui-only"):
         print("\nRunning PyInstaller for main.py...")
@@ -125,10 +115,6 @@ except FileNotFoundError:
     pass
 
 # Make platform installer
-if not arg_exists("--no-installer", "-NI"):
-    if current_platform == "Windows":
-        installer.make_windows_installer(version)
-    elif current_platform == "Darwin":
-        pass  # installer.make_macos_installer(version)
+installer.make_windows_installer(version)
 
 print(f"Finished building version {version}")

@@ -202,3 +202,5 @@ electron/
 eel/
 */bdist*/
 *.pid
+build/discord_fm*/
+build/settings_ui*/
