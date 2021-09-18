@@ -48,5 +48,6 @@ app = BUNDLE(coll,
              icon='resources/settings.icns',
              info_plist={
                 'CFBundleVersion': __version,
+                'NSRequiresAquaSystemAppearance': False
              },
              bundle_identifier='com.androidwg.discordfm.ui')
