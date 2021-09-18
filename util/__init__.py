@@ -86,8 +86,5 @@ def check_dark_mode() -> bool:
         except FileNotFoundError:
             return False
         return value == 0
-    elif system() == "Darwin": # TODO: test this on macOS
-        cmd = 'defaults read -g AppleInterfaceStyle'
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE, shell=True)
-        return bool(p.communicate()[0])
+    elif system() == "Darwin":
+        return True

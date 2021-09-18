@@ -1,14 +1,14 @@
 import atexit
 import logging
-import os
-import subprocess
 import sys
 import time
 import pystray
 import last_fm
 import discord_rich_presence as discord_rp
+from PySide6.QtWidgets import QApplication
 from pypresence import InvalidPipe
 from sched import scheduler
+import ui.settings_window
 from settings import local_settings
 from threading import Thread
 from PIL import Image
@@ -50,7 +50,13 @@ def toggle_rpc(icon, item):
 
 
 def open_settings():
-    process.start_process("settings_ui", "settings_ui.exe", "Discord.fm Settings.app", "ui/ui.py")
+    app = QApplication(sys.argv)
+
+    main_window = ui.settings_window.SettingsWindow()
+    main_window.show()
+    main_window.set_running_status()
+
+    Thread(target=app.exec).start()
 
 
 def close_app(icon=None, item=None):
@@ -139,10 +145,14 @@ if __name__ == "__main__":
     log_setup.setup_logging("main")
     atexit.register(close_app)
 
+    if process.check_process_running("discord_fm"):
+        print("Discord.fm is already running, closing")
+        exit(3)
+
     def connect_to_discord():
         try:
             discord_rp.connect()
-        except InvalidPipe:
+        except (InvalidPipe, FileNotFoundError):
             logging.info("Discord not running, trying again in 8 seconds")
             time.sleep(8)
             connect_to_discord()
