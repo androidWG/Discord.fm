@@ -48,7 +48,7 @@ class SettingsWindow(QWidget):
         self.logs_button.clicked.connect(open_logs_folder)
         self.service_button = QPushButton("Start Service")
         self.service_button.clicked.connect(
-            lambda: process.start_stop_service("discord_fm", "discord_fm.exe", "Discord.fm", "main.py"))
+            lambda: process.start_stop_service("discord_fm", "discord_fm.exe", "Discord.fm.app", "main.py"))
         buttons_layout.addWidget(self.logs_button)
         buttons_layout.addWidget(self.service_button)
 

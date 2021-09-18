@@ -50,7 +50,7 @@ def start_process(name, windows_exe_name, macos_app_name, script_path):
         logging.debug("Found executable in current working folder")
         install_path = path
     else:
-        install_path = get_executable(windows_exe_name, f"/Applications/{macos_app_name}.app", script_path)
+        install_path = get_executable(windows_exe_name, f"/Applications/{macos_app_name}", script_path)
     subprocess.Popen(args=install_path)
 
 
