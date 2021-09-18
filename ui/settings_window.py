@@ -1,7 +1,6 @@
 import logging
 import os
-from platform import system
-
+import sys
 from settings import local_settings
 from PySide6.QtGui import QIcon
 from PySide6.QtCore import QTimer
@@ -49,7 +48,7 @@ class SettingsWindow(QWidget):
         self.logs_button.clicked.connect(open_logs_folder)
         self.service_button = QPushButton("Start Service")
         self.service_button.clicked.connect(
-            lambda: process.start_stop_service("discord_fm", "discord_fm.exe", "Discord.fm"))
+            lambda: process.start_stop_service("discord_fm", "discord_fm.exe", "Discord.fm", "main.py"))
         buttons_layout.addWidget(self.logs_button)
         buttons_layout.addWidget(self.service_button)
 
@@ -92,6 +91,11 @@ class SettingsWindow(QWidget):
 
     def set_running_status(self):
         logging.debug("Getting running status...")
+
+        if not getattr(sys, "frozen", False):
+            self.status_label.setText("Cannot check if service is running")
+            self.service_button.setText("Start Service")
+            return
 
         if process.check_process_running("discord_fm"):
             self.status_label.setText("Running")

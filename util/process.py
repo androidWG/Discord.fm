@@ -30,24 +30,28 @@ def kill_process(process_name):
             logging.info(f"Process \"{process_name}\" doesn't exist")
 
 
-def start_stop_service(name, windows_exe_name, macos_app_name):
+def start_stop_service(name, windows_exe_name, macos_app_name, script_path):
     if check_process_running(name):
         kill_process(name)
     else:
-        current_os = system()
-        if current_os == "Windows":
-            path = os.path.abspath(windows_exe_name)
-        elif current_os == "Darwin":
-            path = os.path.abspath(macos_app_name)
-        else:
-            path = os.path.abspath(name)
+        start_process(name, windows_exe_name, macos_app_name, script_path)
 
-        if os.path.isfile(path):
-            logging.debug("Found executable in current working folder")
-            install_path = path
-        else:
-            install_path = get_executable(f"/Applications/{macos_app_name}.app")
-        subprocess.Popen(args=install_path)
+
+def start_process(name, windows_exe_name, macos_app_name, script_path):
+    current_os = system()
+    if current_os == "Windows":
+        path = os.path.abspath(windows_exe_name)
+    elif current_os == "Darwin":
+        path = os.path.abspath(macos_app_name)
+    else:
+        path = os.path.abspath(name)
+
+    if os.path.isfile(path):
+        logging.debug("Found executable in current working folder")
+        install_path = path
+    else:
+        install_path = get_executable(windows_exe_name, f"/Applications/{macos_app_name}.app", script_path)
+    subprocess.Popen(args=install_path)
 
 
 def stream_process(process):

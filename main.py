@@ -12,7 +12,7 @@ from sched import scheduler
 from settings import local_settings
 from threading import Thread
 from PIL import Image
-from util import log_setup, resource_path, check_dark_mode
+from util import log_setup, resource_path, check_dark_mode, process
 
 __version = "0.3.0"
 
@@ -50,12 +50,7 @@ def toggle_rpc(icon, item):
 
 
 def open_settings():
-    settings_executable = "settings_ui"
-    if os.path.isfile(settings_executable) or os.path.isfile(settings_executable + ".exe"):
-        logging.debug("Opening settings UI")
-        subprocess.Popen(os.path.abspath(settings_executable))
-    else:
-        logging.debug("Unable to find settings_ui executable")
+    process.start_process("settings_ui", "settings_ui.exe", "Discord.fm Settings.app", "ui/ui.py")
 
 
 def close_app(icon=None, item=None):
