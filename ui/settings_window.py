@@ -2,10 +2,10 @@ import logging
 import os
 import sys
 from settings import local_settings
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QIcon, Qt
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, \
-    QSpacerItem, QSpinBox, QVBoxLayout, QWidget
+    QSpacerItem, QVBoxLayout, QWidget, QSlider
 from util import process, open_logs_folder, resource_path, check_dark_mode
 
 
@@ -34,13 +34,16 @@ class SettingsWindow(QWidget):
 
         cooldown_layout = QHBoxLayout()
         cooldown_layout.setSpacing(7)
-        self.cooldown_spinner = QSpinBox(minimum=2, maximum=60, value=2)
-        self.cooldown_spinner.valueChanged.connect(
-            lambda: self.save_setting("cooldown", self.cooldown_spinner.value()))
+        self.cooldown_label = QLabel("2s")
+        self.cooldown_label.setFixedWidth(25)
+        self.cooldown_slider = QSlider(minimum=2, maximum=30, value=2, orientation=Qt.Horizontal)
+        self.cooldown_slider.sliderReleased.connect(
+            lambda: self.save_setting("cooldown", self.cooldown_slider.value()))
+        self.cooldown_slider.valueChanged.connect(
+            lambda: self.cooldown_label.setText(f"{self.cooldown_slider.value()}s"))
         cooldown_layout.addWidget(QLabel("Cooldown"))
-        cooldown_layout.addWidget(self.cooldown_spinner)
-        cooldown_layout.addWidget(QLabel("seconds"))
-        cooldown_layout.addSpacerItem(QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        cooldown_layout.addWidget(self.cooldown_slider)
+        cooldown_layout.addWidget(self.cooldown_label)
 
         buttons_layout = QHBoxLayout()
         buttons_layout.setSpacing(7)
@@ -79,13 +82,15 @@ class SettingsWindow(QWidget):
         self.setLayout(layout)
 
     @staticmethod
-    def save_setting(name, value):
+    def save_setting(name, value, extra_func=None):
         local_settings.define(name, value)
+        if extra_func is not None:
+            extra_func()
 
     def load_settings(self):
         settings_dict = local_settings.settings_dict
         self.username_input.setText(settings_dict["username"])
-        self.cooldown_spinner.setValue(settings_dict["cooldown"])
+        self.cooldown_slider.setValue(settings_dict["cooldown"])
         self.tray_icon_check.setChecked(settings_dict["tray_icon"])
         self.auto_update_check.setChecked(settings_dict["auto_update"])
 
