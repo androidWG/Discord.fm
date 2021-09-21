@@ -1,34 +1,31 @@
 """Build Discord.fm
 
 This script runs PyInstaller and by default, the installer build script for the current platform. It should be run
-form the root folder with "python build/build.py". It accepts an optional parameter -NI (or --no-installer) to prevent
-the script from generating an installer.
+form the root folder with "python build/build.py".
 
 `UPX <https://upx.github.io/>`_ can be used by PyInstaller by adding a folder named "upx" inside the project
 root containing a UPX release's files.
 
-To build the Windows installer you'll need Inno Setup 6."""
+To build the Windows installer you'll need Inno Setup 6.
+
+Options:
+    -NI, --no-installer    Builds Discord.fm without creating a Windows installer
+    -NB  --no-build        Makes only an installer with an existing build inside dist folder
+    --main-only            Builds only the main script and ignores UI script. Installer will try to find both
+                           executables anyway
+    --ui-only              Builds only the UI script and ignores main script. Installer will try to find both
+                           executables anyway"""
 import os
-import platform
 import shutil
 import subprocess
 import sys
 import installer
 from time import sleep
+from util import arg_exists, replace_instances
 from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from main import __version
-import util
-
-
-def arg_exists(*args):
-    for arg in args:
-        if sys.argv.__contains__(arg):
-            return True
-
-    return False
-
 
 version = __version
 
@@ -49,8 +46,8 @@ ui_tags = [
     ("#FILENAME#", "settings_ui")
 ]
 
-util.replace_instances("build/file_version.txt", main_tags, temp_ver_main_file)
-util.replace_instances("build/file_version.txt", main_tags, temp_ver_ui_file)
+replace_instances("build/file_version.txt", main_tags, temp_ver_main_file)
+replace_instances("build/file_version.txt", main_tags, temp_ver_ui_file)
 
 # noinspection PyUnboundLocalVariable
 main_args = [
