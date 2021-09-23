@@ -12,7 +12,7 @@ def check_process_running(process_name):
     logging.debug(f"Checking if {process_name} process is running...")
     for proc in psutil.process_iter():
         try:
-            if process_name.lower() in proc.name().lower() and proc.pid != os.getpid():
+            if process_name.lower() in proc.name().lower() and not proc.pid == os.getpid():
                 return True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
