@@ -14,7 +14,6 @@ class Settings:
             "cooldown": 2,
             "username": "",
             "max_logs": 10,
-            "tray_icon": True,
             "auto_update": True
         }
 

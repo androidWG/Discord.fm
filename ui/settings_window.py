@@ -1,12 +1,11 @@
 import logging
 import os
 import sys
-from settings import local_settings
-from PySide6.QtGui import QIcon, Qt
 from PySide6.QtCore import QTimer
-from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSizePolicy, \
-    QSpacerItem, QVBoxLayout, QWidget, QSlider
-from util import process, open_logs_folder, resource_path, check_dark_mode
+from PySide6.QtGui import QIcon, Qt
+from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSlider, QVBoxLayout, QWidget
+from settings import local_settings
+from util import check_dark_mode, open_logs_folder, process, resource_path
 
 
 class SettingsWindow(QWidget):
@@ -55,10 +54,6 @@ class SettingsWindow(QWidget):
         buttons_layout.addWidget(self.logs_button)
         buttons_layout.addWidget(self.service_button)
 
-        self.tray_icon_check = QCheckBox("Show tray icon")
-        self.tray_icon_check.stateChanged.connect(
-            lambda: self.save_setting("tray_icon", self.tray_icon_check.isChecked()))
-
         # noinspection PyTypeChecker
         self.auto_update_check = QCheckBox("Automatically download and install updates", enabled=False)
         self.auto_update_check.stateChanged.connect(
@@ -67,7 +62,6 @@ class SettingsWindow(QWidget):
 
         layout.addLayout(username_layout)
         layout.addLayout(cooldown_layout)
-        layout.addWidget(self.tray_icon_check)
         layout.addWidget(self.auto_update_check)
         layout.addLayout(buttons_layout)
         layout.addWidget(self.status_label)
@@ -91,7 +85,6 @@ class SettingsWindow(QWidget):
         settings_dict = local_settings.settings_dict
         self.username_input.setText(settings_dict["username"])
         self.cooldown_slider.setValue(settings_dict["cooldown"])
-        self.tray_icon_check.setChecked(settings_dict["tray_icon"])
         self.auto_update_check.setChecked(settings_dict["auto_update"])
 
     def set_running_status(self):
