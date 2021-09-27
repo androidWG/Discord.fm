@@ -5,10 +5,8 @@ import time
 import pystray
 import last_fm
 import discord_rich_presence as discord_rp
-from PySide6.QtWidgets import QApplication
 from pypresence import InvalidPipe
 from sched import scheduler
-import ui.settings_window
 from settings import local_settings
 from threading import Thread
 from PIL import Image
@@ -50,13 +48,7 @@ def toggle_rpc(icon, item):
 
 
 def open_settings():
-    app = QApplication(sys.argv)
-
-    main_window = ui.settings_window.SettingsWindow()
-    main_window.show()
-    main_window.set_running_status()
-
-    Thread(target=app.exec).start()
+    process.start_process("settings_ui", "settings_ui.exe", "Discord.fm Settings.app", "ui/ui.py")
 
 
 def close_app(icon=None, item=None):
