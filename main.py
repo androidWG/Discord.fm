@@ -146,19 +146,23 @@ if __name__ == "__main__":
     atexit.register(close_app)
 
     if process.check_process_running("discord_fm"):
-        print("Discord.fm is already running, closing")
-        exit(3)
+        logging.info("Discord.fm is already running, opening settings")
 
-    def connect_to_discord():
-        try:
-            discord_rp.connect()
-        except (InvalidPipe, FileNotFoundError):
-            logging.info("Discord not running, trying again in 8 seconds")
+        open_settings()
+        close_app()
+    elif sys.argv.__contains__("-o"):
+        logging.info("\"-o\" argument was found, opening settings")
+        open_settings()
+
+    while True:
+        if process.check_process_running("discord"):
+            try:
+                discord_rp.connect()
+            except (FileNotFoundError, InvalidPipe):
+                continue
+            break
+        else:
             time.sleep(8)
-            connect_to_discord()
-
-
-    connect_to_discord()
 
     tray_thread = Thread(target=create_tray_icon)
     tray_thread.start()
