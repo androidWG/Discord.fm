@@ -18,10 +18,10 @@ def resource_path(relative_path: str, base_path: str = ".") -> str:
     :return: Absolute path to a resources
     :rtype: str
     """
-    try:
+    if is_frozen():
         # PyInstaller creates a temp folder and stores path in _MEIPASS
         base_path = sys._MEIPASS
-    except AttributeError:
+    else:
         base_path = os.path.abspath(base_path)
 
     return os.path.join(base_path, relative_path)
@@ -97,3 +97,7 @@ def arg_exists(*args):
             return True
 
     return False
+
+
+def is_frozen():  # I could just use hasattr() directly but this makes it more clear what is happening
+    return hasattr(sys, "_MEIPASS")
