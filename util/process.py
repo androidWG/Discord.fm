@@ -60,5 +60,5 @@ def start_process(name, windows_exe_name, macos_app_name, script_path):
 def stream_process(process):
     go = process.poll() is None
     for line in process.stdout:
-        logging.info(line.decode("utf-8"), end="")
+        print(line.decode("utf-8"), end="")
     return go
