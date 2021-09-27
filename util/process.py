@@ -7,13 +7,16 @@ from install import get_executable
 
 
 # From https://thispointer.com/python-check-if-a-process-is-running-by-name-and-find-its-process-id-pid/
-def check_process_running(process_name):
+def check_process_running(*process_name):
     """Check if there is any running process that contains the given name process_name."""
-    logging.debug(f"Checking if {process_name} process is running...")
+    logging.info(f"Checking if {process_name} process is running...")
     for proc in psutil.process_iter():
         try:
-            if process_name.lower() in proc.name().lower() and not proc.pid == os.getpid():
-                return True
+            for name in process_name:
+                logging.debug(f"Checking process \"{proc.name()}\" against \"{name}\"")
+                proc_name = proc.name().lower().replace(".exe", "")
+                if name.lower() == proc_name and not proc.pid == os.getpid():
+                    return True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
     return False
@@ -24,7 +27,7 @@ def kill_process(process_name):
     logging.debug(f"Attempting to kill {process_name} process...")
     for proc in psutil.process_iter():
         try:
-            if process_name.lower() in proc.name().lower():
+            if process_name.lower() == proc.name().lower():
                 proc.kill()
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             logging.info(f"Process \"{process_name}\" doesn't exist")

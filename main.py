@@ -147,7 +147,7 @@ if __name__ == "__main__":
         open_settings()
 
     while True:
-        if process.check_process_running("discord"):
+        if process.check_process_running("Discord", "DiscordCanary"):
             try:
                 discord_rp.connect()
             except (FileNotFoundError, InvalidPipe):
