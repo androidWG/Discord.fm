@@ -1,3 +1,4 @@
+import logging
 import pylast
 
 
@@ -16,7 +17,7 @@ class TrackInfo:
         except pylast.WSError:
             pass  # TODO
         except pylast.NetworkError:
-            print("The app couldn't communicate with last.fm servers, check your internet connection!")
+            logging.warning("The app couldn't communicate with last.fm servers, check your internet connection!")
 
     def __eq__(self, other):
         if not isinstance(other, TrackInfo):

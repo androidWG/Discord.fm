@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import sys
@@ -48,11 +49,11 @@ def replace_instances(file: str, tags: list, out_file: str = "temp_", encoding: 
 
                 file_out.write(replaced_line)
 
-    print(f"Replaced tags in {file}")
+    logging.debug(f"Replaced tags in {file}")
 
     if out_file == "temp_":
         shutil.move("temp_", file)
-        print("Renamed temp_ file")
+        logging.debug("Renamed temp_ file")
 
 
 def open_logs_folder():
