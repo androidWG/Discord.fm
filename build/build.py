@@ -112,6 +112,7 @@ except FileNotFoundError:
     pass
 
 # Make platform installer
-installer.make_windows_installer(version)
+if not arg_exists("--no-installer", "-NI"):
+    installer.make_windows_installer(version)
 
 print(f"Finished building version {version}")

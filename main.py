@@ -142,7 +142,8 @@ if __name__ == "__main__":
 
         open_settings()
         close_app()
-    elif sys.argv.__contains__("-o"):
+
+    if sys.argv.__contains__("-o"):
         logging.info("\"-o\" argument was found, opening settings")
         open_settings()
 

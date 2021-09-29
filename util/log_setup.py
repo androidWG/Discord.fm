@@ -41,7 +41,7 @@ def delete_old_logs(name: str):
             logging.warning("Permission error while deleting old logs", exc_info=e)
 
 
-def setup_logging(name: str, file: bool = False):
+def setup_logging(name: str, file: bool = True):
     filename = name + datetime.datetime.utcnow().strftime("%Y-%m-%d %H-%M-%S") + ".log"
     log_path = os.path.join(local_settings.logs_path, filename)
 
@@ -51,7 +51,10 @@ def setup_logging(name: str, file: bool = False):
     formatter = MillisecondFormatter(fmt="%(asctime)s | %(levelname)-8s | %(message)s",
                                      datefmt="%H:%M:%S.%f")
     root_logger = logging.getLogger()
-    root_logger.removeHandler(root_logger.handlers[0])  # Remove stderr handler to prevent duplicate printing
+    # Remove stderr handler to prevent duplicate printing
+    if len(root_logger.handlers) != 0:
+        for handler in root_logger.handlers:
+            root_logger.removeHandler(handler)
     root_logger.setLevel(logging.DEBUG)
 
     if file:
