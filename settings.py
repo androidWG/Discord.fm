@@ -1,5 +1,4 @@
 import json
-import logging
 import os.path
 from platform import system
 
@@ -36,7 +35,7 @@ class Settings:
             with open(self.config_path, "w") as f:
                 f.write(json_string)
         except PermissionError as e:
-            logging.error("Permission denied while attempting to save settings file", exc_info=e)
+            print("Permission denied while attempting to save settings file", exc_info=e)
 
     def define(self, name: str, value: any):
         """Set a setting and save it to the settings file.
@@ -47,7 +46,7 @@ class Settings:
         :type value: any
         """
         if self.__settings_dict.keys().__contains__(name):
-            logging.debug(f"Setting value of \"{name}\" setting to \"{value}\"")
+            print(f"Setting value of \"{name}\" setting to \"{value}\"")
             self.__settings_dict[name] = value
             self.save()
         else:
@@ -61,7 +60,7 @@ class Settings:
         :return: The value of the setting. Return type is the same as the one in the parsed JSON file.
         :rtype: any
         """
-        logging.debug(f"Getting {name} setting")
+        print(f"Getting {name} setting")
         return self.__settings_dict[name]
 
     @property
@@ -80,14 +79,14 @@ def make_dir(path: str):
     :param path: Path of the directory to be created.
     :type path: str
     """
-    print(f"Path chosen for app data: {path}")
+    print(f"Creating folder \"{path}\"")
     try:
         os.mkdir(path)
         print("Created dir")
     except FileExistsError:
         pass
     except PermissionError as e:
-        logging.error(f"Unable to create application dir \"{path}\"!", exc_info=e)
+        print(f"Unable to create application dir \"{path}\"!", exc_info=e)
 
 
 def setup_app_data_dir(folder_name: str) -> str:
