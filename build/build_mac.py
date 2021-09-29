@@ -7,7 +7,6 @@ import os
 import shutil
 import subprocess
 import sys
-import installer
 from time import sleep
 from util.process import stream_process
 
