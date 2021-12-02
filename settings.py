@@ -38,7 +38,7 @@ class Settings:
             with open(self.config_path, "w") as f:
                 f.write(json_string)
         except PermissionError as e:
-            print("Permission denied while attempting to save settings file", exc_info=e)
+            print("Permission denied while attempting to save settings file")
 
     def define(self, name: str, value: any):
         """Set a setting and save it to the settings file.
@@ -89,7 +89,7 @@ def make_dir(path: str):
     except FileExistsError:
         pass
     except PermissionError as e:
-        print(f"Unable to create application dir \"{path}\"!", exc_info=e)
+        print(f"Unable to create application dir \"{path}\"!")
 
 
 def setup_app_data_dir(folder_name: str) -> str:
@@ -103,7 +103,7 @@ def setup_app_data_dir(folder_name: str) -> str:
     current_platform = system()
 
     if current_platform == "Windows":
-        path = os.path.join(os.getenv("localappdata"), folder_name)
+        path = os.path.join(os.getenv("appdata"), folder_name)
         make_dir(path)
         return path
     elif current_platform == "Darwin":
@@ -126,7 +126,7 @@ def setup_logs_dir(folder_name: str) -> str:
     current_platform = system()
 
     if current_platform == "Windows":
-        path = os.path.join(os.getenv("localappdata"), folder_name)
+        path = os.path.join(os.getenv("appdata"), folder_name)
         make_dir(path)
         return path
     elif current_platform == "Darwin":

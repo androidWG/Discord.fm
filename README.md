@@ -27,17 +27,17 @@ We need to build PyInstaller ourselves to avoid having the application be falsel
 1. Download and install [Qt](https://www.qt.io/download-qt-installer)
 2. Clone the repo with `git clone https://github.com/AndroidWG/Discord.fm.git`
 3. Build PyInstaller:
-   1. Make sure you have a C compiler like MSVC, GCC or CLang installed
-   2. Clone the PyInstaller repo with `git clone --branch master https://github.com/pyinstaller/pyinstaller.git`
-   3. Enter the repo with `cd pyinstaller`
-   4. Checkout the v4.5.1 commit with `git checkout 5a02f55c696f16b98f23a8b487f3daa8f644a8d2`
-   5. Enter the bootloader folder with `cd bootloader`
-   6. Build with `python ./waf distclean all`
-   7. Go back to Discord.fm repo with `cd ../../Discord.fm`
+    1. Make sure you have a C compiler like MSVC, GCC or CLang installed
+    2. Clone the PyInstaller repo with `git clone --branch master https://github.com/pyinstaller/pyinstaller.git`
+    3. Enter the repo with `cd pyinstaller`
+    4. Checkout the v4.5.1 commit with `git checkout 5a02f55c696f16b98f23a8b487f3daa8f644a8d2`
+    5. Enter the bootloader folder with `cd bootloader`
+    6. Build with `python ./waf distclean all`
+    7. Go back to Discord.fm repo with `cd ../../Discord.fm`
 4. Run `python -m venv venv` to set up a virtual environment
-5. Activate the venv with `venv\Scripts\activate.bat` on Windows or `source venv/bin/activate` on macOS/Linux 
-6. Run `python -m pip install -r requirements.txt` to install dependencies 
-7. Run `python ../pyinstaller/setup.py install` to install your build of PyInstaller 
+5. Activate the venv with `venv\Scripts\activate.bat` on Windows or `source venv/bin/activate` on macOS/Linux
+6. Run `python -m pip install -r requirements.txt` to install dependencies
+7. Run `python ../pyinstaller/setup.py install` to install your build of PyInstaller
 8. Make a `.env` file on the repo's root folder with 3 keys:
 ```
 lastfm_key = "<Last.fm API key>"

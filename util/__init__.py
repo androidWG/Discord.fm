@@ -16,7 +16,7 @@ def resource_path(relative_path: str, base_path: str = ".") -> str:
     :type relative_path: str
     :param base_path: Base path to get absolute path. Default is . to get it relative to the current working directory.
     :type base_path: str
-    :return: Absolute path to a resources
+    :return: Absolute path to a resource
     :rtype: str
     """
     if is_frozen():
