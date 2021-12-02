@@ -10,7 +10,7 @@ class Settings:
         self.config_path = os.path.join(self.app_data_path, settings_filename)
 
         self.__settings_dict = {  # Put default setting values here
-            "cooldown": 2,
+            "cooldown": 4,
             "username": "",
             "max_logs": 10,
             "auto_update": True
