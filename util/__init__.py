@@ -5,6 +5,7 @@ import sys
 import subprocess
 from settings import local_settings
 from platform import system
+from util import process
 
 
 # From https://stackoverflow.com/a/13790741/8286014
@@ -101,3 +102,7 @@ def arg_exists(*args):
 
 def is_frozen():  # I could just use hasattr() directly but this makes it more clear what is happening
     return hasattr(sys, "_MEIPASS")
+
+
+def open_settings():
+    process.start_process("settings_ui", "settings_ui.exe", "Discord.fm Settings.app", "ui/ui.py")

@@ -1,18 +1,20 @@
 import atexit
 import logging
+import os
 import sys
 import time
 import pystray
 import last_fm
+import util
 import discord_rich_presence as discord_rp
 from pypresence import InvalidPipe
 from sched import scheduler
 from settings import local_settings
 from threading import Thread
 from PIL import Image
-from util import log_setup, resource_path, check_dark_mode, process
+from util import log_setup
 
-__version = "0.3.0"
+__version = "0.3.1"
 
 
 # From https://stackoverflow.com/a/16993115/8286014
@@ -47,10 +49,6 @@ def toggle_rpc(icon, item):
         logging.info("Sent kill signal to thread")
 
 
-def open_settings():
-    process.start_process("settings_ui", "settings_ui.exe", "Discord.fm Settings.app", "ui/ui.py")
-
-
 def close_app(icon=None, item=None):
     global enable
     logging.info("Closing app...")
@@ -70,14 +68,14 @@ def close_app(icon=None, item=None):
 def create_tray_icon():
     global tray_icon
 
-    image_path = resource_path("resources/white/icon.png"
-                               if check_dark_mode()
-                               else "resources/black/icon.png")
+    image_path = util.resource_path("resources/white/icon.png"
+                                    if util.check_dark_mode()
+                                    else "resources/black/icon.png")
     icon = Image.open(image_path)
 
     menu = pystray.Menu(
         pystray.MenuItem("Enable Rich Presence", toggle_rpc, checked=lambda item: rpc_state),
-        pystray.MenuItem("Open Settings", open_settings),
+        pystray.MenuItem("Open Settings", util.open_settings),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("Exit", close_app))
     tray_icon = pystray.Icon("Discord.fm", icon=icon,
@@ -121,8 +119,8 @@ def handle_update():
         cooldown = local_settings.get("cooldown")
 
         if tray_icon is not None:
-            image_path = resource_path("resources/white/icon.png"
-                                       if check_dark_mode() else "resources/black/icon.png")
+            image_path = util.resource_path("resources/white/icon.png"
+                                            if util.check_dark_mode() else "resources/black/icon.png")
             icon = Image.open(image_path)
             tray_icon.icon = icon
 
@@ -137,18 +135,32 @@ if __name__ == "__main__":
     log_setup.setup_logging("main")
     atexit.register(close_app)
 
-    if process.check_process_running("discord_fm"):
+    if not os.path.isfile(util.resource_path(".env")):
+        logging.critical(".env file not found, unable to get API keys and data!")
+        close_app()
+
+    if local_settings.first_load and util.is_frozen():
+        logging.info("First load, opening settings UI and waiting for it to be closed...")
+        util.open_settings()
+
+        while not util.process.check_process_running("settings_ui"):
+            pass
+
+        while util.process.check_process_running("settings_ui"):
+            time.sleep(1)
+
+    if util.process.check_process_running("discord_fm"):
         logging.info("Discord.fm is already running, opening settings")
 
-        open_settings()
+        util.open_settings()
         close_app()
 
     if sys.argv.__contains__("-o"):
         logging.info("\"-o\" argument was found, opening settings")
-        open_settings()
+        util.open_settings()
 
     while True:
-        if process.check_process_running("Discord", "DiscordCanary"):
+        if util.process.check_process_running("Discord", "DiscordCanary"):
             try:
                 discord_rp.connect()
             except (FileNotFoundError, InvalidPipe):
