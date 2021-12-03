@@ -57,7 +57,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "{#Name}"; Flags: uninsdeletevalue;
 
 [Run]
-Filename: "{app}\settings_ui.exe"; Description: "Launch settings to configure app"; Flags: postinstall skipifsilent
+Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: postinstall skipifsilent nowait
 
 [ThirdParty]
 CompileLogFile={#LocalPath}\dist\{#Version}-installer.log

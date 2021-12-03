@@ -74,6 +74,7 @@ ui_args = [
     f"--version-file={temp_ver_ui_file}",
     f"--add-data=resources/black/.{os.pathsep}resources/black",
     f"--add-data=resources/white/.{os.pathsep}resources/white",
+    f"--add-data=.env{os.pathsep}.",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
     "--osx-bundle-identifier=com.androidwg.discordfm.ui",
