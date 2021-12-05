@@ -11,7 +11,7 @@ from time import sleep
 from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from main import __version
+from settings import __version
 
 
 def arg_exists(*args):

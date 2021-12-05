@@ -15,8 +15,6 @@ from settings import local_settings
 from pypresence import InvalidPipe, InvalidID
 from util import open_settings, process, is_frozen, resource_path, check_dark_mode, log_setup, updates
 
-__version = "0.3.1"
-
 
 # From https://stackoverflow.com/a/16993115/8286014
 def handle_exception(exc_type, exc_value, exc_traceback):

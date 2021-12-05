@@ -4,7 +4,7 @@ import tempfile
 import requests
 import util.request_handler
 from packaging import version
-from main import __version
+from settings import __version
 
 
 def check_version_and_download():

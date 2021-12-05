@@ -2,6 +2,8 @@ import json
 import os.path
 from platform import system
 
+__version = "0.3.1"
+
 
 class Settings:
     def __init__(self, app_name, settings_filename="settings.json"):
