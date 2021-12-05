@@ -82,10 +82,9 @@ def make_dir(path: str):
     :param path: Path of the directory to be created.
     :type path: str
     """
-    print(f"Creating folder \"{path}\"")
     try:
         os.mkdir(path)
-        print("Created dir")
+        print(f"Creating folder \"{path}\"")
     except FileExistsError:
         pass
     except PermissionError as e:

@@ -53,8 +53,8 @@ def close_app(icon=None, item=None):
 
     try:
         discord_rp.exit_rp()
-    except (RuntimeError, AttributeError, AssertionError) as e:
-        logging.debug("Caught exception while closing Discord RP", exc_info=e)
+    except (RuntimeError, AttributeError, AssertionError):
+        pass
 
     if tray_icon is not None:
         tray_icon.stop()
@@ -66,9 +66,9 @@ def close_app(icon=None, item=None):
 def create_tray_icon():
     global tray_icon
 
-    image_path = util.resource_path("resources/white/icon.png"
-                                    if util.check_dark_mode()
-                                    else "resources/black/icon.png")
+    image_path = resource_path("resources/white/icon.png"
+                               if check_dark_mode()
+                               else "resources/black/icon.png")
     icon = Image.open(image_path)
 
     menu = pystray.Menu(
@@ -110,8 +110,8 @@ def handle_update():
         cooldown = local_settings.get("cooldown")
 
         if tray_icon is not None:
-            image_path = util.resource_path("resources/white/icon.png"
-                                            if util.check_dark_mode() else "resources/black/icon.png")
+            image_path = resource_path("resources/white/icon.png"
+                                       if check_dark_mode() else "resources/black/icon.png")
             icon = Image.open(image_path)
             tray_icon.icon = icon
 

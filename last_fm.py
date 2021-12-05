@@ -44,5 +44,6 @@ class LastFMUser:
                 logging.info("An exception occurred while checking username", exc_info=e)
                 return None
         except (ConnectionError, pylast.NetworkError) as e:
-            logging.warning("Unable to communicate with Last.fm servers, check your internet connection", exc_info=e)
+            logging.warning("Unable to communicate with Last.fm servers, check your request_handler connection",
+                            exc_info=e)
             return None
