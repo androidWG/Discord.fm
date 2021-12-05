@@ -7,10 +7,12 @@ import pystray
 import last_fm
 import discord_rich_presence as discord_rp
 from PIL import Image
+from platform import system
 from sched import scheduler
 from threading import Thread
-from pypresence import InvalidPipe, InvalidID
+from plyer import notification
 from settings import local_settings
+from pypresence import InvalidPipe, InvalidID
 from util import open_settings, process, is_frozen, resource_path, check_dark_mode, log_setup, updates
 
 __version = "0.3.1"
@@ -31,6 +33,7 @@ user = last_fm.LastFMUser(local_settings.get("username"))
 tray_icon = None
 rpc_state = True
 enable = True
+waiting_for_discord = False
 
 
 def toggle_rpc(icon, item):
@@ -66,16 +69,14 @@ def close_app(icon=None, item=None):
 def create_tray_icon():
     global tray_icon
 
-    image_path = resource_path("resources/white/icon.png"
-                               if check_dark_mode()
-                               else "resources/black/icon.png")
+    image_path = resource_path("resources/white/icon.png" if check_dark_mode() else "resources/black/icon.png")
     icon = Image.open(image_path)
 
-    menu = pystray.Menu(
-        pystray.MenuItem("Enable Rich Presence", toggle_rpc, checked=lambda item: rpc_state),
-        pystray.MenuItem("Open Settings", open_settings),
-        pystray.Menu.SEPARATOR,
-        pystray.MenuItem("Exit", close_app))
+    menu = pystray.Menu(pystray.MenuItem("Enable Rich Presence", toggle_rpc,
+                                         enabled=lambda i: not waiting_for_discord, checked=lambda i: rpc_state),
+                        pystray.MenuItem("Open Settings", open_settings),
+                        pystray.Menu.SEPARATOR,
+                        pystray.MenuItem("Exit", close_app))
     tray_icon = pystray.Icon("Discord.fm", icon=icon,
                              title="Discord.fm", menu=menu)
 
@@ -127,7 +128,7 @@ def handle_update():
 
 
 def wait_for_discord():
-    global enable
+    global enable, waiting_for_discord
     enable = False
     while True:
         if process.check_process_running("Discord", "DiscordCanary"):
@@ -136,12 +137,39 @@ def wait_for_discord():
             except (FileNotFoundError, InvalidPipe):
                 continue
             except PermissionError as e:
-                logging.critical("Got permission error while trying to connect to Discord", exc_info=e)
-                close_app()  # TODO: Handle other users using Discord here
+                if not notification_called:
+                    logging.critical("Another user has Discord open, notifying user", exc_info=e)
+
+                    title = "Another user has Discord open"
+                    message = "Discord.fm will not update your Rich Presence or theirs. Please close the other " \
+                              "instance before scrobbling on this account. "
+                    icon = resource_path(
+                        "resources/white/icon.png" if check_dark_mode() else "resources/black/icon.png")
+
+                    if system() == "Windows":
+                        notification.notify(
+                            title=title,
+                            message=message,
+                            app_name="Discord.fm",
+                        )
+                    else:
+                        notification.notify(
+                            title=title,
+                            message=message,
+                            app_name="Discord.fm",
+                            app_icon=icon
+                        )
+
+                    notification_called = True
+                continue
+
             break
         else:
             time.sleep(10)
+
+    waiting_for_discord = False
     enable = True
+    tray_icon.update_menu()
 
 
 if __name__ == "__main__":
@@ -178,10 +206,13 @@ if __name__ == "__main__":
         logging.info("\"-o\" argument was found, opening settings")
         open_settings()
 
-    wait_for_discord()
-
     tray_thread = Thread(target=create_tray_icon)
     tray_thread.start()
+
+    while tray_icon is None:
+        pass
+
+    wait_for_discord()
 
     try:
         handle_update()

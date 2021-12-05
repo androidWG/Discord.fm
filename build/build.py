@@ -55,6 +55,7 @@ main_args = [
     f"--icon=resources/icon.ico",
     "--name=discord_fm",
     f"--version-file={temp_ver_main_file}",
+    "--hidden-import=plyer.platforms.win.notification",
     f"--add-data=resources/black/.{os.pathsep}resources/black",
     f"--add-data=resources/white/.{os.pathsep}resources/white",
     f"--add-data=.env{os.pathsep}.",
