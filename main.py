@@ -5,14 +5,13 @@ import sys
 import time
 import pystray
 import last_fm
-import util
 import discord_rich_presence as discord_rp
-from pypresence import InvalidPipe
-from sched import scheduler
-from settings import local_settings
-from threading import Thread
 from PIL import Image
-from util import log_setup
+from sched import scheduler
+from threading import Thread
+from pypresence import InvalidPipe
+from settings import local_settings
+from util import open_settings, process, is_frozen, resource_path, check_dark_mode, log_setup, updates
 
 __version = "0.3.1"
 
@@ -29,7 +28,6 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 sys.excepthook = handle_exception
 
 user = last_fm.LastFMUser(local_settings.get("username"))
-no_song_counter = 0
 tray_icon = None
 rpc_state = True
 enable = True
@@ -75,7 +73,7 @@ def create_tray_icon():
 
     menu = pystray.Menu(
         pystray.MenuItem("Enable Rich Presence", toggle_rpc, checked=lambda item: rpc_state),
-        pystray.MenuItem("Open Settings", util.open_settings),
+        pystray.MenuItem("Open Settings", open_settings),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("Exit", close_app))
     tray_icon = pystray.Icon("Discord.fm", icon=icon,
@@ -94,18 +92,11 @@ def handle_update():
         if not enable:
             return
 
-        global no_song_counter
         track = user.now_playing()
-        if track is None:
-            logging.debug("No song playing")
-            no_song_counter += 1
-
-            if no_song_counter == 5:  # Last.fm takes a while to update on song change, make sure user is
-                # listening to nothing to clear RP
-                discord_rp.disconnect()
-        else:
-            no_song_counter = 0
+        if track is not None:
             discord_rp.update_status(track)
+        else:
+            logging.debug("Not playing anything")
 
         sc.enter(cooldown, 1, lastfm_update, (scheduler,))
 
@@ -135,36 +126,45 @@ if __name__ == "__main__":
     log_setup.setup_logging("main")
     atexit.register(close_app)
 
-    if not os.path.isfile(util.resource_path(".env")):
+    if not os.path.isfile(resource_path(".env")):
         logging.critical(".env file not found, unable to get API keys and data!")
         close_app()
 
-    if local_settings.first_load and util.is_frozen():
-        logging.info("First load, opening settings UI and waiting for it to be closed...")
-        util.open_settings()
+    updates.check_version_and_download()
 
-        while not util.process.check_process_running("settings_ui"):
+    no_username = local_settings.get("username") == ""
+    if local_settings.first_load or no_username and is_frozen():
+        logging.info("First load, opening settings UI and waiting for it to be closed...")
+        open_settings()
+
+        while not process.check_process_running("settings_ui"):
             pass
 
-        while util.process.check_process_running("settings_ui"):
-            time.sleep(1)
+        while process.check_process_running("settings_ui"):
+            time.sleep(1.5)
+    elif no_username and not is_frozen():
+        logging.critical("No username found - please add a username to settings and restart the app")
+        close_app()
 
-    if util.process.check_process_running("discord_fm"):
+    if process.check_process_running("discord_fm"):
         logging.info("Discord.fm is already running, opening settings")
 
-        util.open_settings()
+        open_settings()
         close_app()
 
     if sys.argv.__contains__("-o"):
         logging.info("\"-o\" argument was found, opening settings")
-        util.open_settings()
+        open_settings()
 
     while True:
-        if util.process.check_process_running("Discord", "DiscordCanary"):
+        if process.check_process_running("Discord", "DiscordCanary"):
             try:
                 discord_rp.connect()
             except (FileNotFoundError, InvalidPipe):
                 continue
+            except PermissionError as e:
+                logging.critical("Got permission error while trying to connect to Spotify", exc_info=e)
+                close_app()
             break
         else:
             time.sleep(8)

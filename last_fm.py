@@ -1,6 +1,8 @@
 import logging
 import pylast
 import track_info
+import util.request_handler
+import discord_rich_presence as discord_rp
 from os import environ
 from dotenv import load_dotenv
 from util import resource_path
@@ -19,19 +21,17 @@ class LastFMUser:
         self.user = network.get_user(username)
 
     def now_playing(self):
-        try:
-            current_track = self.user.get_now_playing()
-            if current_track is not None:
-                track = track_info.TrackInfo(current_track)
-                return track
-        except pylast.WSError as e:
-            logging.info(f"Connection problem at web service", exc_info=e)
-        except pylast.NetworkError as e:
-            logging.warning("Unable to communicate with Last.fm servers, check your internet connection", exc_info=e)
-        except pylast.MalformedResponseError as e:
-            logging.info("Last.fm internal server error, retrying connection", exc_info=e)
+        request = util.request_handler.attempt_request(
+            self.user.get_now_playing,
+            "user's Now Playing",
+            timeout_func=discord_rp.disconnect
+        )
 
-        return None
+        if request is not None:
+            info = track_info.TrackInfo(request)
+            return info
+        else:
+            return None
 
     def check_username(self):
         try:
