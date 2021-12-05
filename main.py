@@ -54,7 +54,7 @@ def close_app(icon=None, item=None):
 
     try:
         discord_rp.exit_rp()
-    except (RuntimeError, AttributeError, AssertionError):
+    except (RuntimeError, AttributeError, AssertionError, InvalidID):
         pass
 
     if tray_icon is not None:
@@ -92,7 +92,11 @@ def handle_update():
             sc.enter(cooldown, 1, lastfm_update, (scheduler,))
             return
 
-        track = user.now_playing()
+        try:
+            track = user.now_playing()
+        except KeyboardInterrupt:
+            return
+
         if track is not None:
             try:
                 discord_rp.update_status(track)
