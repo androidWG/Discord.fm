@@ -89,6 +89,7 @@ def handle_update():
     # noinspection PyUnboundLocalVariable,PyShadowingNames
     def lastfm_update(scheduler):
         if not enable:
+            sc.enter(cooldown, 1, lastfm_update, (scheduler,))
             return
 
         track = user.now_playing()
@@ -107,6 +108,7 @@ def handle_update():
         logging.debug("Running misc update")
 
         if not enable:
+            sc.enter(misc_cooldown, 2, misc_update, (misc_scheduler,))
             return
 
         nonlocal cooldown
@@ -128,6 +130,10 @@ def handle_update():
 def wait_for_discord():
     global enable, waiting_for_discord
     enable = False
+    notification_called = False
+    waiting_for_discord = True
+    tray_icon.update_menu()
+
     while True:
         if process.check_process_running("Discord", "DiscordCanary"):
             try:
@@ -174,11 +180,11 @@ if __name__ == "__main__":
     log_setup.setup_logging("main")
     atexit.register(close_app)
 
+    updates.check_version_and_download()
+
     if not os.path.isfile(resource_path(".env")):
         logging.critical(".env file not found, unable to get API keys and data!")
         close_app()
-
-    updates.check_version_and_download()
 
     no_username = local_settings.get("username") == ""
     if local_settings.first_load or no_username and is_frozen():
