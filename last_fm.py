@@ -16,6 +16,8 @@ network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
 
 
 class LastFMUser:
+    _last_request: tuple[pylast.Track, track_info.TrackInfo] = (None, None)
+
     def __init__(self, username):
         self.username = username
         self.user = network.get_user(username)
@@ -27,8 +29,11 @@ class LastFMUser:
             timeout_func=discord_rp.disconnect
         )
 
-        if request is not None:
+        if request == self._last_request[0]:
+            return self._last_request[1]
+        elif request is not None:
             info = track_info.TrackInfo(request)
+            self._last_request = (request, info)
             return info
         else:
             return None
