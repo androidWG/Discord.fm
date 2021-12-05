@@ -2,7 +2,7 @@
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/AndroidWG/Discord.fm.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/AndroidWG/Discord.fm/alerts/)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/AndroidWG/Discord.fm.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/AndroidWG/Discord.fm/context:python)
 
-Background service that shows what you're scrobbling on Last.fm to on Discord.
+Multi-platform background service that shows what you're scrobbling on Last.fm to on Discord, with automatic updates and support for Discord Canary.
 
 Forked from [Last.fm-Discord-Rich-Presence](https://github.com/Gust4Oliveira/Last.fm-Discord-Rich-Presence) by [Gust4Oliveira](https://github.com/Gust4Oliveira)
 
@@ -12,14 +12,13 @@ Forked from [Last.fm-Discord-Rich-Presence](https://github.com/Gust4Oliveira/Las
 ### Windows
 - Download the latest [release](https://github.com/AndroidWG/Discord.fm/releases/latest)
 - Run the installer
-- The Settings interface will open when you're finished. Put your Last.fm Username and close the window.
+- The settings UI will open when you're finished. Put your Last.fm Username and close the window.
 - Done
 
-Discord.fm will start with Windows automatically.
+Discord.fm will start with Windows automatically, and a tray icon will appear where you can enable or disable the Rich Presence status, open settings or exit the app.
 
-A tray icon will appear where you can enable or disable the Rich Presence status, open settings or close the app.
-
-**NOTE:** Automatic updates will be available soon.
+### macOS
+Version 0.5.0 will most likely have macOS binaries available. Right now the macOS version works almost fully, and only some kinks need to be ironed out.
 
 ## Building/Setting up dev environment
 We need to build PyInstaller ourselves to avoid having the application be falsely flagged by antivirus programs as a virus. If you don't intend to build for distribution, you can skip the 3rd step.
@@ -33,12 +32,13 @@ We need to build PyInstaller ourselves to avoid having the application be falsel
     4. Checkout the v4.5.1 commit with `git checkout 5a02f55c696f16b98f23a8b487f3daa8f644a8d2`
     5. Enter the bootloader folder with `cd bootloader`
     6. Build with `python ./waf distclean all`
-    7. Go back to Discord.fm repo with `cd ../../Discord.fm`
+    7. Go back to main directory by entering `cd ..`
+    8. Run `..\Discord.fm\venv\Scripts\python.exe setup.py install` on Windows or `../Discord.fm/venv/Scripts/python setup.py install` on macOS/Linux to install your build of PyInstaller
+    9. Go back to Discord.fm repo with `cd ../Discord.fm`
 4. Run `python -m venv venv` to set up a virtual environment
 5. Activate the venv with `venv\Scripts\activate.bat` on Windows or `source venv/bin/activate` on macOS/Linux
 6. Run `python -m pip install -r requirements.txt` to install dependencies
-7. Run `python ../pyinstaller/setup.py install` to install your build of PyInstaller
-8. Make a `.env` file on the repo's root folder with 3 keys:
+7. Make a `.env` file on the repo's root folder with 3 keys:
 ```
 lastfm_key = "<Last.fm API key>"
 lastfm_secret = "<Last.fm API secret>"
