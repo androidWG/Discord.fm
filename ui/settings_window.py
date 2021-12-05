@@ -1,9 +1,8 @@
 import logging
 import os
 import sys
-import threading
 import last_fm
-from threading import Thread
+from threading import Thread, get_ident
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon, Qt, QCloseEvent
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSlider, QVBoxLayout, QWidget, \
@@ -144,7 +143,7 @@ class SettingsWindow(QWidget):
         user = last_fm.LastFMUser(self.username_input.text())
         user_valid = user.check_username()
 
-        if self.thread.ident != threading.get_ident():
+        if self.thread.ident != get_ident():
             return
 
         if user_valid:

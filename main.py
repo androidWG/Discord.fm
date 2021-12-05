@@ -9,7 +9,7 @@ import discord_rich_presence as discord_rp
 from PIL import Image
 from sched import scheduler
 from threading import Thread
-from pypresence import InvalidPipe
+from pypresence import InvalidPipe, InvalidID
 from settings import local_settings
 from util import open_settings, process, is_frozen, resource_path, check_dark_mode, log_setup, updates
 
@@ -94,7 +94,11 @@ def handle_update():
 
         track = user.now_playing()
         if track is not None:
-            discord_rp.update_status(track)
+            try:
+                discord_rp.update_status(track)
+            except (BrokenPipeError, InvalidID):
+                logging.info("Discord is being closed, will wait for it to open again")
+                wait_for_discord()
         else:
             logging.debug("Not playing anything")
 
@@ -120,6 +124,24 @@ def handle_update():
     sc.enter(cooldown, 1, lastfm_update, (sc,))
     sc.enter(misc_cooldown, 2, misc_update, (sc,))
     sc.run()
+
+
+def wait_for_discord():
+    global enable
+    enable = False
+    while True:
+        if process.check_process_running("Discord", "DiscordCanary"):
+            try:
+                discord_rp.connect()
+            except (FileNotFoundError, InvalidPipe):
+                continue
+            except PermissionError as e:
+                logging.critical("Got permission error while trying to connect to Discord", exc_info=e)
+                close_app()  # TODO: Handle other users using Discord here
+            break
+        else:
+            time.sleep(10)
+    enable = True
 
 
 if __name__ == "__main__":
@@ -156,18 +178,7 @@ if __name__ == "__main__":
         logging.info("\"-o\" argument was found, opening settings")
         open_settings()
 
-    while True:
-        if process.check_process_running("Discord", "DiscordCanary"):
-            try:
-                discord_rp.connect()
-            except (FileNotFoundError, InvalidPipe):
-                continue
-            except PermissionError as e:
-                logging.critical("Got permission error while trying to connect to Spotify", exc_info=e)
-                close_app()
-            break
-        else:
-            time.sleep(8)
+    wait_for_discord()
 
     tray_thread = Thread(target=create_tray_icon)
     tray_thread.start()
