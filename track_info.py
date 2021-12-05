@@ -1,5 +1,5 @@
-import logging
 import pylast
+from util import request_handler
 
 
 class TrackInfo:
@@ -9,15 +9,18 @@ class TrackInfo:
     duration: int
 
     def __init__(self, lastfm_track: pylast.Track):
-        try:
-            self.name = lastfm_track.title
-            self.artist = lastfm_track.artist.name
-            self.album = lastfm_track.get_album()
-            self.duration = lastfm_track.get_duration()
-        except pylast.WSError:
-            pass  # TODO
-        except pylast.NetworkError:
-            logging.warning("The app couldn't communicate with last.fm servers, check your internet connection!")
+        self.name = lastfm_track.title
+        self.artist = lastfm_track.artist.name
+
+        album_request = request_handler.attempt_request(
+            lastfm_track.get_album,
+            f"album for track \"{self.name}\"")
+        duration_request = request_handler.attempt_request(
+            lastfm_track.get_duration,
+            f"album for track \"{self.name}\"")
+
+        self.album = album_request
+        self.duration = duration_request
 
     def __eq__(self, other):
         if not isinstance(other, TrackInfo):
