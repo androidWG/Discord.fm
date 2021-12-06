@@ -44,6 +44,7 @@ AlwaysUsePersonalGroup=True
 AppendDefaultGroupName=False
 UsePreviousGroup=False
 DefaultGroupName=Discord.fm
+PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
 
 [Languages]
