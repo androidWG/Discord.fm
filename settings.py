@@ -9,7 +9,7 @@ class Settings:
     def __init__(self, app_name, settings_filename="settings.json"):
         self.app_data_path = setup_app_data_dir(app_name)
         self.logs_path = setup_logs_dir(app_name)
-        self.config_path = os.path.join(self.app_data_path, settings_filename)
+        self.config_file_path = os.path.join(self.app_data_path, settings_filename)
 
         self.__settings_dict = {  # Put default setting values here
             "cooldown": 4,
@@ -19,7 +19,7 @@ class Settings:
         }
 
         try:
-            with open(self.config_path) as file:
+            with open(self.config_file_path) as file:
                 loaded_dict = json.load(file)
                 for s in self.__settings_dict.keys():
                     if not loaded_dict.keys().__contains__(s):
@@ -37,7 +37,7 @@ class Settings:
         json_string = json.dumps(self.__settings_dict, indent=4)
 
         try:
-            with open(self.config_path, "w") as f:
+            with open(self.config_file_path, "w") as f:
                 f.write(json_string)
         except PermissionError as e:
             print("Permission denied while attempting to save settings file")
@@ -93,6 +93,18 @@ def make_dir(path: str):
         print(f"Unable to create application dir \"{path}\"!")
 
 
+def clear_executables(app_data_path: str):
+    """Removes all executable files leftover from previous updates.
+
+    :param app_data_path: Path of the app data directory containing the files
+    :type app_data_path: str
+    """
+    for file in os.listdir(app_data_path):
+        if file.endswith(".exe"):
+            print(f"Removing leftover update file {file}")
+            os.remove(os.path.join(app_data_path, file))
+
+
 def setup_app_data_dir(folder_name: str) -> str:
     """Gets the folder where to store log files.
 
@@ -106,10 +118,12 @@ def setup_app_data_dir(folder_name: str) -> str:
     if current_platform == "Windows":
         path = os.path.join(os.getenv("appdata"), folder_name)
         make_dir(path)
+        clear_executables(path)
         return path
     elif current_platform == "Darwin":
         path = os.path.join(os.path.expanduser("~/Library/Application Support"), folder_name)
         make_dir(path)
+        clear_executables(path)
         return path
     else:
         raise NotImplementedError("Linux is currently unsupported")

@@ -3,7 +3,8 @@ import os
 import requests
 import install.windows
 from packaging import version
-from settings import __version
+from settings import __version, local_settings
+from util import arg_exists, request_handler
 
 
 def check_version_and_download():
@@ -20,7 +21,7 @@ def get_newest_release():
     headers = {"Accept": "application/vnd.github.v3+json",
                "User-Agent": "Discord.fm"}
 
-    request = util.request_handler.attempt_request(
+    request = request_handler.attempt_request(
         requests.get,
         "GitHub request",
         url="https://api.github.com/repos/AndroidWG/Discord.fm/releases",
@@ -43,7 +44,7 @@ def download_asset(asset: dict):
     headers = {"Accept": "application/octet-stream",
                "User-Agent": "Discord.fm"}
 
-    request = util.request_handler.attempt_request(
+    request = request_handler.attempt_request(
         requests.get,
         "GitHub download",
         timeout=1200,

@@ -57,10 +57,10 @@ def make_macos_installer(version: str):
     print("\nStarted building macOS installer")
 
     info = package_build.PackageInfo(
-        name="Corkscrew",
+        name="Discord.fm",
         version=version,
-        package="com.androidwg.corkscrew",
-        install_location="/Library/Corkscrew"
+        package="com.androidwg.Discord_fm",
+        install_location="/Library/Discord.fm"
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
