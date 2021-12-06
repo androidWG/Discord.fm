@@ -8,6 +8,9 @@ from util import arg_exists, request_handler
 
 
 def check_version_and_download():
+    if not local_settings.get("auto_update"):
+        return False
+
     new_release = get_newest_release()
     if new_release is not None:
         path = download_asset(new_release)

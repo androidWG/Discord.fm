@@ -65,7 +65,7 @@ class SettingsWindow(QWidget):
         buttons_layout.addWidget(self.service_button)
 
         # noinspection PyTypeChecker
-        self.auto_update_check = QCheckBox("Automatically download and install updates", enabled=False)
+        self.auto_update_check = QCheckBox("Automatically download and install updates")
         self.auto_update_check.stateChanged.connect(
             lambda: self.save_setting("auto_update", self.auto_update_check.isChecked()))
         self.status_label = QLabel("Waiting...")
