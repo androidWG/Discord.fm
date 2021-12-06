@@ -44,6 +44,7 @@ AlwaysUsePersonalGroup=True
 AppendDefaultGroupName=False
 UsePreviousGroup=False
 DefaultGroupName=Discord.fm
+PrivilegesRequiredOverridesAllowed=commandline
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -57,7 +58,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "{#Name}"; Flags: uninsdeletevalue;
 
 [Run]
-Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: postinstall skipifsilent nowait
+Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: postinstall nowait
 
 [ThirdParty]
 CompileLogFile={#LocalPath}\dist\{#Version}-installer.log

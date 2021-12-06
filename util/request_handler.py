@@ -29,7 +29,12 @@ def wait_for_internet():
             time.sleep(2)
 
 
-def attempt_request(request_func: Callable, message: str = "request", timeout_func: Callable = None, *args, **kwargs):
+def attempt_request(
+        request_func: Callable,
+        message: str = "request",
+        inactive_func: Callable = None,
+        timeout: float = 60,
+        *args, **kwargs):
     """Tries to run ``request_func`` and catches common exception errors from methods that use
     ``requests.get``. Returns None if the request ultimately fails.
 
@@ -38,17 +43,19 @@ def attempt_request(request_func: Callable, message: str = "request", timeout_fu
     :type message: str
     :param request_func: The function that we will try
     :type request_func: Callable
-    :param timeout_func: Function that will be executed after 60 seconds of inactivity (optional)
-    :type timeout_func: Callable
+    :param inactive_func: Function that will be executed after 60 seconds of inactivity (optional)
+    :type inactive_func: Callable
+    :param timeout: How many seconds before we determine the function is taking too long
+    :type timeout: float
     :return: request_func result or None if it fails
     """
     global current_thread
-    timeout_timer = threading.Timer(20, _interrupt)
+    timeout_timer = threading.Timer(timeout, _interrupt)
     timeout_timer.start()
     inactive_timer = None
 
-    if timeout_func is not None:
-        inactive_timer = threading.Timer(30, timeout_func)
+    if inactive_func is not None:
+        inactive_timer = threading.Timer(30, inactive_func)
         inactive_timer.start()
 
     while True:

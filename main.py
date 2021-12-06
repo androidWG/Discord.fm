@@ -184,7 +184,9 @@ if __name__ == "__main__":
     log_setup.setup_logging("main")
     atexit.register(close_app)
 
-    updates.check_version_and_download()
+    if updates.check_version_and_download():
+        logging.info("Quitting to allow installation of newer version")
+        close_app()
 
     if not os.path.isfile(resource_path(".env")):
         logging.critical(".env file not found, unable to get API keys and data!")

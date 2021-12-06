@@ -1,5 +1,4 @@
 import logging
-import os.path
 import subprocess
 import platform
 import util.timeout
@@ -35,17 +34,16 @@ def get_install_folder_and_version() -> tuple:
 
 
 @util.timeout.exit_after(180)
-def do_silent_install(temp_dir: str, installer_path: str):
-    """Runs a NSIS-based installer in silent mode under a subprocess and waits for it to finish.
+def do_silent_install(installer_path: str):
+    """Runs an Inno Setup installer in silent mode under a subprocess and waits for it to finish.
 
-    :param temp_dir: Temporary directory to be used
-    :type temp_dir: str
     :param installer_path: Path where the .zip containing the .app folder is located
     :type installer_path: str
     """
     logging.info("Installing for Windows...")
 
-    command = f"\"{os.path.join(temp_dir, installer_path)}\" /S"
+    command = f"\"{installer_path}\" /VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /FORCECLOSEAPPLICATIONS " \
+              f"/CURRENTUSER "
     logging.debug(f"Running command: {command}")
-    process = subprocess.Popen(command, shell=True)
-    process.wait()
+    subprocess.Popen(command, shell=True)
+

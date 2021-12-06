@@ -26,7 +26,7 @@ class LastFMUser:
         request = util.request_handler.attempt_request(
             self.user.get_now_playing,
             "user's Now Playing",
-            timeout_func=discord_rp.disconnect
+            inactive_func=discord_rp.disconnect
         )
 
         if request == self._last_request[0]:
