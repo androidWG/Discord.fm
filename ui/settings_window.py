@@ -140,11 +140,14 @@ class SettingsWindow(QWidget):
         self.status_label.repaint()
 
     def _check_username(self):
-        user = last_fm.LastFMUser(self.username_input.text())
-        user_valid = user.check_username()
-
         if self.thread.ident != get_ident():
             return
+
+        try:
+            user = last_fm.LastFMUser(self.username_input.text())
+            user_valid = user.check_username()
+        except ValueError:
+            user_valid = False
 
         if user_valid:
             self.username_status.setText("Username is valid")
