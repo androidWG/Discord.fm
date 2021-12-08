@@ -18,7 +18,10 @@ network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
 class LastFMUser:
     _last_request: tuple[pylast.Track, track_info.TrackInfo] = (None, None)
 
-    def __init__(self, username):
+    def __init__(self, username: str):
+        if username == "":
+            raise ValueError("Username is empty")
+
         self.username = username
         self.user = network.get_user(username)
 
