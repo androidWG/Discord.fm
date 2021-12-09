@@ -28,7 +28,7 @@ class Settings:
                 self.__settings_dict = loaded_dict
 
             self.first_load = False
-        except (FileNotFoundError, json.decoder.JSONDecodeError,):
+        except (FileNotFoundError, json.decoder.JSONDecodeError, UnicodeDecodeError):
             self.save()
             self.first_load = True
 
@@ -39,7 +39,7 @@ class Settings:
         try:
             with open(self.config_file_path, "w") as f:
                 f.write(json_string)
-        except PermissionError as e:
+        except PermissionError:
             print("Permission denied while attempting to save settings file")
 
     def define(self, name: str, value: any):
@@ -58,7 +58,7 @@ class Settings:
             raise KeyError(f"Key \"{name}\" not found in settings dictionary")
 
     def get(self, name: str) -> any:
-        """Get a setting from it's key name.
+        """Get a setting from its key name.
 
         :param name: Name of key for the setting.
         :type name: str
@@ -86,11 +86,9 @@ def make_dir(path: str):
     """
     try:
         os.mkdir(path)
-        print(f"Creating folder \"{path}\"")
+        print(f"Created folder \"{path}\"")
     except FileExistsError:
         pass
-    except PermissionError as e:
-        print(f"Unable to create application dir \"{path}\"!")
 
 
 def clear_executables(app_data_path: str):
