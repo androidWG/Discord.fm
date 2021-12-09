@@ -1,10 +1,12 @@
 import asyncio
 import logging
 import datetime
+import track_info
 from os import environ
-from pypresence import Presence
-from dotenv import load_dotenv
 from util import resource_path
+from dotenv import load_dotenv
+from pypresence import Presence
+
 
 load_dotenv(resource_path(".env"))
 
@@ -30,7 +32,7 @@ def exit_rp():
     logging.info("Closed Discord Rich Presence")
 
 
-def update_status(track):
+def update_status(track: track_info.TrackInfo):
     global last_track
     if last_track == track:
         logging.debug(f"Track {track.name} is the same as last track {last_track.name}, not updating")
@@ -42,7 +44,7 @@ def update_status(track):
         time_remaining = (track.duration / 1000) + start_time
         try:
             if track.duration != 0:
-                discord_presence.update(details=track.name, state=track.artist, end=time_remaining,
+                discord_presence.update(details=track.name, state=track.artist, end=int(time_remaining),
                                         large_image="lastfm", large_text="Discord.fm")
             else:
                 discord_presence.update(details=track.name, state=track.artist,
