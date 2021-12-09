@@ -1,8 +1,10 @@
 import logging
 import os
+import platform
 import shutil
 import sys
 import subprocess
+from plyer import notification
 from settings import local_settings
 from platform import system
 from util import process
@@ -106,3 +108,18 @@ def is_frozen():  # I could just use hasattr() directly but this makes it more c
 
 def open_settings():
     process.start_process("settings_ui", "settings_ui.exe", "Discord.fm Settings.app", "ui/ui.py")
+
+
+def basic_notification(title, message):
+    current_platform = platform.system()
+    if current_platform == "Windows":
+        icon = resource_path("resources/icon.ico")
+    else:
+        icon = resource_path("resources/white/icon.png" if check_dark_mode() else "resources/black/icon.png")
+
+    notification.notify(
+        title=title,
+        message=message,
+        app_name="Discord.fm",
+        app_icon=icon,
+    )
