@@ -7,13 +7,6 @@ from os import environ
 from dotenv import load_dotenv
 from util import resource_path
 
-load_dotenv(resource_path(".env"))
-
-API_KEY = environ.get("lastfm_key")
-API_SECRET = environ.get("lastfm_secret")
-
-network = pylast.LastFMNetwork(api_key=API_KEY, api_secret=API_SECRET)
-
 
 class LastFMUser:
     _last_request: tuple[pylast.Track, track_info.TrackInfo] = (None, None)
@@ -21,6 +14,12 @@ class LastFMUser:
     def __init__(self, username: str):
         if username == "":
             raise ValueError("Username is empty")
+
+        load_dotenv(resource_path(".env"))
+
+        api_key = environ.get("lastfm_key")
+        api_secret = environ.get("lastfm_secret")
+        network = pylast.LastFMNetwork(api_key=api_key, api_secret=api_secret)
 
         self.username = username
         self.user = network.get_user(username)

@@ -17,8 +17,10 @@ class TestLastFm(TestCase):
         with self.assertRaises(ValueError):
             last_fm.LastFMUser("")
 
+    @patch("dotenv.load_dotenv")
+    @patch("os.environ.get")
     @patch("pylast.User.get_now_playing")
-    def test_check_username(self, mock_now_playing):
+    def test_check_username(self, mock_now_playing, *mock):
         mock_now_playing.side_effect = [
             self.data,
             self.error,
