@@ -1,0 +1,7 @@
+{
+    "cooldown": 64,
+    "username": "rickAstley",
+    "max_logs": 20,
+    "auto_update": true,
+    "testing": "discord.fmTest"
+}

@@ -4,7 +4,6 @@ from unittest import TestCase, main
 from unittest.mock import patch, MagicMock
 
 
-@patch("pylast.User.get_now_playing")
 class TestLastFm(TestCase):
     data = pylast.Track("TestArtist", "TestTitle", None, "TestUsername")
     error = pylast.WSError(None, None, "User not found")
@@ -14,7 +13,12 @@ class TestLastFm(TestCase):
         "andodide": True,
         "androidWG": False}
 
-    def test_username(self, mock_now_playing):
+    def test_invalid_username(self):
+        with self.assertRaises(ValueError):
+            last_fm.LastFMUser("")
+
+    @patch("pylast.User.get_now_playing")
+    def test_check_username(self, mock_now_playing):
         mock_now_playing.side_effect = [
             self.data,
             self.error,
@@ -27,8 +31,22 @@ class TestLastFm(TestCase):
             result = user.check_username()
             self.assertEqual(result, self.usernames[name])
 
-        with self.assertRaises(ValueError):
-            last_fm.LastFMUser("")
+    @patch("util.request_handler.attempt_request")
+    @patch("track_info.TrackInfo")
+    def test_now_playing(self, mock_track_info, mock_request_handler):
+        mock = MagicMock(name="TestTitle", artist="TestArtist", duration=2852)
+        mock_track_info.return_value = mock
+        mock_request_handler.side_effect = [None, self.data, self.data]
+
+        user = last_fm.LastFMUser(list(self.usernames)[0])
+
+        result1 = user.now_playing()
+        result2 = user.now_playing()
+        result3 = user.now_playing()
+
+        self.assertIsNone(result1)
+        self.assertEqual(result2, mock)
+        self.assertEqual(result3, mock)
 
 
 if __name__ == '__main__':
