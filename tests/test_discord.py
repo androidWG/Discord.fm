@@ -12,7 +12,8 @@ class StatusUpdateTest(unittest.TestCase):
     data2 = MagicMock(name=title, artist=artist, duration=2852)
 
     @patch("pypresence.Presence.update")
-    def test_update_status(self, mock_update):
+    def test_update_status(self, mock_update: MagicMock):
+        """Test if status updates function correctly with TrackInfo objects"""
         mock_update.return_value = True
 
         discord_rich_presence.update_status(self.data1)

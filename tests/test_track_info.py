@@ -1,7 +1,7 @@
 import pylast
 import track_info
 from unittest import TestCase, main
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 
 class TestTrackInfo(TestCase):
@@ -14,7 +14,7 @@ class TestTrackInfo(TestCase):
     data2 = pylast.Track(artist2, title, None, "TestUsername")
 
     @patch("util.request_handler.attempt_request")
-    def test_values(self, mock_request_handler):
+    def test_values(self, mock_request_handler: MagicMock):
         mock_request_handler.return_value = self.duration
 
         result = track_info.TrackInfo(self.data1)
@@ -24,7 +24,7 @@ class TestTrackInfo(TestCase):
         self.assertEqual(result.duration, self.duration)
 
     @patch("util.request_handler.attempt_request")
-    def test_equal(self, mock_request_handler):
+    def test_equal(self, mock_request_handler: MagicMock):
         mock_request_handler.return_value = self.duration
 
         info1 = track_info.TrackInfo(self.data1)

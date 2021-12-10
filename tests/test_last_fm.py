@@ -20,7 +20,8 @@ class TestLastFm(TestCase):
     @patch("dotenv.load_dotenv")
     @patch("os.environ.get")
     @patch("pylast.User.get_now_playing")
-    def test_check_username(self, mock_now_playing, *mock):
+    def test_check_username(self, mock_now_playing: MagicMock, *mock):
+        """Test if the check_username function is correctly handling exceptions from pylast"""
         mock_now_playing.side_effect = [
             self.data,
             self.error,
@@ -35,7 +36,8 @@ class TestLastFm(TestCase):
 
     @patch("util.request_handler.attempt_request")
     @patch("track_info.TrackInfo")
-    def test_now_playing(self, mock_track_info, mock_request_handler):
+    def test_now_playing(self, mock_track_info: MagicMock, mock_request_handler: MagicMock):
+        """Test if now_playing properly handles None objects and """
         mock = MagicMock(name="TestTitle", artist="TestArtist", duration=2852)
         mock_track_info.return_value = mock
         mock_request_handler.side_effect = [None, self.data, self.data]
@@ -49,6 +51,7 @@ class TestLastFm(TestCase):
         self.assertIsNone(result1)
         self.assertEqual(result2, mock)
         self.assertEqual(result3, mock)
+        mock_track_info.assert_called_once()
 
 
 if __name__ == '__main__':
