@@ -7,7 +7,7 @@ import shutil
 import settings
 from filelock import FileLock
 from unittest import TestCase, main
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 
 def remove_temp():
@@ -41,7 +41,7 @@ class SettingsClassTests(TestCase):
     locked_json = "locked_json.json"
     an_image = "image.gif"
 
-    def test_read(self, mock_app_data):
+    def test_read(self, mock_app_data: MagicMock):
         mock_app_data.return_value = self.temp_dir
 
         settings.Settings("Test")
@@ -50,9 +50,8 @@ class SettingsClassTests(TestCase):
         settings.Settings("Test", self.valid_json)
         settings.Settings("Test", self.an_image)
 
-    def test_write(self, mock_app_data):
+    def test_write(self, mock_app_data: MagicMock):
         mock_app_data.return_value = self.temp_dir
-
         path = os.path.join(self.temp_dir, self.locked_json)
         initial_md5 = get_md5(path)
 
@@ -65,9 +64,8 @@ class SettingsClassTests(TestCase):
 
         self.assertEqual(initial_md5, get_md5(path))
 
-    def test_dictionary(self, mock_app_data):
+    def test_dictionary(self, mock_app_data: MagicMock):
         mock_app_data.return_value = self.temp_dir
-
         with open(os.path.join(self.temp_dir, self.valid_json)) as file:
             data: dict = json.load(file)
             test = settings.Settings("Test", self.valid_json)
@@ -80,16 +78,28 @@ class SettingsClassTests(TestCase):
 
             self.assertEqual(test.settings_dict, data)
 
-            new_cooldown = 25
-            new_username = "シュレック-史瑞克-شریک"
-            new_update = False
-            test.define("cooldown", new_cooldown)
-            test.define("username", new_username)
-            test.define("auto_update", new_update)
+    def test_define_and_save(self, mock_app_data: MagicMock):
+        mock_app_data.return_value = self.temp_dir
+        test = settings.Settings("Test", self.valid_json)
 
-            self.assertEqual(test.get("cooldown"), new_cooldown)
-            self.assertEqual(test.get("username"), new_username)
-            self.assertEqual(test.get("auto_update"), new_update)
+        new_cooldown = 25
+        new_username = "シュレック-史瑞克-شریک"
+        new_update = False
+        test.define("cooldown", new_cooldown)
+        test.define("username", new_username)
+        test.define("auto_update", new_update)
+
+        self.assertEqual(test.get("cooldown"), new_cooldown)
+        self.assertEqual(test.get("username"), new_username)
+        self.assertEqual(test.get("auto_update"), new_update)
+
+    def test_invalid_key(self, mock_app_data: MagicMock):
+        mock_app_data.return_value = self.temp_dir
+        test = settings.Settings("Test")
+
+        with self.assertRaises(KeyError):
+            test.define("bruh", True)
+            test.get("bruh")
 
 
 @patch("settings.setup_app_data_dir")

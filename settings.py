@@ -36,11 +36,8 @@ class Settings:
         """Saves the settings dictionary as a JSON in a file specified by config_path."""
         json_string = json.dumps(self.__settings_dict, indent=4)
 
-        try:
-            with open(self.config_file_path, "w") as f:
-                f.write(json_string)
-        except PermissionError:
-            print("Permission denied while attempting to save settings file")
+        with open(self.config_file_path, "w") as f:
+            f.write(json_string)
 
     def define(self, name: str, value: any):
         """Set a setting and save it to the settings file.
