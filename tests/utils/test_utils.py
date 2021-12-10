@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch
 
 
-class Tests(unittest.TestCase):
+class UtilTests(unittest.TestCase):
     def test_replace(self):
         original = os.path.join("..", "resources", "script.txt")
         with tempfile.TemporaryDirectory() as temp_dir:

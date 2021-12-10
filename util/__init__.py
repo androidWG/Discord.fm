@@ -95,6 +95,11 @@ def check_dark_mode() -> bool:
 
 
 def arg_exists(*args):
+    """Returns true if *any* of the provided args is found in the script args.
+
+    :param args: Strings to be searched on sys.argv
+    :type args: str
+    """
     for arg in args:
         if sys.argv.__contains__(arg):
             return True
