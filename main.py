@@ -171,6 +171,12 @@ if __name__ == "__main__":
     util.log_setup.setup_logging("main")
     atexit.register(close_app)
 
+    if util.process.check_process_running("discord_fm"):
+        logging.info("Discord.fm is already running, opening settings")
+
+        util.open_settings()
+        close_app()
+
     if util.updates.check_version_and_download():
         logging.info("Quitting to allow installation of newer version")
         close_app()
@@ -191,12 +197,6 @@ if __name__ == "__main__":
             time.sleep(1.5)
     elif no_username and not util.is_frozen():
         logging.critical("No username found - please add a username to settings and restart the app")
-        close_app()
-
-    if util.process.check_process_running("discord_fm"):
-        logging.info("Discord.fm is already running, opening settings")
-
-        util.open_settings()
         close_app()
 
     if sys.argv.__contains__("-o"):

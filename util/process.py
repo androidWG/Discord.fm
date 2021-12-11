@@ -7,6 +7,7 @@ from install import get_executable
 
 
 def get_external_process(*process_names) -> list[psutil.Process]:
+    logging.debug(f"Searching for process {process_names}...")
     related_processes = [psutil.Process().pid, psutil.Process(os.getppid()).pid]
     matched = []
 
@@ -15,12 +16,11 @@ def get_external_process(*process_names) -> list[psutil.Process]:
             for name in process_names:
                 cleaned_name = process.name().lower().replace(".exe", "")
                 if name.lower() == cleaned_name and process.pid not in related_processes:
-                    logging.debug(f"Found matching process, name \"{cleaned_name}\" and ID {process.pid}")
-
                     matched.append(process)
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
-    
+
+    logging.debug(f"Found {len(matched)} matches")
     return matched
 
 
