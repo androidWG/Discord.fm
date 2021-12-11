@@ -2,7 +2,11 @@ import json
 import os.path
 from platform import system
 
-__version = "0.4.0"
+__version = "0.4.1"
+
+
+def get_version():
+    return __version
 
 
 class Settings:

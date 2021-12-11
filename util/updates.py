@@ -3,7 +3,7 @@ import os
 import requests
 import install.windows
 from packaging import version
-from settings import __version, local_settings
+from settings import get_version, local_settings
 from util import arg_exists, request_handler
 
 
@@ -33,7 +33,7 @@ def get_newest_release():
 
     for release in json:
         new_version = version.parse(release["tag_name"])
-        if new_version > version.parse(__version) or arg_exists("--force-update"):
+        if new_version > version.parse(get_version()) or arg_exists("--force-update"):
             logging.info(f"Need to update, newest version: {new_version}")
 
             for asset in release["assets"]:

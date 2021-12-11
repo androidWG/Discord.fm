@@ -9,7 +9,7 @@ from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import util
-from settings import __version
+from settings import get_version
 
 
 def make_windows_installer(version: str):
@@ -82,8 +82,8 @@ def make_macos_installer(version: str):
 
 if __name__ == "__main__":
     if platform.system() == "Windows":
-        make_windows_installer(__version)
+        make_windows_installer(get_version())
         sys.exit()
     elif platform.system() == "Darwin":
-        make_macos_installer(__version)
+        make_macos_installer(get_version())
         sys.exit()
