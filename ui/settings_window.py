@@ -3,7 +3,7 @@ import sys
 import util
 import last_fm
 import logging
-from threading import Thread, get_ident
+from threading import Thread, get_ident, Timer
 from settings import local_settings, get_version
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon, Qt, QCloseEvent
@@ -12,6 +12,9 @@ from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QMainWi
 
 
 class SettingsWindow(QMainWindow):
+    starting = False
+    stopping = False
+
     # noinspection PyArgumentList,PyTypeChecker
     def __init__(self, parent=None):
         super(SettingsWindow, self).__init__(parent)
@@ -133,18 +136,21 @@ class SettingsWindow(QMainWindow):
         self.auto_update_check.setChecked(settings_dict["auto_update"])
 
     def _set_running_status(self):
-        if util.process.check_process_running("discord_fm"):
+        is_running = util.process.check_process_running("discord_fm")
+        if is_running and not self.stopping:
+            self.service_button.setEnabled(True)
             self.status_label.setText("Running")
             self.service_button.setText("Stop Service")
-        else:
+            self.starting = False
+        elif not is_running and not self.starting:
+            self.service_button.setEnabled(True)
             self.status_label.setText("Stopped")
             self.service_button.setText("Start Service")
+            self.stopping = False
 
         self.status_bar.repaint()
 
     def call_running_status(self):
-        logging.debug("Getting running status...")
-
         if not getattr(sys, "frozen", False):
             self.status_label.setText("Cannot check if service is running")
             self.service_button.setText("Start Service")
@@ -152,10 +158,26 @@ class SettingsWindow(QMainWindow):
 
         Thread(target=self._set_running_status()).start()
 
-    @staticmethod
-    def call_start_stop():
-        args = ["discord_fm", "discord_fm.exe", "Discord.fm.app", "main.py"]
-        Thread(target=util.process.start_stop_service, args=args).start()
+    def call_start_stop(self):
+        def _update():
+            nonlocal self
+            if self.starting or self.stopping:
+                self._set_running_status()
+
+        if util.process.check_process_running("discord_fm"):
+            self.stopping = True
+            self.service_button.setText("Stopping...")
+
+            Thread(target=util.process.kill_process, args=["discord_fm"]).start()
+        else:
+            self.starting = True
+            self.service_button.setText("Starting...")
+
+            args = ["discord_fm", "discord_fm.exe", "Discord.fm.app", "main.py"]
+            Thread(target=util.process.start_process, args=args).start()
+
+        self.service_button.setEnabled(False)
+        Timer(12, _update)
 
     def _check_username(self):
         if self.thread.ident != get_ident():
