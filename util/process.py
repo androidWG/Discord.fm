@@ -31,10 +31,20 @@ def check_process_running(*process_names):
 
 
 def kill_process(process_name):
-    """Tries to kill any running process that contains the given name process_name."""
-    logging.debug(f"Attempting to kill {process_name} process...")
-    for process in get_external_process(process_name):
-        process.kill()
+    """Tries to kill any running process tree that contains the given name process_name."""
+    logging.debug(f"Attempting to kill process tree \"{process_name}\"...")
+    proc = get_external_process(process_name)[0]
+    proc_pid = proc.pid if proc.parent() is None else proc.parent().pid
+
+    parent = psutil.Process(proc_pid)
+    children = parent.children(recursive=True)
+    children.append(parent)
+
+    for p in children:
+        try:
+            p.kill()
+        except psutil.NoSuchProcess:
+            pass
 
 
 def start_stop_service(name, windows_exe_name, macos_app_name, script_path):

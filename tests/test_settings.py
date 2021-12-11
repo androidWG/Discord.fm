@@ -83,14 +83,14 @@ class SettingsClassTests(TestCase):
         test = settings.Settings("Test", self.valid_json)
 
         new_cooldown = 25
-        new_username = "シュレック-史瑞克-شریک"
+        new_name = "シュレック-史瑞克-شریک"
         new_update = False
         test.define("cooldown", new_cooldown)
-        test.define("username", new_username)
+        test.define("username", new_name)
         test.define("auto_update", new_update)
 
         self.assertEqual(test.get("cooldown"), new_cooldown)
-        self.assertEqual(test.get("username"), new_username)
+        self.assertEqual(test.get("username"), new_name)
         self.assertEqual(test.get("auto_update"), new_update)
 
     def test_invalid_key(self, mock_app_data: MagicMock):

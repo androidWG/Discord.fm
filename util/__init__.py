@@ -1,6 +1,5 @@
 import logging
 import os
-import platform
 import shutil
 import sys
 import subprocess
@@ -11,6 +10,7 @@ from util import process
 
 
 # From https://stackoverflow.com/a/13790741/8286014
+# noinspection PyProtectedMember
 def resource_path(relative_path: str, base_path: str = ".") -> str:
     """Gets the absolute path to a file, dealing with temp resources folders from PyInstaller
 
@@ -116,7 +116,7 @@ def open_settings():
 
 
 def basic_notification(title, message):
-    current_platform = platform.system()
+    current_platform = system()
     if current_platform == "Windows":
         icon = resource_path("resources/icon.ico")
     else:

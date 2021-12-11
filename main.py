@@ -209,7 +209,7 @@ if __name__ == "__main__":
     while tray_icon is None:
         pass
 
-    wait_for_discord()
+    wait_for_discord()  # lgtm [py/unreachable-statement]
 
     try:
         handle_update()
