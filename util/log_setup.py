@@ -35,10 +35,7 @@ def delete_old_logs(name: str):
     del logs[:local_settings.get("max_logs") - 1]
 
     for log in logs:
-        try:
-            os.remove(os.path.join(local_settings.logs_path, log))
-        except PermissionError as e:
-            logging.warning("Permission error while deleting old logs", exc_info=e)
+        os.remove(os.path.join(local_settings.logs_path, log))
 
 
 def setup_logging(name: str, file: bool = True):
