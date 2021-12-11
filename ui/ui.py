@@ -17,6 +17,6 @@ if __name__ == "__main__":
 
     main_window = SettingsWindow()
     main_window.show()
-    main_window.set_running_status()
+    main_window.call_running_status()
 
     exit(app.exec())

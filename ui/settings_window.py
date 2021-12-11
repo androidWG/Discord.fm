@@ -1,26 +1,27 @@
-import logging
 import os
 import sys
+import util
 import last_fm
+import logging
 from threading import Thread, get_ident
+from settings import local_settings, get_version
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon, Qt, QCloseEvent
-from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QPushButton, QSlider, QVBoxLayout, QWidget, \
-    QMessageBox
-from settings import local_settings
-from util import check_dark_mode, open_logs_folder, process, resource_path
+from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QSlider, \
+    QStatusBar, QVBoxLayout, QWidget, QMessageBox
 
 
-class SettingsWindow(QWidget):
+class SettingsWindow(QMainWindow):
+    # noinspection PyArgumentList,PyTypeChecker
     def __init__(self, parent=None):
         super(SettingsWindow, self).__init__(parent)
         self.thread = None
         self.setWindowTitle("Discord.fm Settings")
 
-        icon_color = "white" if check_dark_mode() else "black"
+        icon_color = "white" if util.check_dark_mode() else "black"
         icon_path = os.path.join("resources", f"{icon_color}", "settings.png")
 
-        icon = QIcon(resource_path(icon_path, ".."))
+        icon = QIcon(util.resource_path(icon_path, ".."))
         self.setWindowIcon(icon)
         self.setMaximumSize(270, 200)
 
@@ -57,7 +58,7 @@ class SettingsWindow(QWidget):
         buttons_layout = QHBoxLayout()
         buttons_layout.setSpacing(7)
         self.logs_button = QPushButton("Open Logs Folder")
-        self.logs_button.clicked.connect(open_logs_folder)
+        self.logs_button.clicked.connect(util.open_logs_folder)
         self.service_button = QPushButton("Start Service")
         self.service_button.clicked.connect(
             lambda: process.start_stop_service("discord_fm", "discord_fm.exe", "Discord.fm.app", "main.py"))
@@ -68,14 +69,20 @@ class SettingsWindow(QWidget):
         self.auto_update_check = QCheckBox("Automatically download and install updates")
         self.auto_update_check.stateChanged.connect(
             lambda: self.save_setting("auto_update", self.auto_update_check.isChecked()))
+
+        self.status_bar = QStatusBar()
         self.status_label = QLabel("Waiting...")
+        version_label = QLabel("v" + get_version())
+        version_label.setAlignment(Qt.AlignRight)
+        self.status_bar.addPermanentWidget(version_label, 1)
+        self.status_bar.addWidget(self.status_label, 7)
+        self.status_bar.setSizeGripEnabled(False)
 
         layout.addLayout(username_layout)
         layout.addWidget(self.username_status)
         layout.addLayout(cooldown_layout)
         layout.addWidget(self.auto_update_check)
         layout.addLayout(buttons_layout)
-        layout.addWidget(self.status_label)
 
         self.set_running_status()
 
@@ -84,7 +91,10 @@ class SettingsWindow(QWidget):
         self.timer.start(1000)
 
         self.load_settings()
-        self.setLayout(layout)
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+        self.setStatusBar(self.status_bar)
 
     # noinspection PySimplifyBooleanCheck
     def closeEvent(self, event: QCloseEvent) -> None:
@@ -92,10 +102,10 @@ class SettingsWindow(QWidget):
             msg_box = QMessageBox()
             msg_box.setWindowTitle("Confirmation")
 
-            icon_color = "white" if check_dark_mode() else "black"
+            icon_color = "white" if util.check_dark_mode() else "black"
             icon_path = os.path.join("resources", f"{icon_color}", "settings.png")
 
-            icon = QIcon(resource_path(icon_path, ".."))
+            icon = QIcon(util.resource_path(icon_path, ".."))
             msg_box.setWindowIcon(icon)
 
             msg_box.setText("The username you set is not valid.")
@@ -152,11 +162,11 @@ class SettingsWindow(QWidget):
         if user_valid:
             self.username_status.setText("Username is valid")
             self.valid_username = True
-        elif user_valid == False:
-            self.username_status.setText("Invalid username - check again")
+        elif not user_valid:
+            self.username_status.setText("Invalid username")
             self.valid_username = False
         else:
-            self.username_status.setText("Unable to check username - please verify your connection")
+            self.username_status.setText("No internet connection")
             self.valid_username = True
 
     def start_check_username(self):
