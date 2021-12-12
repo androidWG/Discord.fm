@@ -1,5 +1,5 @@
 import pylast
-import last_fm
+import wrappers
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock
 
@@ -15,7 +15,7 @@ class TestLastFm(TestCase):
 
     def test_invalid_username(self):
         with self.assertRaises(ValueError):
-            last_fm.LastFMUser("")
+            wrappers.LastFMUser("")
 
     @patch("dotenv.load_dotenv")
     @patch("os.environ.get")
@@ -29,7 +29,7 @@ class TestLastFm(TestCase):
             self.error]
 
         for name in self.usernames.keys():
-            user = last_fm.LastFMUser(name)
+            user = wrappers.LastFMUser(name)
 
             result = user.check_username()
             self.assertEqual(result, self.usernames[name])
@@ -42,7 +42,7 @@ class TestLastFm(TestCase):
         mock_track_info.return_value = mock
         mock_request_handler.side_effect = [None, self.data, self.data]
 
-        user = last_fm.LastFMUser(list(self.usernames)[0])
+        user = wrappers.LastFMUser(list(self.usernames)[0])
 
         result1 = user.now_playing()
         result2 = user.now_playing()
@@ -52,6 +52,30 @@ class TestLastFm(TestCase):
         self.assertEqual(result2, mock)
         self.assertEqual(result3, mock)
         mock_track_info.assert_called_once()
+
+
+class TestDiscordRP(TestCase):
+    title = "TestTitle"
+    artist = "TestArtist"
+    artist2 = "TestArtist2"
+
+    data1 = MagicMock(name=title, artist=artist2, duration=5005)
+    data2 = MagicMock(name=title, artist=artist, duration=2852)
+
+    rp = wrappers.DiscordRP()
+
+    @patch("pypresence.Presence.update")
+    def test_update_status(self, mock_update: MagicMock):
+        """Test if status updates function correctly with TrackInfo objects"""
+        mock_update.return_value = True
+
+        self.rp.update_status(self.data1)
+        self.rp.update_status(self.data2)
+        self.rp.update_status(self.data2)
+
+        with self.assertRaises(AttributeError):
+            self.rp.update_status(None)
+
 
 
 if __name__ == '__main__':

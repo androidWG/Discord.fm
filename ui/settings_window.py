@@ -1,8 +1,7 @@
 import os
 import sys
 import util
-import last_fm
-import logging
+import wrappers
 from threading import Thread, get_ident, Timer
 from settings import local_settings, get_version
 from PySide6.QtCore import QTimer
@@ -184,7 +183,7 @@ class SettingsWindow(QMainWindow):
             return
 
         try:
-            user = last_fm.LastFMUser(self.username_input.text())
+            user = wrappers.LastFMUser(self.username_input.text())
             user_valid = user.check_username()
         except ValueError:
             user_valid = False
