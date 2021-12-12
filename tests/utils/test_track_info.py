@@ -1,5 +1,5 @@
 import pylast
-import track_info
+from util import track_info
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch
 
