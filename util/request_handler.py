@@ -62,7 +62,7 @@ def attempt_request(
         result = []
         bucket = queue.Queue()
 
-        thread = threading.Thread(target=_wrapper, args=(request_func, result, bucket, args, kwargs))
+        thread = threading.Thread(target=_wrapper, args=(request_func, result, bucket, message, args, kwargs))
         thread.start()
         current_thread = thread.ident
 
@@ -72,18 +72,7 @@ def attempt_request(
                 continue
 
         if not bucket.empty():
-            e = bucket.get(block=False)
-            if isinstance(e, (exceptions.ConnectionError, pylast.NetworkError)):
-                logging.warning(f"A connection error occurred while getting {message}. Exception Message:\n{e}")
-            elif isinstance(e, exceptions.Timeout):
-                logging.warning(f"Timed out while requesting {message}")
-            elif isinstance(e, exceptions.ChunkedEncodingError):
-                logging.warning(f"Connection error while downloading {message}")
-            elif isinstance(e, pylast.MalformedResponseError):
-                logging.info(f"Received a Last.fm internal server error while getting {message}", exc_info=e)
-            elif isinstance(e, exceptions.RequestException):
-                logging.error(f"Unexpected generic exception while getting {message}", exc_info=e)
-
+            bucket.get(block=False)
             wait_for_internet()
             continue
 
@@ -98,16 +87,29 @@ def _interrupt():
     interrupt_request = True
 
 
-def _wrapper(func, return_var: list, bucket: queue.Queue, args, kwargs):
+def _wrapper(func, return_var: list, bucket: queue.Queue, message: str, args, kwargs):
     thread_id = threading.get_ident()
     logging.debug(f"Thread ID: {thread_id}")
+
     exc = None
     try:
         result = func(*args, **kwargs)
         logging.debug(f"Finished running function \"{func.__name__}\"")
-    except Exception:
+    except (exceptions.ConnectionError, pylast.NetworkError) as e:
+        logging.warning(f"A connection error occurred while getting {message}", exc_info=e)
         exc = sys.exc_info()
-        logging.debug("EXCEPTION")
+    except exceptions.Timeout:
+        logging.warning(f"Timed out while requesting {message}")
+        exc = sys.exc_info()
+    except exceptions.ChunkedEncodingError:
+        logging.warning(f"Connection error while downloading {message}")
+        exc = sys.exc_info()
+    except pylast.MalformedResponseError as e:
+        logging.info(f"Received a Last.fm internal server error while getting {message}", exc_info=e)
+        exc = sys.exc_info()
+    except exceptions.RequestException as e:
+        logging.error(f"Unexpected generic exception while getting {message}", exc_info=e)
+        exc = sys.exc_info()
     finally:
         if current_thread != thread_id:
             logging.debug(f"current_thread is mismatched with this thread (\"{current_thread}\" vs. \"{thread_id}\")")
