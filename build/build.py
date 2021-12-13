@@ -25,9 +25,11 @@ from util import arg_exists, replace_instances
 from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from settings import get_version
+from settings import get_version, get_debug
 
 version = get_version()
+if get_debug():
+    print("\033[93m\033[1mWARNING: Building debug version\033[0m")
 
 # Make Version Info files for Windows
 version_split = version.split(".")
@@ -61,7 +63,6 @@ main_args = [
     f"--add-data=.env{os.pathsep}.",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
-    "--osx-bundle-identifier=com.androidwg.discordfm",
     "--upx-dir=upx/",
     "-y",
     "--onefile",
@@ -78,7 +79,6 @@ ui_args = [
     f"--add-data=.env{os.pathsep}.",
     "--additional-hooks-dir=hooks",
     "--workpath=pyinstaller_temp",
-    "--osx-bundle-identifier=com.androidwg.discordfm.ui",
     "--noupx",
     "-y",
     "--windowed",

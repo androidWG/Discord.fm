@@ -1,12 +1,21 @@
 import json
 import os.path
+import packaging.version
 from platform import system
 
-__version = "0.4.1"
+__version = "0.5.0"
+__debug = True
 
 
-def get_version():
-    return __version
+def get_version(parsed=False):
+    if parsed:
+        return packaging.version.parse(__version)
+    else:
+        return __version
+
+
+def get_debug():
+    return __debug
 
 
 class Settings:

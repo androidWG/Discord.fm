@@ -26,14 +26,14 @@ version = get_version()
 
 # noinspection PyUnboundLocalVariable
 main_args = [
-    "discord_fm_mac.spec",
+    "build/discord_fm_mac.spec",
     "--distpath=./dist",
     "--workpath=pyinstaller_temp",
     "-y"
 ]
 
 ui_args = [
-    "settings_ui_mac.spec",
+    "build/settings_ui_mac.spec",
     "--distpath=./dist",
     "--workpath=pyinstaller_temp",
     "-y"

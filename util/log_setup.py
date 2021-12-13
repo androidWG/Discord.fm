@@ -3,7 +3,7 @@ import logging
 import os
 import datetime as dt
 import sys
-from settings import local_settings
+from settings import local_settings, get_debug
 
 
 class MillisecondFormatter(logging.Formatter):
@@ -11,11 +11,11 @@ class MillisecondFormatter(logging.Formatter):
     converter = dt.datetime.fromtimestamp
 
     def formatTime(self, record, datefmt=None):
-        ct = self.converter(record.created)
+        converter = self.converter(record.created)
         if datefmt:
-            s = ct.strftime(datefmt)[:-3]
+            s = converter.strftime(datefmt)[:-3]
         else:
-            t = ct.strftime("%Y-%m-%d %H:%M:%S")
+            t = converter.strftime("%Y-%m-%d %H:%M:%S")
             s = "%s,%03d" % (t, record.msecs)
         return s
 
@@ -52,7 +52,11 @@ def setup_logging(name: str, file: bool = True):
     if len(root_logger.handlers) != 0:
         for handler in root_logger.handlers:
             root_logger.removeHandler(handler)
-    root_logger.setLevel(logging.DEBUG)
+
+    if get_debug():
+        root_logger.setLevel(logging.DEBUG)
+    else:
+        root_logger.setLevel(logging.INFO)
 
     if file:
         file_handler = logging.FileHandler(log_path, encoding="utf-8")
