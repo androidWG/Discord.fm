@@ -97,12 +97,15 @@ class DiscordRP:
             start_time = datetime.datetime.now().timestamp()
             self.last_track = track
             time_remaining = (track.duration / 1000) + start_time
+
+            name = track.name + " " if len(track.name) < 2 else track.name
+            artist = track.artist + " " if len(track.artist) < 2 else track.artist
             try:
                 if track.duration != 0:
-                    self.presence.update(details=track.name, state=track.artist, end=int(time_remaining),
+                    self.presence.update(details=name, state=artist, end=int(time_remaining),
                                          large_image="lastfm", large_text="Discord.fm")
                 else:
-                    self.presence.update(details=track.name, state=track.artist,
+                    self.presence.update(details=name, state=artist,
                                          large_image="lastfm", large_text="Discord.fm")
             except RuntimeError:
                 logging.warning("pypresence said update thread was already running")
