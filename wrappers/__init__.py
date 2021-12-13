@@ -1,3 +1,4 @@
+import time
 import pylast
 import util.request_handler
 import asyncio
@@ -6,7 +7,7 @@ import datetime
 from os import environ
 from typing import Callable
 from dotenv import load_dotenv
-from pypresence import Presence
+from pypresence import Presence, exceptions
 from util import resource_path, track_info
 
 
@@ -64,7 +65,13 @@ class DiscordRP:
         load_dotenv(resource_path(".env"))
         client_id = environ.get("discord_app_id")
 
-        self.presence = Presence(client_id)
+        while True:
+            try:
+                self.presence = Presence(client_id)
+                break
+            except exceptions.DiscordNotFound:
+                time.sleep(1)
+                continue
         self.last_track = None
 
     def connect(self):
