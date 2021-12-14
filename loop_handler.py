@@ -15,6 +15,8 @@ class LoopHandler:
         self._last_track = None
         self.tray = tray_icon
         self.user = wrappers.last_fm_user.LastFMUser(local_settings.get("username"))
+        if not self.user.check_username():
+            raise ValueError("Username is invalid")
         self.sc = scheduler(time.time)
 
         self.cooldown = local_settings.get("cooldown")
@@ -65,3 +67,8 @@ class LoopHandler:
         self.tray.tray_icon.icon = icon
 
         self.sc.enter(self.misc_cooldown, 2, self.misc_update, (misc_scheduler,))
+
+    def reload_lastfm(self):
+        username = local_settings.get("username")
+        logging.debug(f"Reloading LastFMUser with username \"{username}\"")
+        self.user = wrappers.last_fm_user.LastFMUser(username)

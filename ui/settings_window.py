@@ -1,7 +1,8 @@
 import os
 import sys
 import util
-import wrappers
+import wrappers.last_fm_user
+from main import reload
 from threading import Thread, get_ident, Timer
 from settings import local_settings, get_version
 from PySide6.QtCore import QTimer
@@ -30,6 +31,7 @@ class SettingsWindow(QMainWindow):
         layout = QVBoxLayout()
         layout.setSpacing(5)
 
+        # region Username Input
         username_layout = QHBoxLayout()
         username_layout.setSpacing(7)
         self.username_input = QLineEdit(placeholderText="Username")
@@ -42,7 +44,9 @@ class SettingsWindow(QMainWindow):
         self.username_status = QLabel("Checking...")
         self.username_status.setContentsMargins(100, 0, 0, 0)
         self.username_status.setVisible(False)
+        # endregion
 
+        # region Cooldown Slider
         cooldown_value = local_settings.get("cooldown")
         cooldown_layout = QHBoxLayout()
         cooldown_layout.setSpacing(7)
@@ -56,9 +60,12 @@ class SettingsWindow(QMainWindow):
         cooldown_layout.addWidget(QLabel("Cooldown"))
         cooldown_layout.addWidget(self.cooldown_slider)
         cooldown_layout.addWidget(self.cooldown_label)
+        # endregion
 
+        # region Buttons
         buttons_layout = QHBoxLayout()
         buttons_layout.setSpacing(7)
+
         self.logs_button = QPushButton("Open Logs Folder")
         self.logs_button.clicked.connect(util.open_logs_folder)
         self.service_button = QPushButton("Start Service")
@@ -71,7 +78,9 @@ class SettingsWindow(QMainWindow):
         self.auto_update_check = QCheckBox("Automatically download and install updates")
         self.auto_update_check.stateChanged.connect(
             lambda: self.save_setting("auto_update", self.auto_update_check.isChecked()))
+        # endregion
 
+        # region Status Bar
         self.status_bar = QStatusBar()
         self.status_label = QLabel("Waiting...")
         version_label = QLabel("v" + get_version())
@@ -79,6 +88,7 @@ class SettingsWindow(QMainWindow):
         self.status_bar.addPermanentWidget(version_label, 1)
         self.status_bar.addWidget(self.status_label, 7)
         self.status_bar.setSizeGripEnabled(False)
+        # endregion
 
         layout.addLayout(username_layout)
         layout.addWidget(self.username_status)
@@ -86,11 +96,12 @@ class SettingsWindow(QMainWindow):
         layout.addWidget(self.auto_update_check)
         layout.addLayout(buttons_layout)
 
-        self.call_running_status()
-
+        # region Running Status Timer
         self.timer = QTimer()
         self.timer.timeout.connect(self.call_running_status)
         self.timer.start(1000)
+        self.call_running_status()
+        # endregion
 
         self.load_settings()
         central_widget = QWidget()
@@ -98,8 +109,8 @@ class SettingsWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         self.setStatusBar(self.status_bar)
 
-    # noinspection PySimplifyBooleanCheck
     def closeEvent(self, event: QCloseEvent) -> None:
+        self._check_username()
         if not self.valid_username:
             msg_box = QMessageBox()
             msg_box.setWindowTitle("Confirmation")
@@ -111,15 +122,17 @@ class SettingsWindow(QMainWindow):
             msg_box.setWindowIcon(icon)
 
             msg_box.setText("The username you set is not valid.")
-            msg_box.setInformativeText("Do you want to change it now?")
-            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            msg_box.setDefaultButton(QMessageBox.Yes)
-            msg_box.setIcon(QMessageBox.Question)
+            msg_box.setInformativeText("Please change it to a valid username.")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.setDefaultButton(QMessageBox.Ok)
+            msg_box.setIcon(QMessageBox.Warning)
 
-            if msg_box.exec() == QMessageBox.Yes:
-                event.ignore()
+            msg_box.exec()
+            event.ignore()
         else:
             event.accept()
+
+        reload()
 
     @staticmethod
     def save_setting(name, value, *extra_func):
@@ -183,7 +196,7 @@ class SettingsWindow(QMainWindow):
             return
 
         try:
-            user = wrappers.LastFMUser(self.username_input.text())
+            user = wrappers.last_fm_user.LastFMUser(self.username_input.text())
             user_valid = user.check_username()
         except ValueError:
             user_valid = False

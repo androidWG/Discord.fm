@@ -25,6 +25,22 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 sys.excepthook = handle_exception
 
 
+def reload():
+    global status
+    logging.info("Reloading...")
+
+    try:
+        tray_icon.discord_rp.exit_rp()
+    except (RuntimeError, AttributeError, AssertionError, InvalidID):
+        pass
+    except NameError:
+        return
+
+    status = status.DISABLED
+    loop_handler.reload_lastfm()
+    status = status.ENABLED
+
+
 def close_app(icon=None, item=None):
     global status
     logging.info("Closing app...")
@@ -43,28 +59,19 @@ def close_app(icon=None, item=None):
             loop_handler.sc.cancel(event)
 
 
-def check_first_load_and_username():
-    no_username = local_settings.get("username") == ""
-    if local_settings.first_load or no_username and util.is_frozen():
-        logging.info("First load, opening settings UI and waiting for it to be closed...")
-        util.open_settings()
+def open_settings_and_wait():
+    util.open_settings()
+    # Starting the process takes a bit, if we went straight into the next while block, the method would
+    # finish immediately because "settings_ui" is not running.
+    while not util.process.check_process_running("settings_ui"):
+        pass
 
-        # Starting the process takes a bit, if we went straight into the next while block, the method would
-        # finish immediately because "settings_ui" is not running.
-        while not util.process.check_process_running("settings_ui"):
-            pass
-
-        while util.process.check_process_running("settings_ui"):
-            sleep(1.5)
-    elif no_username and not util.is_frozen():
-        logging.critical("No username found - please add a username to settings and restart the app")
-        close_app()
+    while util.process.check_process_running("settings_ui"):
+        sleep(1.5)
 
 
 if __name__ == "__main__":
     setup_logging("main")
-
-    tray_icon = system_tray_icon.SystemTrayIcon(close_app)
     atexit.register(close_app)
 
     if util.process.check_process_running("discord_fm"):
@@ -85,8 +92,19 @@ if __name__ == "__main__":
         logging.info("\"-o\" argument was found, opening settings")
         util.open_settings()
 
-    check_first_load_and_username()
-    tray_icon.wait_for_discord()  # lgtm [py/unreachable-statement]
+    if local_settings.first_load:
+        logging.info("First load, opening settings UI and waiting for it to be closed...")
+        open_settings_and_wait()
+
+    no_username = local_settings.get("username") == ""
+    if no_username and not util.is_frozen():
+        logging.critical("No username found - please add a username to settings and restart the app")
+        close_app()
+    elif no_username and util.is_frozen():
+        logging.info("No username found, opening settings UI and waiting for it to be closed...")
+        open_settings_and_wait()
+
+    tray_icon = system_tray_icon.SystemTrayIcon(close_app)
 
     try:
         loop_handler = loop_handler.LoopHandler(tray_icon)

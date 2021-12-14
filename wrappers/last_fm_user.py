@@ -42,15 +42,11 @@ class LastFMUser:
 
     def check_username(self):
         try:
-            self.user.get_now_playing()
+            util.request_handler.attempt_request(
+                self.user.get_now_playing,
+                "username validity",
+            )
             return True
         except pylast.WSError as e:
             if e.details == "User not found":
                 return False
-            else:
-                logging.info("An exception occurred while checking username", exc_info=e)
-                return None
-        except (ConnectionError, pylast.NetworkError) as e:
-            logging.warning("Unable to communicate with Last.fm servers, check your request_handler connection",
-                            exc_info=e)
-            return None

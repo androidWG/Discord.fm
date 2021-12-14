@@ -15,18 +15,13 @@ from pypresence import InvalidPipe, DiscordNotFound
 
 class SystemTrayIcon:
     rpc_state = True
-    waiting_for_discord = False
 
     def __init__(self, exit_func: Callable):
-        while True:
-            try:
-                self.discord_rp = wrappers.discord_rp.DiscordRP()
-                break
-            except DiscordNotFound:
-                time.sleep(2)
-                continue
-        self.tray_icon = self.create_tray_icon()
         self._exit_func = exit_func
+        self.tray_icon = self.create_tray_icon()
+
+        self.discord_rp = None
+        self.wait_for_discord()
 
         Thread(target=self.tray_icon.run).start()
 
@@ -36,7 +31,7 @@ class SystemTrayIcon:
         icon = Image.open(image_path)
 
         menu = Menu(MenuItem("Enable Rich Presence", self.toggle_rpc,
-                             enabled=lambda i: not self.waiting_for_discord, checked=lambda i: self.rpc_state),
+                             enabled=lambda i: status != status.WAITING_FOR_DISCORD, checked=lambda i: self.rpc_state),
                     MenuItem("Open Settings", util.open_settings),
                     Menu.SEPARATOR,
                     MenuItem("Exit", self._exit_func))
@@ -67,8 +62,9 @@ class SystemTrayIcon:
         while True:
             if util.process.check_process_running("Discord", "DiscordCanary"):
                 try:
+                    self.discord_rp = wrappers.discord_rp.DiscordRP()
                     self.discord_rp.connect()
-                except (FileNotFoundError, InvalidPipe):
+                except (FileNotFoundError, InvalidPipe, DiscordNotFound):
                     continue
                 except PermissionError as e:
                     if not notification_called and platform.system() == "Windows":
