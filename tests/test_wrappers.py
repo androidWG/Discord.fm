@@ -1,7 +1,8 @@
 import pylast
-import wrappers
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock
+import wrappers.discord_rp
+import wrappers.last_fm_user
 
 
 class TestLastFm(TestCase):
@@ -15,7 +16,7 @@ class TestLastFm(TestCase):
 
     def test_invalid_username(self):
         with self.assertRaises(ValueError):
-            wrappers.LastFMUser("")
+            wrappers.last_fm_user.LastFMUser("")
 
     @patch("dotenv.load_dotenv")
     @patch("os.environ.get")
@@ -29,20 +30,20 @@ class TestLastFm(TestCase):
             self.error]
 
         for name in self.usernames.keys():
-            user = wrappers.LastFMUser(name)
+            user = wrappers.last_fm_user.LastFMUser(name)
 
             result = user.check_username()
             self.assertEqual(result, self.usernames[name])
 
     @patch("util.request_handler.attempt_request")
-    @patch("track_info.TrackInfo")
+    @patch("util.track_info.TrackInfo")
     def test_now_playing(self, mock_track_info: MagicMock, mock_request_handler: MagicMock):
         """Test if now_playing properly handles None objects and """
         mock = MagicMock(name="TestTitle", artist="TestArtist", duration=2852)
         mock_track_info.return_value = mock
         mock_request_handler.side_effect = [None, self.data, self.data]
 
-        user = wrappers.LastFMUser(list(self.usernames)[0])
+        user = wrappers.last_fm_user.LastFMUser(list(self.usernames)[0])
 
         result1 = user.now_playing()
         result2 = user.now_playing()
@@ -62,7 +63,7 @@ class TestDiscordRP(TestCase):
     data1 = MagicMock(name=title, artist=artist2, duration=5005)
     data2 = MagicMock(name=title, artist=artist, duration=2852)
 
-    rp = wrappers.DiscordRP()
+    rp = wrappers.discord_rp.DiscordRP()
 
     @patch("pypresence.Presence.update")
     def test_update_status(self, mock_update: MagicMock):
@@ -75,7 +76,6 @@ class TestDiscordRP(TestCase):
 
         with self.assertRaises(AttributeError):
             self.rp.update_status(None)
-
 
 
 if __name__ == '__main__':

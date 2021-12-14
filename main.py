@@ -9,6 +9,9 @@ import util
 import util.log_setup
 import util.updates
 from settings import local_settings
+from wrappers import system_tray_icon
+from util.updates import check_version_and_download
+from util.log_setup import setup_logging
 
 
 # From https://stackoverflow.com/a/16993115/8286014
@@ -40,8 +43,10 @@ def check_first_load_and_username():
 
 
 if __name__ == "__main__":
-    util.log_setup.setup_logging("main")
-    atexit.register(tray.close_app)
+    setup_logging("main")
+
+    tray_icon = system_tray_icon.SystemTrayIcon(close_app)
+    atexit.register(close_app)
 
     if util.process.check_process_running("discord_fm"):
         logging.info("Discord.fm is already running, opening settings")
@@ -62,9 +67,7 @@ if __name__ == "__main__":
         util.open_settings()
 
     check_first_load_and_username()
-
-    tray.start()
-    tray.wait_for_discord()  # lgtm [py/unreachable-statement]
+    tray_icon.wait_for_discord()  # lgtm [py/unreachable-statement]
 
     try:
         loop.handle_update()
