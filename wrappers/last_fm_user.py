@@ -1,6 +1,5 @@
-import logging
 import pylast
-import util.request_handler
+from util import request_handler
 from os import environ
 from typing import Callable
 from dotenv import load_dotenv
@@ -25,11 +24,8 @@ class LastFMUser:
         self.user = network.get_user(username)
 
     def now_playing(self):
-        request = util.request_handler.attempt_request(
-            self.user.get_now_playing,
-            "user's Now Playing",
-            inactive_func=self.inactive_func
-        )
+        handler = request_handler.RequestHandler("user's Now Playing", self.inactive_func)
+        request = handler.attempt_request(self.user.get_now_playing)
 
         if request == self._last_request[0]:
             return self._last_request[1]
@@ -42,10 +38,8 @@ class LastFMUser:
 
     def check_username(self):
         try:
-            util.request_handler.attempt_request(
-                self.user.get_now_playing,
-                "username validity",
-            )
+            handler = request_handler.RequestHandler("username validity")
+            handler.attempt_request(self.user.get_now_playing)
             return True
         except pylast.WSError as e:
             if e.details == "User not found":

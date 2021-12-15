@@ -24,9 +24,9 @@ def get_newest_release():
     headers = {"Accept": "application/vnd.github.v3+json",
                "User-Agent": "Discord.fm"}
 
-    request = request_handler.attempt_request(
+    handler = request_handler.RequestHandler("GitHub request")
+    request = handler.attempt_request(
         requests.get,
-        "GitHub request",
         url="https://api.github.com/repos/AndroidWG/Discord.fm/releases",
         headers=headers)
     json = request.json()
@@ -47,9 +47,9 @@ def download_asset(asset: dict):
     headers = {"Accept": "application/octet-stream",
                "User-Agent": "Discord.fm"}
 
-    request = request_handler.attempt_request(
+    handler = request_handler.RequestHandler("GitHub download")
+    request = handler.attempt_request(
         requests.get,
-        "GitHub download",
         timeout=1200,
         url=asset["url"],
         headers=headers)

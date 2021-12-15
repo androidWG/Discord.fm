@@ -11,9 +11,8 @@ class TrackInfo:
         self.name = lastfm_track.title
         self.artist = lastfm_track.artist.name
 
-        duration_request = request_handler.attempt_request(
-            lastfm_track.get_duration,
-            f"album for track \"{self.name}\"")
+        handler = request_handler.RequestHandler(f"album for track \"{self.name}\"")
+        duration_request = handler.attempt_request(lastfm_track.get_duration)
 
         self.duration = duration_request
 
