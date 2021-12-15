@@ -124,7 +124,7 @@ def setup_app_data_dir(folder_name: str) -> str:
     current_platform = system()
 
     if current_platform == "Windows":
-        path = os.path.join(os.getenv("appdata"), folder_name)
+        path = os.path.join(os.getenv("localappdata"), folder_name)
         make_dir(path)
         clear_executables(path)
         return path
@@ -149,7 +149,7 @@ def setup_logs_dir(folder_name: str) -> str:
     current_platform = system()
 
     if current_platform == "Windows":
-        path = os.path.join(os.getenv("appdata"), folder_name)
+        path = os.path.join(os.getenv("localappdata"), folder_name)
         make_dir(path)
         return path
     elif current_platform == "Darwin":
