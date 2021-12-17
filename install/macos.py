@@ -7,20 +7,20 @@ import util.timeout
 from shutil import copytree
 
 
-def get_app_version(app_path: str) -> tuple:
+def get_app_folder_and_version(app_name: str) -> tuple:
     """Gets the version and install path of Discord.fm with the provided .app path.
 
-    :param app_path: Path to .app of Discord.fm
-    :type app_path: str
+    :param app_name: Path to .app of Discord.fm
+    :type app_name: str
     :return: Tuple with installation path and a version string respectively. If an installation is not found, a tuple of
     None and None are returned.
     :rtype: tuple
     """
-    if os.path.exists(app_path):
-        with open(os.path.join(app_path, "Contents/Info.plist"), "rb") as file:
+    path = os.path.join("/Applications", app_name)
+    if os.path.exists(path):
+        with open(os.path.join(path, "Contents", "Info.plist"), "rb") as file:
             plist = plistlib.load(file)
-            # Returns app_path back to fit with Windows' "get_install_folder_and_version()"
-            return app_path, plist["CFBundleShortVersionString"]
+            return path, plist["CFBundleShortVersionString"]
     else:
         logging.warning("Discord.fm installation not found")
         return None, None

@@ -3,6 +3,7 @@ import logging
 import sys
 import loop_handler
 import util
+import util.process
 from time import sleep
 from os.path import isfile
 from globals import status
@@ -60,7 +61,7 @@ def close_app(icon=None, item=None):
 
 
 def open_settings_and_wait():
-    util.open_settings()
+    util.process.open_settings()
     # Starting the process takes a bit, if we went straight into the next while block, the method would
     # finish immediately because "settings_ui" is not running.
     while not util.process.check_process_running("settings_ui"):
@@ -75,9 +76,7 @@ if __name__ == "__main__":
     atexit.register(close_app)
 
     if util.process.check_process_running("discord_fm"):
-        logging.info("Discord.fm is already running, opening settings")
-
-        util.open_settings()
+        logging.info("Discord.fm is already running!")
         close_app()
 
     if util.updates.check_version_and_download():
@@ -90,7 +89,7 @@ if __name__ == "__main__":
 
     if util.arg_exists("-o"):
         logging.info("\"-o\" argument was found, opening settings")
-        util.open_settings()
+        util.process.open_settings()
 
     if local_settings.first_load:
         logging.info("First load, opening settings UI and waiting for it to be closed...")

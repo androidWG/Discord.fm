@@ -3,7 +3,37 @@ import os
 import subprocess
 import psutil
 from platform import system
-from install import get_executable
+from install import get_install_folder
+from util import is_frozen
+
+
+class ExecutableInfo:
+    def __init__(self, name, windows_exe_name="", macos_app_name="", script_path=""):
+        self.name = name
+        self.windows_exe_name = windows_exe_name
+        self.macos_app_name = macos_app_name
+        self.script_path = script_path
+
+    @property
+    def path(self):
+        install_path = get_install_folder(self.windows_exe_name, self.macos_app_name)
+
+        current_platform = system()
+        if current_platform == "Windows":
+            path = os.path.abspath(self.windows_exe_name)
+        elif current_platform == "Darwin":
+            path = os.path.abspath(self.macos_app_name)
+        else:
+            raise NotImplementedError
+
+        if os.path.isfile(path):
+            return path
+        elif os.path.isfile(install_path) and is_frozen():
+            return install_path
+        elif not is_frozen():
+            python_path = os.path.abspath("venv/Scripts/python.exe"
+                                          if current_platform == "Windows" else "venv/bin/python")
+            return [python_path, self.script_path]
 
 
 def get_external_process(*process_names) -> list[psutil.Process]:
@@ -47,32 +77,20 @@ def kill_process(process_name):
             pass
 
 
-def start_stop_service(name, windows_exe_name, macos_app_name, script_path):
-    if check_process_running(name):
-        kill_process(name)
-    else:
-        start_process(name, windows_exe_name, macos_app_name, script_path)
-
-
-def start_process(name, windows_exe_name, macos_app_name, script_path):
-    current_os = system()
-    if current_os == "Windows":
-        path = os.path.abspath(windows_exe_name)
-    elif current_os == "Darwin":
-        path = os.path.abspath(macos_app_name)
-    else:
-        path = os.path.abspath(name)
-
-    if os.path.isfile(path):
-        logging.debug("Found executable in current working folder")
-        install_path = path
-    else:
-        install_path = get_executable(windows_exe_name, f"/Applications/{macos_app_name}", script_path)
-    subprocess.Popen(args=install_path)
-
-
 def stream_process(process):
     go = process.poll() is None
     for line in process.stdout:
         print(line.decode("utf-8"), end="")
     return go
+
+
+def start_stop_service(process: ExecutableInfo):
+    if check_process_running(process.name):
+        kill_process(process.name)
+    else:
+        subprocess.Popen(process.path)
+
+
+def open_settings():
+    settings_proc = ExecutableInfo("settings_ui", "settings_ui.exe", "Discord.fm Settings.app", os.path.join("ui", "ui.py"))
+    subprocess.Popen(settings_proc.path)

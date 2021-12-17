@@ -1,21 +1,17 @@
 import os
 import platform
-import sys
-from install import windows, macos
+from install import windows
+from install import macos
 
 
-def get_executable(windows_exe, macos_path, script_path):
-    if getattr(sys, "frozen", False):
-        if platform.system() == "Windows":
-            path = windows.get_install_folder_and_version()[0]
-            return [os.path.join(path, windows_exe)]
-        elif platform.system() == "Darwin":
-            return macos_path
+def get_install_folder(windows_exe_name: str, macos_app_name: str):
+    if platform.system() == "Windows":
+        path = windows.get_install_folder_and_version()[0]
+        if path is None:
+            return ""
         else:
-            raise NotImplementedError
+            return [os.path.join(path, windows_exe_name)]
+    elif platform.system() == "Darwin":
+        return macos.get_app_folder_and_version(macos_app_name)[0]
     else:
-        python_path = os.path.abspath("venv/Scripts/python.exe"
-                                      if platform.system() == "Windows"
-                                      else "venv/bin/python")
-
-        return [python_path, script_path]
+        raise NotImplementedError

@@ -3,6 +3,7 @@ import platform
 import time
 import util
 import util.log_setup
+import util.process
 import util.updates
 import wrappers.discord_rp
 from PIL import Image
@@ -32,7 +33,7 @@ class SystemTrayIcon:
 
         menu = Menu(MenuItem("Enable Rich Presence", self.toggle_rpc,
                              enabled=lambda i: status != status.WAITING_FOR_DISCORD, checked=lambda i: self.rpc_state),
-                    MenuItem("Open Settings", util.open_settings),
+                    MenuItem("Open Settings", util.process.open_settings),
                     Menu.SEPARATOR,
                     MenuItem("Exit", self._exit_func))
 
