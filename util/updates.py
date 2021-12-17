@@ -1,10 +1,9 @@
 import logging
 import os
 import requests
-import install
 from packaging import version
 from settings import get_version, local_settings
-from util import arg_exists, request_handler
+from util import arg_exists, request_handler, install
 
 
 def check_version_and_download():

@@ -3,7 +3,7 @@ import os
 import subprocess
 import psutil
 from platform import system
-from install import get_install_folder
+from util.install import get_install_folder
 from util import is_frozen
 
 

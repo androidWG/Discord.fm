@@ -1,7 +1,6 @@
 import os
 import platform
-from install import windows
-from install import macos
+from util.install import macos, windows
 
 
 def get_install_folder(windows_exe_name: str, macos_app_name: str):
