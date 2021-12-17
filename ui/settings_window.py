@@ -132,6 +132,7 @@ class SettingsWindow(QMainWindow):
         else:
             event.accept()
 
+        self.save_setting("username", self.username_input.text())
         reload()
 
     @staticmethod
