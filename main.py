@@ -13,17 +13,7 @@ from wrappers import system_tray_icon
 from util.updates import check_version_and_download
 from util.log_setup import setup_logging
 
-
-# From https://stackoverflow.com/a/16993115/8286014
-def handle_exception(exc_type, exc_value, exc_traceback):
-    if issubclass(exc_type, KeyboardInterrupt) or issubclass(exc_type, SystemExit):
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-
-    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
-
-
-sys.excepthook = handle_exception
+sys.excepthook = util.handle_exception
 
 
 def reload():
@@ -48,16 +38,19 @@ def close_app(icon=None, item=None):
 
     try:
         tray_icon.discord_rp.exit_rp()
-    except (RuntimeError, AttributeError, AssertionError, InvalidID):
+        tray_icon.tray_icon.stop()
+    except (RuntimeError, AttributeError, AssertionError, InvalidID, NameError):
         pass
 
-    tray_icon.tray_icon.stop()
     status = status.KILL
 
-    if not loop_handler.sc.empty():
-        logging.debug(f"Closing {len(loop_handler.sc.queue)} events...")
-        for event in loop_handler.sc.queue:
-            loop_handler.sc.cancel(event)
+    try:
+        if not loop_handler.sc.empty():
+            logging.debug(f"Closing {len(loop_handler.sc.queue)} events...")
+            for event in loop_handler.sc.queue:
+                loop_handler.sc.cancel(event)
+    except (AttributeError, NameError):
+        pass
 
 
 def open_settings_and_wait():

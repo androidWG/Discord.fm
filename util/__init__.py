@@ -123,3 +123,12 @@ def basic_notification(title, message):
         app_name="Discord.fm",
         app_icon=icon,
     )
+
+
+# From https://stackoverflow.com/a/16993115/8286014
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt) or issubclass(exc_type, SystemExit):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
