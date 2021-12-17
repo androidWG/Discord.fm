@@ -3,7 +3,8 @@ from util import request_handler
 from os import environ
 from typing import Callable
 from dotenv import load_dotenv
-from util import resource_path, track_info
+from util import resource_path
+from wrappers import track_info
 
 
 class LastFMUser:

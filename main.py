@@ -68,7 +68,7 @@ if __name__ == "__main__":
     setup_logging("main")
     atexit.register(close_app)
 
-    if util.process.check_process_running("discord_fm"):
+    if util.process.check_process_running("discord_fm") and not util.arg_exists("--ignore-open"):
         logging.info("Discord.fm is already running!")
         close_app()
 

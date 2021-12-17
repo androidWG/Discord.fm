@@ -2,11 +2,10 @@ import asyncio
 import datetime
 import logging
 from os import environ
-
 from dotenv import load_dotenv
 from pypresence import Presence
-
-from util import resource_path, track_info
+from util import resource_path
+from wrappers import track_info
 
 
 class DiscordRP:
