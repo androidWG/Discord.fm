@@ -103,5 +103,8 @@ if __name__ == "__main__":
         loop_handler.handle_update()
     except (KeyboardInterrupt, SystemExit):
         close_app()
+    except ValueError:
+        close_app()
+        util.basic_notification("Invalid username", "Please open Discord.fm Settings to change to a valid username.")
 
     sys.exit()

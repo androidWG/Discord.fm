@@ -1,7 +1,7 @@
 import logging
 import os
 import requests
-import install.windows
+import install
 from packaging import version
 from settings import get_version, local_settings
 from util import arg_exists, request_handler
