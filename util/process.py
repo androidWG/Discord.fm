@@ -1,8 +1,10 @@
 import logging
 import os
 import subprocess
+import sys
 import psutil
 from platform import system
+from settings import local_settings
 from util.install import get_install_folder
 from util import is_frozen
 
@@ -36,16 +38,16 @@ class ExecutableInfo:
             return [python_path, self.script_path]
 
 
-def get_external_process(*process_names) -> list[psutil.Process]:
+def get_external_process(*process_names, ignore_self=True) -> list[psutil.Process]:
     logging.debug(f"Searching for process {process_names}...")
-    related_processes = [psutil.Process().pid, psutil.Process(os.getppid()).pid]
+    related_processes = [psutil.Process().pid, psutil.Process(os.getppid()).pid] if ignore_self else []
     matched = []
 
     for process in psutil.process_iter():
         try:
-            for name in process_names:
-                cleaned_name = process.name().lower().replace(".exe", "")
-                if name.lower() == cleaned_name and process.pid not in related_processes:
+            for proc in process_names:
+                name = process.name().lower().replace(".exe", "")
+                if proc.lower() == name and process.pid not in related_processes:
                     matched.append(process)
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
@@ -60,10 +62,10 @@ def check_process_running(*process_names):
     return len(get_external_process(*process_names)) != 0
 
 
-def kill_process(process_name):
+def kill_process(process_name, ignore_self=True):
     """Tries to kill any running process tree that contains the given name process_name."""
     logging.debug(f"Attempting to kill process tree \"{process_name}\"...")
-    proc = get_external_process(process_name)[0]
+    proc = get_external_process(process_name, ignore_self=ignore_self)[0]
     proc_pid = proc.pid if proc.parent() is None else proc.parent().pid
 
     parent = psutil.Process(proc_pid)
@@ -92,5 +94,30 @@ def start_stop_service(process: ExecutableInfo):
 
 
 def open_settings():
-    settings_proc = ExecutableInfo("settings_ui", "settings_ui.exe", "Discord.fm Settings.app", os.path.join("ui", "ui.py"))
+    settings_proc = ExecutableInfo("settings_ui", "settings_ui.exe", "Discord.fm Settings.app",
+                                   os.path.join("ui", "ui.py"))
     subprocess.Popen(settings_proc.path)
+
+
+def open_logs_folder():
+    """Opens the app's log folder on the system's file explorer"""
+    if system() == "Windows":
+        os.startfile(local_settings.logs_path)
+    elif system() == "Darwin":
+        subprocess.Popen(["open", local_settings.logs_path])
+    else:
+        subprocess.Popen(["xdg-open", local_settings.logs_path])
+
+
+# From https://stackoverflow.com/a/16993115/8286014
+def handle_exception(exc_type, exc_value, exc_traceback):
+    if issubclass(exc_type, KeyboardInterrupt) or issubclass(exc_type, SystemExit):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+
+    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+    main_proc = ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
+    subprocess.Popen([main_proc.path, "--ignore-open"])
+
+    sys.exit(10)

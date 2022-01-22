@@ -1,6 +1,8 @@
 import os
+import subprocess
 import sys
 import util
+import util.process
 import wrappers.last_fm_user
 from main import reload
 from threading import Thread, get_ident, Timer
@@ -67,7 +69,7 @@ class SettingsWindow(QMainWindow):
         buttons_layout.setSpacing(7)
 
         self.logs_button = QPushButton("Open Logs Folder")
-        self.logs_button.clicked.connect(util.open_logs_folder)
+        self.logs_button.clicked.connect(util.process.open_logs_folder)
         self.service_button = QPushButton("Start Service")
         self.service_button.clicked.connect(
             lambda: self.call_start_stop())
@@ -186,8 +188,10 @@ class SettingsWindow(QMainWindow):
             self.starting = True
             self.service_button.setText("Starting...")
 
-            args = ["discord_fm", "discord_fm.exe", "Discord.fm.app", "main.py"]
-            Thread(target=util.process.start_process, args=args).start()
+            main_proc = util.process.ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
+
+            args = [main_proc.path]
+            Thread(target=subprocess.Popen, args=args).start()
 
         self.service_button.setEnabled(False)
         Timer(12, _update)

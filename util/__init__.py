@@ -2,9 +2,7 @@ import logging
 import os
 import shutil
 import sys
-import subprocess
 from plyer import notification
-from settings import local_settings
 from platform import system
 
 
@@ -56,16 +54,6 @@ def replace_instances(file: str, tags: list, out_file: str = "temp_", encoding: 
     if out_file == "temp_":
         shutil.move("temp_", file)
         logging.debug("Renamed temp_ file")
-
-
-def open_logs_folder():
-    """Opens the app's log folder on the system's file explorer"""
-    if system() == "Windows":
-        os.startfile(local_settings.logs_path)
-    elif system() == "Darwin":
-        subprocess.Popen(["open", local_settings.logs_path])
-    else:
-        subprocess.Popen(["xdg-open", local_settings.logs_path])
 
 
 def check_dark_mode() -> bool:
@@ -123,12 +111,3 @@ def basic_notification(title, message):
         app_name="Discord.fm",
         app_icon=icon,
     )
-
-
-# From https://stackoverflow.com/a/16993115/8286014
-def handle_exception(exc_type, exc_value, exc_traceback):
-    if issubclass(exc_type, KeyboardInterrupt) or issubclass(exc_type, SystemExit):
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-
-    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
