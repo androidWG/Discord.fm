@@ -63,10 +63,13 @@ class RequestHandler:
             thread.start()
             self._current_thread = thread.ident
 
-            while thread.is_alive():
-                if self._interrupt_request:
-                    logging.warning(f"Request for {self.message} timed out")
-                    continue
+            try:
+                while thread.is_alive():
+                    if self._interrupt_request:
+                        logging.warning(f"Request for {self.message} timed out")
+                        continue
+            except KeyboardInterrupt:
+                return None
 
             if not self.bucket.empty():
                 e = self.bucket.get(block=False)
