@@ -120,4 +120,4 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     main_proc = ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
     subprocess.Popen([main_proc.path, "--ignore-open"])
 
-    sys.exit(10)
+    kill_process("discord_fm", False)

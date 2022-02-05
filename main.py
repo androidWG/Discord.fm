@@ -13,7 +13,7 @@ from wrappers import system_tray_icon
 from util.updates import check_version_and_download
 from util.log_setup import setup_logging
 
-sys.excepthook = util.handle_exception
+sys.excepthook = util.process.handle_exception
 
 
 def reload():
@@ -51,6 +51,8 @@ def close_app(icon=None, item=None):
                 loop_handler.sc.cancel(event)
     except (AttributeError, NameError):
         pass
+
+    sys.exit()
 
 
 def open_settings_and_wait():
