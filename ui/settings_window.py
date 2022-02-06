@@ -28,7 +28,6 @@ class SettingsWindow(QMainWindow):
 
         icon = QIcon(util.resource_path(icon_path, ".."))
         self.setWindowIcon(icon)
-        self.setMaximumSize(270, 200)
 
         layout = QVBoxLayout()
         layout.setSpacing(5)
@@ -80,6 +79,10 @@ class SettingsWindow(QMainWindow):
         self.auto_update_check = QCheckBox("Automatically download and install updates")
         self.auto_update_check.stateChanged.connect(
             lambda: self.save_setting("auto_update", self.auto_update_check.isChecked()))
+
+        self.pre_releases_check = QCheckBox("Include pre-release versions")
+        self.pre_releases_check.stateChanged.connect(
+            lambda: self.save_setting("pre_releases", self.pre_releases_check.isChecked()))
         # endregion
 
         # region Status Bar
@@ -96,6 +99,7 @@ class SettingsWindow(QMainWindow):
         layout.addWidget(self.username_status)
         layout.addLayout(cooldown_layout)
         layout.addWidget(self.auto_update_check)
+        layout.addWidget(self.pre_releases_check)
         layout.addLayout(buttons_layout)
 
         # region Running Status Timer
@@ -110,6 +114,8 @@ class SettingsWindow(QMainWindow):
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
         self.setStatusBar(self.status_bar)
+
+        self.setMaximumSize(self.size())
 
     def closeEvent(self, event: QCloseEvent) -> None:
         self._check_username()

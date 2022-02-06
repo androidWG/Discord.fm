@@ -28,7 +28,8 @@ class Settings:
             "cooldown": 4,
             "username": "",
             "max_logs": 10,
-            "auto_update": True
+            "auto_update": True,
+            "pre_releases": False,
         }
 
         try:
