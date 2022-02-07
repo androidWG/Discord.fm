@@ -44,8 +44,8 @@ def get_newest_release() -> Optional[tuple[version.Version, dict]]:
 
     try:
         return version.parse(latest["tag_name"]), \
-               next(x["content_type"] == "application/x-msdownload" and "setup-win" in x["name"]
-                    for x in latest["assets"])
+               next(x for x in latest["assets"]
+                    if x["content_type"] == "application/x-msdownload" and "setup-win" in x["name"])
     except StopIteration:
         logging.error("Newest release doesn't include a Windows executable download")
         return None
