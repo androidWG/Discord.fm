@@ -3,21 +3,16 @@ import queue
 import threading
 import time
 import pylast
-from typing import Callable
+from typing import Any, Callable
 from requests import get, exceptions
 
 
 def wait_for_internet():
-    """Sends a request to google.com repeatedly to check if there's request_handler connectivity. Returns True if it was
-    able to connect in under 300 tries and False if it reached that limit.
-
-    :return: Boolean indicating if caller should try again or give up
-    :rtype: bool
-    """
+    """Sends a request to Google repeatedly until it is able to connect."""
     counter = 0
     while True:
         try:
-            get("https://google.com")
+            get("http://gstatic.com/generate_204")
             logging.info("Connected to the internet again")
             return
         except (exceptions.ConnectionError, exceptions.Timeout):
@@ -28,25 +23,28 @@ def wait_for_internet():
 class RequestHandler:
     _interrupt_request = False
     _current_thread = 0
+    _result = None
+    _bucket = queue.Queue()
+    _tries = 0
 
-    def __init__(self, message: str, inactive_func: Callable = None):
-        self.result = None
-        self.bucket = queue.Queue()
-
+    def __init__(self, message: str, inactive_func: Callable = None, limit_tries: int = 0):
         self.message = message
         self.inactive_func = inactive_func
+        self._limit = limit_tries
 
-    def attempt_request(self, request_func: Callable, timeout: float = 60, *args, **kwargs):
+    def attempt_request(self, request_func: Callable, timeout: float = 60, *args, **kwargs) -> Any:
         """Tries to run ``request_func`` and catches common exception errors from methods that use
-        ``requests.get``. Returns None if the request ultimately fails.
+        ``requests.get``.
 
         :param args: Parameters to send to the function
-        :param request_func: The function that we will try
+        :param kwargs: Keyword parameters to send to the function
+        :param request_func: The function that will be tried
         :type request_func: Callable
-        :param timeout: How many seconds before we determine the function is taking too long
+        :param timeout: Max time in seconds that the function can take
         :type timeout: float
-        :return: request_func result or None if it fails
+        :return: request_func result
         """
+
         timeout_timer = threading.Timer(timeout, self._interrupt)
         timeout_timer.start()
         inactive_timer = None
@@ -55,9 +53,19 @@ class RequestHandler:
             inactive_timer = threading.Timer(30, self.inactive_func)
             inactive_timer.start()
 
+        self._result = None
+        self._bucket = queue.Queue()
+
         while True:
-            self.result = None
-            self.bucket = queue.Queue()
+            def cancel_timers():
+                timeout_timer.cancel()
+                if inactive_timer is not None:
+                    inactive_timer.cancel()
+
+            if 0 < self._limit <= self._tries:
+                logging.error(f"Hit or exceeded maximum tries (over {self._limit} tries)")
+                cancel_timers()
+                return None
 
             thread = threading.Thread(target=self._wrapper, args=(request_func, args, kwargs))
             thread.start()
@@ -66,15 +74,16 @@ class RequestHandler:
             try:
                 while thread.is_alive():
                     if self._interrupt_request:
-                        logging.warning(f"Request for {self.message} timed out")
+                        logging.info(f"Request for {self.message} timed out")
+                        self._tries += 1
                         continue
             except KeyboardInterrupt:
                 return None
 
-            if not self.bucket.empty():
-                e = self.bucket.get(block=False)
+            if not self._bucket.empty():
+                e = self._bucket.get(block=False)
                 if isinstance(e, (exceptions.ConnectionError, pylast.NetworkError)):
-                    logging.warning(f"A connection error occurred while getting {self.message}. Exception Message:\n{e}")
+                    logging.warning(f"A connection error occurred while getting {self.message}", exc_info=e)
                 elif isinstance(e, exceptions.Timeout):
                     logging.warning(f"Timed out while requesting {self.message}")
                 elif isinstance(e, exceptions.ChunkedEncodingError):
@@ -84,15 +93,15 @@ class RequestHandler:
                 elif isinstance(e, exceptions.RequestException):
                     logging.error(f"Unexpected generic exception while getting {self.message}", exc_info=e)
                 else:
+                    cancel_timers()
                     raise e
 
                 wait_for_internet()
+                self._tries += 1
                 continue
 
-            timeout_timer.cancel()
-            if inactive_timer is not None:
-                inactive_timer.cancel()
-            return self.result
+            cancel_timers()
+            return self._result
 
     def _interrupt(self):
         self._interrupt_request = True
@@ -113,9 +122,9 @@ class RequestHandler:
                 return
 
         if exc is not None:
-            self.bucket.put(exc)
+            self._bucket.put(exc)
             logging.debug(f"Caught exception: \n{exc}")
             return
 
         logging.debug(f"Thread result: {result}")
-        self.result = result
+        self._result = result
