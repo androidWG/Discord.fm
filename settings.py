@@ -125,6 +125,7 @@ def setup_app_data_dir(folder_name: str) -> str:
     current_platform = system()
 
     if current_platform == "Windows":
+        # Here it's AppData NOT LocalAppData, since settings should always be present for the user
         path = os.path.join(os.getenv("appdata"), folder_name)
         make_dir(path)
         clear_executables(path)
@@ -150,7 +151,8 @@ def setup_logs_dir(folder_name: str) -> str:
     current_platform = system()
 
     if current_platform == "Windows":
-        path = os.path.join(os.getenv("appdata"), folder_name)
+        # And here it's LocalAppData NOT AppData, since logs can occupy a lot of space and are not needed by the app
+        path = os.path.join(os.getenv("localappdata"), folder_name)
         make_dir(path)
         return path
     elif current_platform == "Darwin":
