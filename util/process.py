@@ -7,6 +7,7 @@ from platform import system
 from settings import local_settings
 from util.install import get_install_folder
 from util import is_frozen
+from globals import status
 
 
 class ExecutableInfo:
@@ -47,6 +48,7 @@ class ExecutableInfo:
             return [python_path, self.script_path]
 
 
+# noinspection PyUnreachableCode
 def get_external_process(*process_names: str, ignore_self: bool = True) -> list[psutil.Process]:
     """Returns a list of all the processes that match any of the names given as args, and ignores itself by default.
 
@@ -57,13 +59,21 @@ def get_external_process(*process_names: str, ignore_self: bool = True) -> list[
     related_processes = [psutil.Process().pid, psutil.Process(os.getppid()).pid] if ignore_self else []
     matched = []
 
-    for process in psutil.process_iter():
+    try:
+        process_list = psutil.process_iter()
+    except psutil.AccessDenied:
+        global status
+        status = status.KILL
+        sys.exit()  # Exit from here since the unexpected exception handler uses kill_process
+        return []
+
+    for process in process_list:
         try:
             for proc in process_names:
                 name = process.name().lower().replace(".exe", "")
                 if proc.lower() == name and process.pid not in related_processes:
                     matched.append(process)
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
 
     logging.debug(f"Found {len(matched)} matches for {process_names}")
@@ -98,7 +108,7 @@ def kill_process(process_name: str, ignore_self=True):
     for p in children:
         try:
             p.kill()
-        except psutil.NoSuchProcess:
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
 
 
