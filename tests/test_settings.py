@@ -5,6 +5,7 @@ import os
 import random
 import shutil
 import settings
+from stat import S_IREAD, S_IWRITE
 from filelock import FileLock
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch
@@ -55,14 +56,18 @@ class SettingsClassTests(TestCase):
         path = os.path.join(self.temp_dir, self.locked_json)
         initial_md5 = get_md5(path)
 
-        test = settings.Settings("Test")
-        test.save()
-
-        result = settings.Settings("Test", self.locked_json)
-        with FileLock(self.locked_json):
-            result.save()
-
+        result1 = settings.Settings("Test")
+        result1.save()
         self.assertEqual(initial_md5, get_md5(path))
+
+        result2 = settings.Settings("Test", self.locked_json)
+
+        os.chmod(result2.config_file_path, S_IREAD)
+
+        result2.save()
+        self.assertEqual(initial_md5, get_md5(path))
+
+        os.chmod(result2.config_file_path, S_IWRITE)
 
     def test_dictionary(self, mock_app_data: MagicMock):
         mock_app_data.return_value = self.temp_dir
