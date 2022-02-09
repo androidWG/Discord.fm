@@ -11,6 +11,13 @@ from util import is_frozen
 
 class ExecutableInfo:
     def __init__(self, name, windows_exe_name="", macos_app_name="", script_path=""):
+        """Holds info about an executable and gives its path independent of platform or app state (frozen or not).
+
+        :param name: General process name
+        :param windows_exe_name: Name of the specific Windows .exe for this executable.
+        :param macos_app_name: Name of the specific macOS .app folder for this executable.
+        :param script_path: Path of the script to be run if the app is not frozen.
+        """
         self.name = name
         self.windows_exe_name = windows_exe_name
         self.macos_app_name = macos_app_name
@@ -18,6 +25,8 @@ class ExecutableInfo:
 
     @property
     def path(self):
+        """Gets the full path of this executable for this instance of the app. If the app is not frozen, a path to the
+        Python interpreter with the script as an argument will be passed."""
         install_path = get_install_folder(self.windows_exe_name, self.macos_app_name)
 
         current_platform = system()
@@ -38,8 +47,13 @@ class ExecutableInfo:
             return [python_path, self.script_path]
 
 
-def get_external_process(*process_names, ignore_self=True) -> list[psutil.Process]:
-    logging.debug(f"Searching for process {process_names}...")
+def get_external_process(*process_names: str, ignore_self: bool = True) -> list[psutil.Process]:
+    """Returns a list of all the processes that match any of the names given as args, and ignores itself by default.
+
+    :param process_names: Argument list of process names to look for. These strings will be made lowercase and have
+    ".exe" removed from them.
+    :param ignore_self: Should the method ignore itself and all related processes.
+    """
     related_processes = [psutil.Process().pid, psutil.Process(os.getppid()).pid] if ignore_self else []
     matched = []
 
@@ -52,18 +66,27 @@ def get_external_process(*process_names, ignore_self=True) -> list[psutil.Proces
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             continue
 
-    logging.debug(f"Found {len(matched)} matches")
+    logging.debug(f"Found {len(matched)} matches for {process_names}")
     return matched
 
 
-def check_process_running(*process_names):
-    """Check if there is any running process that contains the given name process_name."""
+def check_process_running(*process_names: str) -> bool:
+    """Check if there is any running process that contains the given names process_name.
+
+    :param process_names: Argument list of process names to look for. These strings will be made lowercase and have
+    ".exe" removed from them.
+    :return: Boolean indicating if the processes are running
+    """
     logging.info(f"Checking if {process_names} is running...")
     return len(get_external_process(*process_names)) != 0
 
 
-def kill_process(process_name, ignore_self=True):
-    """Tries to kill any running process tree that contains the given name process_name."""
+def kill_process(process_name: str, ignore_self=True):
+    """Tries to kill any running process tree that contains the given name process_name.
+
+    :param process_name: Name of the process to kill, will be made lowercase and have ".exe" removed from it.
+    :param ignore_self: Should the method ignore itself and all related processes.
+    """
     logging.debug(f"Attempting to kill process tree \"{process_name}\"...")
     proc = get_external_process(process_name, ignore_self=ignore_self)[0]
     proc_pid = proc.pid if proc.parent() is None else proc.parent().pid
@@ -79,14 +102,22 @@ def kill_process(process_name, ignore_self=True):
             pass
 
 
-def stream_process(process):
+def stream_process(process: subprocess.Popen):
+    """Prints all lines from the process `process`'s stdout.
+
+    :param process: Popen process to stream from.
+    """
     go = process.poll() is None
     for line in process.stdout:
         print(line.decode("utf-8"), end="")
     return go
 
 
-def start_stop_service(process: ExecutableInfo):
+def start_stop_process(process: ExecutableInfo):
+    """Checks if `process` is running, if it is, try to kill it. If it isn't, run it.
+
+    :param process: Executable to start or stop.
+    """
     if check_process_running(process.name):
         kill_process(process.name)
     else:
@@ -94,6 +125,8 @@ def start_stop_service(process: ExecutableInfo):
 
 
 def open_settings():
+    """Opens the settings UI. Works even if the app is not frozen (is running as a script)."""
+    logging.debug("Opening settings UI")
     settings_proc = ExecutableInfo("settings_ui", "settings_ui.exe", "Discord.fm Settings.app",
                                    os.path.join("ui", "ui.py"))
     subprocess.Popen(settings_proc.path)
@@ -101,6 +134,7 @@ def open_settings():
 
 def open_logs_folder():
     """Opens the app's log folder on the system's file explorer"""
+    logging.debug("Opening logs folder")
     if system() == "Windows":
         os.startfile(local_settings.logs_path)
     elif system() == "Darwin":
