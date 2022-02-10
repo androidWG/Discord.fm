@@ -1,6 +1,5 @@
 # Discord.fm
 ![Platforms: Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
-![Platforms: macOS](https://img.shields.io/badge/macos-000000?style=for-the-badge&logo=apple&logoColor=white)
 
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/AndroidWG/Discord.fm.svg?logo=lgtm&logoWidth=20&style=flat-square)](https://lgtm.com/projects/g/AndroidWG/Discord.fm/context:python)
 ![GitHub](https://img.shields.io/github/license/AndroidWG/Discord.fm?style=flat-square)
@@ -14,18 +13,20 @@ Forked from [Last.fm-Discord-Rich-Presence](https://github.com/Gust4Oliveira/Las
 
 ## Setup
 ### Windows
-- Download the latest [release](https://github.com/AndroidWG/Discord.fm/releases/latest)
+- Download the [latest release](https://github.com/AndroidWG/Discord.fm/releases/latest)
 - Run the installer
 - Wait a bit and the app's settings will open. Type in your Last.fm username and close the window.
 - Done!
 
 Discord.fm will start with Windows automatically, and a tray icon will appear where you can enable or disable the Rich Presence status, open settings or exit the app.
 
-### macOS
-Coming Soon™. Right now the macOS version works almost fully, and only some big important issues need to be worked out.
+### macOS and Linux
+I currently only use Windows. While macOS and Linux versions were planned, I ended up losing both installs and decided that keeping 3 OSs on a single 512GB SSD on my laptop - which is my only computer - wasn't worth it since I'd very very rarely use them, considering each doesn't have something Windows does.
+
+**_TL:DR_** - If you can help with a macOS or Linux version, I'd be **very happy to help!** Just contact me at my email - [samuelrod202@gmail.com](mailto:samuelrod202@gmail.com)
 
 ## Building/Setting up dev environment
-We need to build PyInstaller ourselves to avoid having the application be falsely flagged by antivirus programs as a virus. If you don't intend to build for distribution, you can skip the 3rd step.
+We need to build PyInstaller ourselves to avoid having the application be falsely flagged by antivirus programs as a virus. If you don't intend to build for distribution, you can skip the 2nd step.
 
 1. Clone the repo with `git clone https://github.com/AndroidWG/Discord.fm.git`
 2. Build PyInstaller:
