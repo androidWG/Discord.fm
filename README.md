@@ -13,6 +13,7 @@ Forked from [Last.fm-Discord-Rich-Presence](https://github.com/Gust4Oliveira/Las
 
 ## Setup
 ### Windows
+> **NOTE:** Only 64bit Windows 10 is officially supported. Windows versions older than Windows 10 and 32bit Windows are not guaranteed to work.
 - Download the [latest release](https://github.com/AndroidWG/Discord.fm/releases/latest)
 - Run the installer
 - Wait a bit and the app's settings will open. Type in your Last.fm username and close the window.
