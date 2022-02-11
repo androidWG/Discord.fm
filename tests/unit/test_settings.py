@@ -25,8 +25,8 @@ def create_temp_dir():
 
     os.mkdir("temp")
     temp_dir = os.path.abspath("temp")
-    for resource in os.listdir("resources"):
-        shutil.copy(os.path.join("resources", resource), temp_dir)
+    for resource in os.listdir("fixtures"):
+        shutil.copy(os.path.join("fixtures", resource), temp_dir)
 
     atexit.register(remove_temp)
     return temp_dir
