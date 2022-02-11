@@ -17,7 +17,7 @@ AppPublisherURL={#InfoURL}
 AppSupportURL={#InfoURL}
 AppUpdatesURL={#InfoURL}
 DefaultDirName={localappdata}\Programs\{#Name}
-DisableProgramGroupPage=no
+DisableProgramGroupPage=yes
 CloseApplications=force
 AllowNoIcons=no
 OutputDir={#LocalPath}\dist
@@ -31,7 +31,7 @@ WizardStyle=modern
 WizardSizePercent=100
 RestartIfNeededByRun=False
 VersionInfoVersion={#Version}
-VersionInfoDescription=Last.fm status for Discord
+VersionInfoDescription=Show your Last.fm status on Discord
 VersionInfoProductName=Discord.fm
 VersionInfoProductVersion={#Version}
 ShowLanguageDialog=auto
@@ -46,6 +46,11 @@ UsePreviousGroup=False
 DefaultGroupName=Discord.fm
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
+VersionInfoCompany=androidWG/Samuel Rodrigues
+VersionInfoProductTextVersion={#Version}
+ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64
+DisableReadyMemo=True
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -65,4 +70,12 @@ Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: posti
 CompileLogFile={#LocalPath}\dist\{#Version}-installer.log
 
 [Icons]
-Name: "{group}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; IconFilename: "{app}\discord_fm.exe"
+Name: "{userstartmenu}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; IconFilename: "{app}\discord_fm.exe"
+
+[InstallDelete]
+Type: filesandordirs; Name: "{app}"
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}"
+Type: filesandordirs; Name: "{localappdata}\Discord.fm"
+Type: filesandordirs; Name: "{appdata}\Discord.fm"
