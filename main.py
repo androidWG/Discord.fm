@@ -3,10 +3,10 @@ import logging
 import sys
 import loop_handler
 import util
+import globals
 import util.process
 from time import sleep
 from os.path import isfile
-from globals import status
 from pypresence import InvalidID
 from settings import local_settings
 from wrappers import system_tray_icon
@@ -17,7 +17,6 @@ sys.excepthook = util.process.handle_exception
 
 
 def reload():
-    global status
     logging.info("Reloading...")
 
     try:
@@ -27,13 +26,12 @@ def reload():
     except NameError:
         return
 
-    status = status.DISABLED
+    globals.current = globals.Status.DISABLED
     loop_handler.reload_lastfm()
-    status = status.ENABLED
+    globals.current = globals.Status.ENABLED
 
 
 def close_app(icon=None, item=None):
-    global status
     logging.info("Closing app...")
 
     try:
@@ -42,7 +40,7 @@ def close_app(icon=None, item=None):
     except (RuntimeError, AttributeError, AssertionError, InvalidID, NameError):
         pass
 
-    status = status.KILL
+    globals.current = globals.Status.KILL
 
     try:
         if not loop_handler.sc.empty():

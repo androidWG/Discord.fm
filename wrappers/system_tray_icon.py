@@ -5,9 +5,9 @@ import util
 import util.log_setup
 import util.process
 import util.updates
+import globals
 import wrappers.discord_rp
 from PIL import Image
-from globals import status
 from typing import Callable
 from threading import Thread
 from pystray import MenuItem, Menu, Icon
@@ -32,7 +32,8 @@ class SystemTrayIcon:
         icon = Image.open(image_path)
 
         menu = Menu(MenuItem("Enable Rich Presence", self.toggle_rpc,
-                             enabled=lambda i: status != status.WAITING_FOR_DISCORD, checked=lambda i: self.rpc_state),
+                             enabled=lambda i: globals.current != globals.current.WAITING_FOR_DISCORD,
+                             checked=lambda i: self.rpc_state),
                     MenuItem("Open Settings", util.process.open_settings),
                     Menu.SEPARATOR,
                     MenuItem("Exit", self._exit_func))
@@ -41,21 +42,19 @@ class SystemTrayIcon:
         return icon
 
     def toggle_rpc(self, icon, item):
-        global status
         self.rpc_state = not item.checked
 
         if self.rpc_state:
             self.discord_rp.connect()
-            status = status.ENABLED
+            globals.current = globals.Status.ENABLED
         else:
             self.discord_rp.disconnect()
-            status = status.DISABLED
+            globals.current = globals.Status.DISABLED
 
         logging.info(f"Changed rpc_state to {self.rpc_state}")
 
     def wait_for_discord(self):
-        global status
-        status = status.WAITING_FOR_DISCORD
+        globals.current = globals.Status.WAITING_FOR_DISCORD
 
         notification_called = False
         self.tray_icon.update_menu()
@@ -84,5 +83,5 @@ class SystemTrayIcon:
             else:
                 time.sleep(10)
 
-        status = status.ENABLED
+        globals.current = globals.Status.ENABLED
         self.tray_icon.update_menu()

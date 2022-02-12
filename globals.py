@@ -8,4 +8,4 @@ class Status(enum.Enum):
     WAITING_FOR_DISCORD = 3
 
 
-status = Status(Status.ENABLED)
+current = Status(Status.ENABLED)

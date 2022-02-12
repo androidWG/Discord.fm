@@ -3,11 +3,11 @@ import os
 import subprocess
 import sys
 import psutil
+import globals
 from platform import system
 from settings import local_settings
 from util.install import get_install_folder
 from util import is_frozen
-from globals import status
 
 
 class ExecutableInfo:
@@ -62,8 +62,7 @@ def get_external_process(*process_names: str, ignore_self: bool = True) -> list[
     try:
         process_list = psutil.process_iter()
     except psutil.AccessDenied:
-        global status
-        status = status.KILL
+        globals.current = globals.Status.KILL
         sys.exit()  # Exit from here since the unexpected exception handler uses kill_process
         return []
 

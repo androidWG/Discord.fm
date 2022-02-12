@@ -5,7 +5,7 @@ import wrappers.last_fm_user
 from PIL import Image
 from sched import scheduler
 from pypresence import InvalidID
-from globals import status
+from globals import current, Status
 from settings import local_settings
 from wrappers.system_tray_icon import SystemTrayIcon
 
@@ -29,10 +29,10 @@ class LoopHandler:
 
     # noinspection PyUnboundLocalVariable,PyShadowingNames
     def lastfm_update(self, scheduler):
-        if status == status.DISABLED or status == status.WAITING_FOR_DISCORD:
+        if current == Status.DISABLED or current == Status.WAITING_FOR_DISCORD:
             self.sc.enter(self.cooldown, 1, self.lastfm_update, (scheduler,))
             return
-        elif status == status.KILL:
+        elif current == Status.KILL:
             return
 
         try:
@@ -54,10 +54,10 @@ class LoopHandler:
 
     def misc_update(self, misc_scheduler):
         logging.debug("Running misc update")
-        if status == status.DISABLED:
+        if current == Status.DISABLED:
             self.sc.enter(self.misc_cooldown, 2, self.misc_update, (misc_scheduler,))
             return
-        elif status == status.KILL:
+        elif current == Status.KILL:
             return
 
         self.cooldown = local_settings.get("cooldown")
