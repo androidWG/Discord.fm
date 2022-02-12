@@ -42,7 +42,8 @@ def delete_old_logs(name: str):
 
 
 def setup_logging(name: str, file: bool = True):
-    filename = name + datetime.datetime.utcnow().strftime("%Y-%m-%d %H-%M-%S") + ".log"
+    prefix = "debug_" if get_debug() else ""
+    filename = prefix + name + datetime.datetime.utcnow().strftime("%Y-%m-%d %H-%M-%S") + ".log"
     log_path = os.path.join(local_settings.logs_path, filename)
 
     delete_old_logs(name)
