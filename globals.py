@@ -9,3 +9,4 @@ class Status(enum.Enum):
 
 
 current = Status(Status.ENABLED)
+manager = None

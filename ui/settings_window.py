@@ -3,8 +3,8 @@ import subprocess
 import sys
 import util
 import util.process
+import globals
 import wrappers.last_fm_user
-from main import reload
 from threading import Thread, get_ident, Timer
 from settings import local_settings, get_version
 from PySide6.QtCore import QTimer
@@ -141,7 +141,7 @@ class SettingsWindow(QMainWindow):
             event.accept()
 
         self.save_setting("username", self.username_input.text())
-        reload()
+        globals.manager.reload()
 
     @staticmethod
     def save_setting(name, value, *extra_func):
