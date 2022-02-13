@@ -6,6 +6,8 @@ import stat
 import util.timeout
 from shutil import copytree
 
+logger = logging.getLogger("discord_fm").getChild(__name__)
+
 
 def get_app_folder_and_version(app_name: str) -> tuple:
     """Gets the version and install path of Discord.fm with the provided .app path.
@@ -22,7 +24,7 @@ def get_app_folder_and_version(app_name: str) -> tuple:
             plist = plistlib.load(file)
             return path, plist["CFBundleShortVersionString"]
     else:
-        logging.warning("Discord.fm installation not found")
+        logger.warning("Discord.fm installation not found")
         return None, None
 
 
@@ -35,19 +37,19 @@ def copy_to_applications(temp_dir: str, installer_path: str):
     :param installer_path: Path where the .zip containing the .app folder is located
     :type installer_path: str
     """
-    logging.info("Installing for macOS...")
+    logger.info("Installing for macOS...")
 
     zip_path = os.path.join(temp_dir, installer_path)
     with zipfile.ZipFile(zip_path, "r") as downloaded_zip:
         downloaded_zip.extractall(temp_dir)
-        logging.debug("Extracted Discord.fm.app")
+        logger.debug("Extracted Discord.fm.app")
 
         # For some reason zipfile extracts the main executable inside the .app as a
         # non-executable file, so we need to manually do that
         main_executable = os.path.join(temp_dir, "Discord.fm.app/Contents/MacOS/Discord.fm")
         st = os.stat(main_executable)
         os.chmod(main_executable, st.st_mode | stat.S_IEXEC)
-        logging.debug("Made Discord.fm file executable")
+        logger.debug("Made Discord.fm file executable")
 
         copytree(os.path.join(temp_dir, "Discord.fm.app"), "/Applications/Discord.fm.app", symlinks=True)
-        logging.debug("Copied to Applications")
+        logger.debug("Copied to Applications")

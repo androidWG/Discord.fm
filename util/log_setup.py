@@ -1,8 +1,8 @@
 import datetime
-import logging
+import logging.config
 import os
 import datetime as dt
-import sys
+import re
 from settings import local_settings, get_debug
 
 
@@ -27,8 +27,10 @@ def delete_old_logs(name: str):
     :type name: str
     """
     logs = []
+
     for file in os.listdir(local_settings.logs_path):
-        if file.endswith(".log") and file.__contains__(name):
+        contains_ext = re.search(r"\.log\.?\d?$", file) is not None
+        if contains_ext and file.__contains__(name):
             logs.append(file)
 
     logs.sort(reverse=True)
@@ -41,33 +43,47 @@ def delete_old_logs(name: str):
             logging.warning(f"PermissionError while trying to delete log file \"{log}\"", exc_info=e)
 
 
-def setup_logging(name: str, file: bool = True):
+def setup_logging(name: str):
     prefix = "debug_" if get_debug() else ""
     filename = prefix + name + datetime.datetime.utcnow().strftime("%Y-%m-%d %H-%M-%S") + ".log"
     log_path = os.path.join(local_settings.logs_path, filename)
 
     delete_old_logs(name)
 
-    # Set custom Formatter to support DateFormats with milliseconds
-    formatter = MillisecondFormatter(fmt="%(asctime)s | %(levelname)-8s | %(message)s",
-                                     datefmt="%H:%M:%S.%f")
-    logger = logging.getLogger("discord_fm")
-    # Remove stderr handler to prevent duplicate printing
-    if len(logger.handlers) != 0:
-        for handler in logger.handlers:
-            logger.removeHandler(handler)
+    config = {"version": 1,
+              "formatters": {
+                  "millisecondFormatter": {
+                      "format": "%(asctime)s | %(levelname)-8s | %(message)s",
+                      "datefmt": "%H:%M:%S.%f",
+                      "style": "%",
+                      "validate": True,
+                      "class": "util.log_setup.MillisecondFormatter"
+                  }
+              },
+              "handlers": {
+                  "console": {
+                      "class": "logging.StreamHandler",
+                      "level": "DEBUG" if get_debug() else "INFO",
+                      "stream": "ext://sys.stdout"
+                  },
+                  "file": {
+                      "class": "logging.handlers.RotatingFileHandler",
+                      "filename": log_path,
+                      "level": "DEBUG" if get_debug() else "INFO",
+                      "formatter": "millisecondFormatter",
+                      "maxBytes": 512000,
+                      "backupCount": 2
+                  }
+              },
+              "loggers": {
+                  "discord_fm": {
+                      "handlers": ["console", "file"],
+                      "level": "DEBUG" if get_debug() else "INFO",
+                      "propagate": True
+                  }
+              },
+              "disable_existing_loggers": True}
 
-    if get_debug():
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
+    logging.config.dictConfig(config)
 
-    if file:
-        file_handler = logging.FileHandler(log_path, encoding="utf-8")
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    console_handler = logging.StreamHandler(sys.stdout)
-    logger.addHandler(console_handler)
-
-    logging.info("Logging setup finished")
+    print("Logging setup finished")

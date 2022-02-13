@@ -1,13 +1,15 @@
-import logging
 import os
-import subprocess
 import sys
 import psutil
-import globals
+import logging
+import subprocess
+import globals as g
+from util import is_frozen
 from platform import system
 from settings import local_settings
 from util.install import get_install_folder
-from util import is_frozen
+
+logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 class ExecutableInfo:
@@ -62,7 +64,7 @@ def get_external_process(*process_names: str, ignore_self: bool = True) -> list[
     try:
         process_list = psutil.process_iter()
     except psutil.AccessDenied:
-        globals.current = globals.Status.KILL
+        g.current = g.Status.KILL
         sys.exit()  # Exit from here since the unexpected exception handler uses kill_process
         return []
 
@@ -75,7 +77,7 @@ def get_external_process(*process_names: str, ignore_self: bool = True) -> list[
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             continue
 
-    logging.debug(f"Found {len(matched)} matches for {process_names}")
+    logger.debug(f"Found {len(matched)} matches for {process_names}")
     return matched
 
 
@@ -86,7 +88,7 @@ def check_process_running(*process_names: str) -> bool:
     ".exe" removed from them.
     :return: Boolean indicating if the processes are running
     """
-    logging.info(f"Checking if {process_names} is running...")
+    logger.info(f"Checking if {process_names} is running...")
     return len(get_external_process(*process_names)) != 0
 
 
@@ -96,7 +98,7 @@ def kill_process(process_name: str, ignore_self=True):
     :param process_name: Name of the process to kill, will be made lowercase and have ".exe" removed from it.
     :param ignore_self: Should the method ignore itself and all related processes.
     """
-    logging.debug(f"Attempting to kill process tree \"{process_name}\"...")
+    logger.debug(f"Attempting to kill process tree \"{process_name}\"...")
     proc = get_external_process(process_name, ignore_self=ignore_self)[0]
     proc_pid = proc.pid if proc.parent() is None else proc.parent().pid
 
@@ -135,7 +137,7 @@ def start_stop_process(process: ExecutableInfo):
 
 def open_settings():
     """Opens the settings UI. Works even if the app is not frozen (is running as a script)."""
-    logging.debug("Opening settings UI")
+    logger.debug("Opening settings UI")
     settings_proc = ExecutableInfo("settings_ui", "settings_ui.exe", "Discord.fm Settings.app",
                                    os.path.join("ui", "ui.py"))
     subprocess.Popen(settings_proc.path)
@@ -143,7 +145,7 @@ def open_settings():
 
 def open_logs_folder():
     """Opens the app's log folder on the system's file explorer"""
-    logging.debug("Opening logs folder")
+    logger.debug("Opening logs folder")
     if system() == "Windows":
         os.startfile(local_settings.logs_path)
     elif system() == "Darwin":
@@ -158,9 +160,9 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         sys.__excepthook__(exc_type, exc_value, exc_traceback)
         return
 
-    logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+    logger.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
 
     main_proc = ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
     subprocess.Popen(main_proc.path + ["--ignore-open"])
 
-    globals.manager.close()
+    g.manager.close()

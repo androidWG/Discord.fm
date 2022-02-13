@@ -3,9 +3,11 @@ import datetime
 import logging
 from os import environ
 from dotenv import load_dotenv
-from pypresence import Presence
 from util import resource_path
+from pypresence import Presence
 from wrappers import track_info
+
+logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 class DiscordRP:
@@ -19,22 +21,22 @@ class DiscordRP:
     def connect(self):
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.presence.connect()
-        logging.debug("Connected to Discord")
+        logger.debug("Connected to Discord")
 
     def disconnect(self):
         self.presence.clear()
-        logging.debug("Cleared Discord status")
+        logger.debug("Cleared Discord status")
 
     def exit_rp(self):
         self.presence.clear()
         self.presence.close()
-        logging.info("Closed Discord Rich Presence")
+        logger.info("Closed Discord Rich Presence")
 
     def update_status(self, track: track_info.TrackInfo):
         if self.last_track == track:
-            logging.debug(f"Track {track.name} is the same as last track {self.last_track.name}, not updating")
+            logger.debug(f"Track {track.name} is the same as last track {self.last_track.name}, not updating")
         else:
-            logging.info("Now playing: " + track.name)
+            logger.info("Now playing: " + track.name)
 
             start_time = datetime.datetime.now().timestamp()
             self.last_track = track
@@ -50,4 +52,4 @@ class DiscordRP:
                     self.presence.update(details=name, state=artist,
                                          large_image="lastfm", large_text="Discord.fm")
             except RuntimeError:
-                logging.warning("pypresence said update thread was already running")
+                logger.warning("pypresence said update thread was already running")

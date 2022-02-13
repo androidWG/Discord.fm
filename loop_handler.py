@@ -1,13 +1,15 @@
 import logging
 import time
 import util
+import globals as g
 import wrappers.last_fm_user
 from PIL import Image
 from sched import scheduler
 from pypresence import InvalidID
-from globals import current, Status
 from settings import local_settings
 from wrappers.system_tray_icon import SystemTrayIcon
+
+logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 class LoopHandler:
@@ -29,10 +31,10 @@ class LoopHandler:
 
     # noinspection PyUnboundLocalVariable,PyShadowingNames
     def _lastfm_update(self, scheduler):
-        if current == Status.DISABLED or current == Status.WAITING_FOR_DISCORD:
+        if g.current == g.Status.DISABLED or g.current == g.Status.WAITING_FOR_DISCORD:
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler,))
             return
-        elif current == Status.KILL:
+        elif g.current == g.Status.KILL:
             return
 
         try:
@@ -45,20 +47,20 @@ class LoopHandler:
                 self.tray.discord_rp.update_status(track)
                 self._last_track = track
             except (BrokenPipeError, InvalidID):
-                logging.info("Discord is being closed, will wait for it to open again")
+                logger.info("Discord is being closed, will wait for it to open again")
                 self.tray.wait_for_discord()
         else:
-            logging.debug("Not playing anything")
+            logger.debug("Not playing anything")
 
-        if not current == Status.KILL:
+        if not g.current == g.Status.KILL:
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler,))
 
     def _misc_update(self, misc_scheduler):
-        logging.debug("Running misc update")
-        if current == Status.DISABLED:
+        logger.debug("Running misc update")
+        if g.current == g.Status.DISABLED:
             self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
             return
-        elif current == Status.KILL:
+        elif g.current == g.Status.KILL:
             return
 
         self.cooldown = local_settings.get("cooldown")
@@ -67,10 +69,10 @@ class LoopHandler:
         icon = Image.open(image_path)
         self.tray.tray_icon.icon = icon
 
-        if not current == Status.KILL:
+        if not g.current == g.Status.KILL:
             self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
 
     def reload_lastfm(self):
         username = local_settings.get("username")
-        logging.debug(f"Reloading LastFMUser with username \"{username}\"")
+        logger.debug(f"Reloading LastFMUser with username \"{username}\"")
         self.user = wrappers.last_fm_user.LastFMUser(username)

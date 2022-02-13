@@ -1,10 +1,12 @@
-import logging
 import os
 import requests
+import logging
 from typing import Optional
 from packaging import version
 from settings import get_version, local_settings
 from util import arg_exists, request_handler, install
+
+logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 def check_version_and_download() -> bool:
@@ -47,7 +49,7 @@ def get_newest_release() -> Optional[tuple[version.Version, dict]]:
                next(x for x in latest["assets"]
                     if x["content_type"] == "application/x-msdownload" and "setup-win" in x["name"])
     except StopIteration:
-        logging.error("Newest release doesn't include a Windows executable download")
+        logger.error("Newest release doesn't include a Windows executable download")
         return None
 
 
@@ -64,7 +66,7 @@ def download_asset(asset: dict) -> str:
         headers=headers)
     response_size = int(request.headers['content-length'])
 
-    logging.info(f"Starting downloading {response_size} bytes...")
+    logger.info(f"Starting downloading {response_size} bytes...")
     downloaded_path = os.path.join(local_settings.app_data_path, asset["name"])
     with open(downloaded_path, "wb") as file:
         bytes_read = 0
@@ -75,5 +77,5 @@ def download_asset(asset: dict) -> str:
 
             bytes_read += chunk_size
 
-    logging.info(f"Successfully finished downloading {asset['name']}")
+    logger.info(f"Successfully finished downloading {asset['name']}")
     return downloaded_path

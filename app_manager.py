@@ -3,7 +3,7 @@ import logging
 import sys
 import loop_handler
 import util
-import globals
+import globals as g
 import util.process
 from time import sleep
 from os.path import isfile
@@ -12,6 +12,8 @@ from settings import local_settings
 from wrappers import system_tray_icon
 from util.updates import check_version_and_download
 
+logger = logging.getLogger("discord_fm").getChild(__name__)
+
 
 class AppManager:
     def __init__(self):
@@ -19,33 +21,33 @@ class AppManager:
         self.loop = loop_handler.LoopHandler(self.tray_icon)
 
     def start(self):
-        atexit.register(globals.manager.close)
+        atexit.register(g.manager.close)
 
         if util.process.check_process_running("discord_fm") and not util.arg_exists("--ignore-open"):
-            logging.info("Discord.fm is already running!")
+            logger.info("Discord.fm is already running!")
             self.close()
 
         if util.updates.check_version_and_download() and not util.is_frozen():
-            logging.info("Quitting to allow installation of newer version")
+            logger.info("Quitting to allow installation of newer version")
             self.close()
 
         if not isfile(util.resource_path(".env")):
-            logging.critical(".env file not found, unable to get API keys and data!")
+            logger.critical(".env file not found, unable to get API keys and data!")
             self.close()
 
         if util.arg_exists("-o"):
-            logging.info("\"-o\" argument was found, opening settings")
+            logger.info("\"-o\" argument was found, opening settings")
             open_settings_and_wait()
         elif local_settings.first_load:
-            logging.info("First load, opening settings UI and waiting for it to be closed...")
+            logger.info("First load, opening settings UI and waiting for it to be closed...")
             open_settings_and_wait()
 
         no_username = local_settings.get("username") == ""
         if no_username and not util.is_frozen():
-            logging.critical("No username found - please add a username to settings and restart the app")
+            logger.critical("No username found - please add a username to settings and restart the app")
             self.close()
         elif no_username and util.is_frozen():
-            logging.info("No username found, opening settings UI and waiting for it to be closed...")
+            logger.info("No username found, opening settings UI and waiting for it to be closed...")
             open_settings_and_wait()
 
         try:
@@ -60,7 +62,7 @@ class AppManager:
         sys.exit()
 
     def reload(self):
-        logging.info("Reloading...")
+        logger.info("Reloading...")
 
         try:
             self.tray_icon.discord_rp.exit_rp()
@@ -69,13 +71,13 @@ class AppManager:
         except NameError:
             return
 
-        globals.current = globals.Status.DISABLED
+        g.current = g.Status.DISABLED
         self.loop.reload_lastfm()
-        globals.current = globals.Status.ENABLED
+        g.current = g.Status.ENABLED
 
     def close(self):
-        logging.info("Closing app...")
-        globals.current = globals.Status.KILL
+        logger.info("Closing app...")
+        g.current = g.Status.KILL
 
         try:
             self.tray_icon.discord_rp.exit_rp()
@@ -88,7 +90,7 @@ class AppManager:
             if not sc.empty():
                 for event in sc.queue:
                     sc.cancel(event)
-                    logging.debug(f"Event \"{event.action}\" canceled")
+                    logger.debug(f"Event \"{event.action}\" canceled")
         except (AttributeError, NameError):
             pass
 
