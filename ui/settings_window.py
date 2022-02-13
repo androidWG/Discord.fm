@@ -195,9 +195,7 @@ class SettingsWindow(QMainWindow):
             self.service_button.setText("Starting...")
 
             main_proc = util.process.ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
-
-            args = [main_proc.path]
-            Thread(target=subprocess.Popen, args=args).start()
+            Thread(target=subprocess.Popen, args=main_proc.path).start()
 
         self.service_button.setEnabled(False)
         Timer(12, _update)

@@ -51,23 +51,23 @@ def setup_logging(name: str, file: bool = True):
     # Set custom Formatter to support DateFormats with milliseconds
     formatter = MillisecondFormatter(fmt="%(asctime)s | %(levelname)-8s | %(message)s",
                                      datefmt="%H:%M:%S.%f")
-    root_logger = logging.getLogger()
+    logger = logging.getLogger("discord_fm")
     # Remove stderr handler to prevent duplicate printing
-    if len(root_logger.handlers) != 0:
-        for handler in root_logger.handlers:
-            root_logger.removeHandler(handler)
+    if len(logger.handlers) != 0:
+        for handler in logger.handlers:
+            logger.removeHandler(handler)
 
     if get_debug():
-        root_logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.DEBUG)
     else:
-        root_logger.setLevel(logging.INFO)
+        logger.setLevel(logging.INFO)
 
     if file:
         file_handler = logging.FileHandler(log_path, encoding="utf-8")
         file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
+        logger.addHandler(file_handler)
 
     console_handler = logging.StreamHandler(sys.stdout)
-    root_logger.addHandler(console_handler)
+    logger.addHandler(console_handler)
 
     logging.info("Logging setup finished")
