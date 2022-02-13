@@ -23,14 +23,14 @@ class LoopHandler:
         self.misc_cooldown = 30
 
     def handle_update(self):
-        self.sc.enter(self.cooldown, 1, self.lastfm_update, (self.sc,))
-        self.sc.enter(self.misc_cooldown, 2, self.misc_update, (self.sc,))
+        self.sc.enter(self.cooldown, 1, self._lastfm_update, (self.sc,))
+        self.sc.enter(self.misc_cooldown, 2, self._misc_update, (self.sc,))
         self.sc.run()
 
     # noinspection PyUnboundLocalVariable,PyShadowingNames
-    def lastfm_update(self, scheduler):
+    def _lastfm_update(self, scheduler):
         if current == Status.DISABLED or current == Status.WAITING_FOR_DISCORD:
-            self.sc.enter(self.cooldown, 1, self.lastfm_update, (scheduler,))
+            self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler,))
             return
         elif current == Status.KILL:
             return
@@ -50,12 +50,13 @@ class LoopHandler:
         else:
             logging.debug("Not playing anything")
 
-        self.sc.enter(self.cooldown, 1, self.lastfm_update, (scheduler,))
+        if not current == Status.KILL:
+            self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler,))
 
-    def misc_update(self, misc_scheduler):
+    def _misc_update(self, misc_scheduler):
         logging.debug("Running misc update")
         if current == Status.DISABLED:
-            self.sc.enter(self.misc_cooldown, 2, self.misc_update, (misc_scheduler,))
+            self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
             return
         elif current == Status.KILL:
             return
@@ -66,7 +67,8 @@ class LoopHandler:
         icon = Image.open(image_path)
         self.tray.tray_icon.icon = icon
 
-        self.sc.enter(self.misc_cooldown, 2, self.misc_update, (misc_scheduler,))
+        if not current == Status.KILL:
+            self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
 
     def reload_lastfm(self):
         username = local_settings.get("username")

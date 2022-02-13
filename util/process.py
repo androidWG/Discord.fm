@@ -25,7 +25,7 @@ class ExecutableInfo:
         self.script_path = script_path
 
     @property
-    def path(self):
+    def path(self) -> list[str]:
         """Gets the full path of this executable for this instance of the app. If the app is not frozen, a path to the
         Python interpreter with the script as an argument will be passed."""
         install_path = get_install_folder(self.windows_exe_name, self.macos_app_name)
@@ -39,9 +39,9 @@ class ExecutableInfo:
             raise NotImplementedError
 
         if os.path.isfile(path):
-            return path
+            return [path]
         elif os.path.isfile(install_path) and is_frozen():
-            return install_path
+            return [install_path]
         elif not is_frozen():
             python_path = os.path.abspath("venv/Scripts/python.exe"
                                           if current_platform == "Windows" else "venv/bin/python")
@@ -161,6 +161,6 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     logging.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
 
     main_proc = ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
-    subprocess.Popen([main_proc.path, "--ignore-open"])
+    subprocess.Popen(main_proc.path + ["--ignore-open"])
 
-    kill_process("discord_fm", False)
+    globals.manager.close()
