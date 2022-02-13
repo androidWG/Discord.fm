@@ -9,4 +9,8 @@ if __name__ == "__main__":
     setup_logging("main")
 
     globals.manager = AppManager()
-    globals.manager.start()
+    try:
+        globals.manager.start()
+    except KeyboardInterrupt:
+        globals.manager.close()
+        sys.exit()
