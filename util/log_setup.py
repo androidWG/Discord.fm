@@ -3,6 +3,7 @@ import logging
 import os
 import datetime as dt
 import sys
+import globals
 from settings import local_settings, get_debug
 
 
@@ -70,4 +71,5 @@ def setup_logging(name: str, file: bool = True):
     console_handler = logging.StreamHandler(sys.stdout)
     logger.addHandler(console_handler)
 
-    logging.info("Logging setup finished")
+    logger.info("Logging setup finished")
+    globals.logger = logger

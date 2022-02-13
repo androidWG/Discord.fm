@@ -31,7 +31,6 @@ class TestRequestHandler(unittest.TestCase):
         rh = request_handler.RequestHandler("test")
         self.assertEqual(rh.attempt_request(mock_method), test_phrase)
 
-    @patch("logging.error")
     @patch("util.request_handler.wait_for_internet")
     def test_limited_tries(self, mock_wait: MagicMock, mock_error: MagicMock):
         limit = 5

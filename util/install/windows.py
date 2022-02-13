@@ -1,4 +1,4 @@
-import logging
+import globals as g
 import subprocess
 import platform
 import util.timeout
@@ -14,7 +14,7 @@ def get_install_folder_and_version() -> tuple:
     # Only Windows has the winreg package, so make sure the script doesn't go apeshit in other systems
     if platform.system() == "Windows":
         import winreg
-        logging.debug("Attempting to find Windows install...")
+        g.logger.debug("Attempting to find Windows install...")
 
         access_registry = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
         discord_fm_key_location = r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\Discord.fm"
@@ -22,13 +22,13 @@ def get_install_folder_and_version() -> tuple:
         try:
             access_key = winreg.OpenKey(access_registry, discord_fm_key_location)
         except FileNotFoundError:
-            logging.warning("Discord.fm installation not found")
+            g.logger.warning("Discord.fm installation not found")
             return None, None
 
         install_location = winreg.QueryValueEx(access_key, "Install Folder")[0]
         version = winreg.QueryValueEx(access_key, "DisplayVersion")[0]
 
-        logging.info(f"Found install info - Location: {install_location}")
+        g.logger.info(f"Found install info - Location: {install_location}")
 
         return install_location, version
 
@@ -40,10 +40,10 @@ def do_silent_install(installer_path: str):
     :param installer_path: Path where the .zip containing the .app folder is located
     :type installer_path: str
     """
-    logging.info("Installing for Windows...")
+    g.logger.info("Installing for Windows...")
 
     command = f"\"{installer_path}\" /VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /FORCECLOSEAPPLICATIONS " \
               f"/CURRENTUSER "
-    logging.debug(f"Running command: {command}")
+    g.logger.debug(f"Running command: {command}")
     subprocess.Popen(command, shell=True)
 

@@ -1,11 +1,10 @@
-import logging
 import platform
 import time
 import util
-import util.log_setup
 import util.process
 import util.updates
-import globals
+import util.log_setup
+import globals as g
 import wrappers.discord_rp
 from PIL import Image
 from typing import Callable
@@ -32,7 +31,7 @@ class SystemTrayIcon:
         icon = Image.open(image_path)
 
         menu = Menu(MenuItem("Enable Rich Presence", self.toggle_rpc,
-                             enabled=lambda i: globals.current != globals.current.WAITING_FOR_DISCORD,
+                             enabled=lambda i: g.current != g.current.WAITING_FOR_DISCORD,
                              checked=lambda i: self.rpc_state),
                     MenuItem("Open Settings", util.process.open_settings),
                     Menu.SEPARATOR,
@@ -46,15 +45,15 @@ class SystemTrayIcon:
 
         if self.rpc_state:
             self.discord_rp.connect()
-            globals.current = globals.Status.ENABLED
+            g.current = g.Status.ENABLED
         else:
             self.discord_rp.disconnect()
-            globals.current = globals.Status.DISABLED
+            g.current = g.Status.DISABLED
 
-        logging.info(f"Changed rpc_state to {self.rpc_state}")
+        g.logger.info(f"Changed rpc_state to {self.rpc_state}")
 
     def wait_for_discord(self):
-        globals.current = globals.Status.WAITING_FOR_DISCORD
+        g.current = g.Status.WAITING_FOR_DISCORD
 
         notification_called = False
         self.tray_icon.update_menu()
@@ -68,7 +67,7 @@ class SystemTrayIcon:
                     continue
                 except PermissionError as e:
                     if not notification_called and platform.system() == "Windows":
-                        logging.critical("Another user has Discord open, notifying user", exc_info=e)
+                        g.logger.critical("Another user has Discord open, notifying user", exc_info=e)
 
                         title = "Another user has Discord open"
                         message = "Discord.fm will not update your Rich Presence or theirs. Please close the other " \
@@ -83,5 +82,5 @@ class SystemTrayIcon:
             else:
                 time.sleep(10)
 
-        globals.current = globals.Status.ENABLED
+        g.current = g.Status.ENABLED
         self.tray_icon.update_menu()

@@ -1,8 +1,8 @@
-import logging
 import queue
 import threading
 import time
 import pylast
+import globals as g
 from typing import Any, Callable
 from requests import get, exceptions
 
@@ -13,7 +13,7 @@ def wait_for_internet():
     while True:
         try:
             get("http://gstatic.com/generate_204")
-            logging.info("Connected to the internet again")
+            g.logger.info("Connected to the internet again")
             return
         except (exceptions.ConnectionError, exceptions.Timeout):
             counter += 1
@@ -63,7 +63,7 @@ class RequestHandler:
                     inactive_timer.cancel()
 
             if 0 < self._limit <= self._tries:
-                logging.error(f"Hit or exceeded maximum tries (over {self._limit} tries)")
+                g.logger.error(f"Hit or exceeded maximum tries (over {self._limit} tries)")
                 cancel_timers()
                 return None
 
@@ -74,7 +74,7 @@ class RequestHandler:
             try:
                 while thread.is_alive():
                     if self._interrupt_request:
-                        logging.info(f"Request for {self.message} timed out")
+                        g.logger.info(f"Request for {self.message} timed out")
                         self._tries += 1
                         continue
             except KeyboardInterrupt:
@@ -83,15 +83,15 @@ class RequestHandler:
             if not self._bucket.empty():
                 e = self._bucket.get(block=False)
                 if isinstance(e, (exceptions.ConnectionError, pylast.NetworkError)):
-                    logging.warning(f"A connection error occurred while getting {self.message}", exc_info=e)
+                    g.logger.warning(f"A connection error occurred while getting {self.message}", exc_info=e)
                 elif isinstance(e, exceptions.Timeout):
-                    logging.warning(f"Timed out while requesting {self.message}")
+                    g.logger.warning(f"Timed out while requesting {self.message}")
                 elif isinstance(e, exceptions.ChunkedEncodingError):
-                    logging.warning(f"Connection error while downloading {self.message}")
+                    g.logger.warning(f"Connection error while downloading {self.message}")
                 elif isinstance(e, pylast.MalformedResponseError):
-                    logging.info(f"Received a Last.fm internal server error while getting {self.message}", exc_info=e)
+                    g.logger.info(f"Received a Last.fm internal server error while getting {self.message}", exc_info=e)
                 elif isinstance(e, exceptions.RequestException):
-                    logging.error(f"Unexpected generic exception while getting {self.message}", exc_info=e)
+                    g.logger.error(f"Unexpected generic exception while getting {self.message}", exc_info=e)
                 else:
                     cancel_timers()
                     raise e
@@ -108,23 +108,23 @@ class RequestHandler:
 
     def _wrapper(self, func, args, kwargs):
         thread_id = threading.get_ident()
-        logging.debug(f"Thread ID: {thread_id}")
+        g.logger.debug(f"Thread ID: {thread_id}")
         exc = None
         try:
             result = func(*args, **kwargs)
-            logging.debug(f"Finished running function \"{func.__name__}\"")
+            g.logger.debug(f"Finished running function \"{func.__name__}\"")
         except Exception as e:
             exc = e
         finally:
             if self._current_thread != thread_id:
-                logging.debug(f"current_thread is mismatched with this thread ({self._current_thread} "
-                              f"vs. {thread_id})")
+                g.logger.debug(f"current_thread is mismatched with this thread ({self._current_thread} "
+                               f"vs. {thread_id})")
                 return
 
         if exc is not None:
             self._bucket.put(exc)
-            logging.debug(f"Caught exception: \n{exc}")
+            g.logger.debug(f"Caught exception: \n{exc}")
             return
 
-        logging.debug(f"Thread result: {result}")
+        g.logger.debug(f"Thread result: {result}")
         self._result = result

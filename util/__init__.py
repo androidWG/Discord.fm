@@ -1,9 +1,9 @@
-import logging
 import os
-import shutil
 import sys
-from plyer import notification
+import shutil
+import globals as g
 from platform import system
+from plyer import notification
 
 
 # From https://stackoverflow.com/a/13790741/8286014
@@ -49,11 +49,11 @@ def replace_instances(file: str, tags: list, out_file: str = "temp_", encoding: 
 
                 file_out.write(replaced_line)
 
-    logging.debug(f"Replaced tags in {file}")
+    g.logger.debug(f"Replaced tags in {file}")
 
     if out_file == "temp_":
         shutil.move("temp_", file)
-        logging.debug("Renamed temp_ file")
+        g.logger.debug("Renamed temp_ file")
 
 
 def check_dark_mode() -> bool:
