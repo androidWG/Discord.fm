@@ -18,7 +18,14 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 class AppManager:
     def __init__(self):
         self.tray_icon = system_tray_icon.SystemTrayIcon(self.close)
-        self.loop = loop_handler.LoopHandler(self.tray_icon)
+        while True:  # Keep prompting for a valid username until one is found
+            try:
+                self.loop = loop_handler.LoopHandler(self.tray_icon)
+                break
+            except ValueError:
+                util.basic_notification("Invalid username",
+                                        "Please open Discord.fm Settings to change to a valid username.")
+                open_settings_and_wait()
 
     def start(self):
         atexit.register(g.manager.close)
@@ -54,10 +61,6 @@ class AppManager:
             self.loop.handle_update()
         except (KeyboardInterrupt, SystemExit):
             self.close()
-        except ValueError:
-            self.close()
-            util.basic_notification("Invalid username",
-                                    "Please open Discord.fm Settings to change to a valid username.")
 
         sys.exit()
 
