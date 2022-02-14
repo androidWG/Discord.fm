@@ -142,7 +142,6 @@ class SettingsWindow(QMainWindow):
             event.accept()
 
         self.save_setting("username", self.username_input.text())
-        globals.manager.reload()
 
     @staticmethod
     def save_setting(name, value, *extra_func):

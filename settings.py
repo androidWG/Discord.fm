@@ -3,7 +3,7 @@ import os.path
 import packaging.version
 from platform import system
 
-__version = "0.5.0"
+__version = "0.5.1"
 __debug = True
 
 
@@ -24,6 +24,12 @@ class Settings:
         self.logs_path = setup_logs_dir(app_name)
         self.config_file_path = os.path.join(self.app_data_path, settings_filename)
 
+        self.__settings_dict = {}
+        self.first_load = False
+
+        self.load()
+
+    def load(self):
         self.__settings_dict = {  # Put default setting values here
             "cooldown": 4,
             "username": "",
@@ -40,8 +46,6 @@ class Settings:
                         loaded_dict[s] = self.__settings_dict[s]
 
                 self.__settings_dict = loaded_dict
-
-            self.first_load = False
         except (FileNotFoundError, json.decoder.JSONDecodeError, UnicodeDecodeError):
             self.save()
             self.first_load = True

@@ -69,6 +69,10 @@ class LoopHandler:
         icon = Image.open(image_path)
         self.tray.tray_icon.icon = icon
 
+        local_settings.load()
+        if self.user.user.name is not None and not local_settings.get("username") == self.user.user.name:
+            g.manager.reload()
+
         if not g.current == g.Status.KILL:
             self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
 
