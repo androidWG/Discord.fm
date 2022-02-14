@@ -13,7 +13,7 @@ from settings import get_version
 
 
 def make_windows_installer(version: str):
-    """Runs ISCC located at ``C:\\Program Files (x86)\\Inno Setup 6`` to build Windows installer, based on the the .iss
+    """Runs ISCC located at ``C:\\Program Files (x86)\\Inno Setup 6`` to build Windows installer, based on the .iss
     file located inside the build folder.
 
     :param version: Version of the package formatted like 0.0.0
