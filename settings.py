@@ -27,7 +27,7 @@ class Settings:
         self.__settings_dict = {  # Put default setting values here
             "cooldown": 4,
             "username": "",
-            "max_logs": 10,
+            "max_logs": 5,
             "auto_update": True,
             "pre_releases": False,
         }
