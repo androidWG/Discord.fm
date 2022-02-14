@@ -3,7 +3,6 @@ import subprocess
 import sys
 import util
 import util.process
-import globals
 import wrappers.last_fm_user
 from threading import Thread, get_ident, Timer
 from settings import local_settings, get_version
@@ -33,12 +32,15 @@ class SettingsWindow(QMainWindow):
         layout.setSpacing(5)
 
         # region Username Input
+        self.debounce = QTimer()
+        self.debounce.setInterval(500)
+        self.debounce.setSingleShot(True)
+        self.debounce.timeout.connect(self.start_check_username)
+
         username_layout = QHBoxLayout()
         username_layout.setSpacing(7)
         self.username_input = QLineEdit(placeholderText="Username")
-        self.username_input.textChanged.connect(lambda: self.start_check_username())
-        self.username_input.editingFinished.connect(
-            lambda: self.save_setting("username", self.username_input.text()))
+        self.username_input.textChanged.connect(self.debounce_start)
         username_layout.addWidget(QLabel("Last.fm Username"))
         username_layout.addWidget(self.username_input)
 
@@ -200,6 +202,10 @@ class SettingsWindow(QMainWindow):
         self.service_button.setEnabled(False)
         Timer(12, _update)
 
+    def debounce_start(self):
+        self.thread = Thread(target=self._check_username)
+        self.debounce.start()
+
     def _check_username(self):
         if self.thread.ident != get_ident():
             return
@@ -224,5 +230,4 @@ class SettingsWindow(QMainWindow):
         self.username_status.setText("Checking...")
         self.username_status.setVisible(True)
 
-        self.thread = Thread(target=self._check_username)
         self.thread.start()
