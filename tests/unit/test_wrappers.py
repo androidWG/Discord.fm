@@ -76,6 +76,7 @@ class TestDiscordRP(TestCase):
         self.rp.update_status(self.data2)
 
         with self.assertRaises(AttributeError):
+            # noinspection PyTypeChecker
             self.rp.update_status(None)
 
 

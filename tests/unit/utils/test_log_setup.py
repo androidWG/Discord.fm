@@ -3,7 +3,7 @@ import random
 import tempfile
 import unittest
 import util.log_setup
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 
 class LogSetupTests(unittest.TestCase):

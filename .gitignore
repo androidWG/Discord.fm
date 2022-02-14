@@ -142,13 +142,11 @@ cython_debug/
 upx/
 
 .DS_Store
-.env
 .gclient_done
 **/.npmrc
 .tags*
 .vs/
 .vscode/
-*.log
 *.pyc
 *.sln
 *.swp

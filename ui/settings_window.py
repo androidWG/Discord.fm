@@ -131,6 +131,7 @@ class SettingsWindow(QMainWindow):
 
             msg_box.setText("The username you set is not valid.")
             msg_box.setInformativeText("Please change it to a valid username.")
+            # noinspection PyTypeChecker
             msg_box.setStandardButtons(QMessageBox.Ok)
             msg_box.setDefaultButton(QMessageBox.Ok)
             msg_box.setIcon(QMessageBox.Warning)
