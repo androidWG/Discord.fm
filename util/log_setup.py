@@ -1,8 +1,10 @@
+import copy
 import datetime
 import logging.config
+import logging.handlers
 import os
-import datetime as dt
 import re
+import datetime as dt
 from settings import local_settings, get_debug
 
 
@@ -18,6 +20,41 @@ class MillisecondFormatter(logging.Formatter):
             t = converter.strftime("%Y-%m-%d %H:%M:%S")
             s = "%s,%03d" % (t, record.msecs)
         return s
+
+
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+
+RESET_SEQ = "\033[0m"
+COLOR_SEQ = "\033[1;%dm"
+BOLD_SEQ = "\033[1m"
+
+
+def formatter_message(message, use_color=True):
+    if use_color:
+        message = message.replace("$RESET", RESET_SEQ).replace("$BOLD", BOLD_SEQ)
+    else:
+        message = message.replace("$RESET", "").replace("$BOLD", "")
+    return message
+
+
+COLORS = {
+    'WARNING': YELLOW,
+    'INFO': WHITE,
+    'DEBUG': BLUE,
+    'CRITICAL': YELLOW,
+    'ERROR': RED
+}
+
+
+class ColoredFormatter(logging.Formatter):
+    def format(self, record):
+        new_record = copy.copy(record)
+        levelname = new_record.levelname
+
+        if levelname in COLORS:
+            levelname_color = COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
+            new_record.levelname = levelname_color
+        return logging.Formatter.format(self, new_record)
 
 
 def delete_old_logs(name: str):
@@ -44,26 +81,35 @@ def delete_old_logs(name: str):
 
 
 def setup_logging(name: str):
-    prefix = "debug_" if get_debug() else ""
-    filename = prefix + name + datetime.datetime.utcnow().strftime("%Y-%m-%d %H-%M-%S") + ".log"
+    prefix = "debug" if get_debug() else ""
+    filename = f'{prefix}_{name}_{datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")}.log'
     log_path = os.path.join(local_settings.logs_path, filename)
 
     delete_old_logs(name)
 
+    base_format = "[$BOLD%(levelname)-8s$RESET] ($BOLD%(filename)s:%(lineno)d$RESET) %(message)s"
+    colored_format = formatter_message(base_format, True)
+
     config = {"version": 1,
               "formatters": {
+                  "coloredFormatter": {
+                      "format": colored_format,
+                      "style": "%",
+                      "validate": False,
+                      "class": "util.log_setup.ColoredFormatter"
+                  },
                   "millisecondFormatter": {
                       "format": "%(asctime)s | %(levelname)-8s | %(message)s",
                       "datefmt": "%H:%M:%S.%f",
                       "style": "%",
-                      "validate": True,
                       "class": "util.log_setup.MillisecondFormatter"
                   }
               },
               "handlers": {
                   "console": {
                       "class": "logging.StreamHandler",
-                      "level": "DEBUG" if get_debug() else "INFO",
+                      "level": "DEBUG",
+                      "formatter": "coloredFormatter",
                       "stream": "ext://sys.stdout"
                   },
                   "file": {
