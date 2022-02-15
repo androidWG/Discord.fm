@@ -6,8 +6,9 @@ class Status(enum.Enum):
     DISABLED = 1
     KILL = 2
     WAITING_FOR_DISCORD = 3
+    STARTUP = 4
+    UPDATING = 5
 
 
-current = Status(Status.ENABLED)
-logger = None
+current = Status(Status.STARTUP)
 manager = None

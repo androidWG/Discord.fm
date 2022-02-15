@@ -57,6 +57,12 @@ class AppManager:
             logger.info("No username found, opening settings UI and waiting for it to be closed...")
             open_settings_and_wait()
 
+        if g.current != g.Status.KILL:
+            g.current = g.Status.ENABLED
+            self.tray_icon.ti.update_menu()
+        else:
+            return
+
         try:
             self.loop.handle_update()
         except (KeyboardInterrupt, SystemExit):

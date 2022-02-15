@@ -21,12 +21,12 @@ class SystemTrayIcon:
 
     def __init__(self, exit_func: Callable):
         self._exit_func = exit_func
-        self.tray_icon = self.create_tray_icon()
+        self.ti = self.create_tray_icon()
 
         self.discord_rp = None
         self.wait_for_discord()
 
-        Thread(target=self.tray_icon.run).start()
+        Thread(target=self.ti.run).start()
 
     def create_tray_icon(self):
         image_path = util.resource_path(
@@ -34,9 +34,17 @@ class SystemTrayIcon:
         icon = Image.open(image_path)
 
         menu = Menu(MenuItem("Enable Rich Presence", self.toggle_rpc,
-                             enabled=lambda i: g.current != g.current.WAITING_FOR_DISCORD,
-                             checked=lambda i: self.rpc_state),
-                    MenuItem("Open Settings", util.process.open_settings),
+                             enabled=lambda i: g.current != g.Status.WAITING_FOR_DISCORD,
+                             checked=lambda i: self.rpc_state,
+                             visible=lambda i: g.current != g.Status.STARTUP and g.current != g.Status.UPDATING),
+                    MenuItem("Open Settings", util.process.open_settings,
+                             visible=lambda i: g.current != g.Status.STARTUP and g.current != g.Status.UPDATING),
+                    MenuItem("Starting...", None,
+                             enabled=False,
+                             visible=lambda i: g.current == g.Status.STARTUP),
+                    MenuItem("Downloading update...", None,
+                             enabled=False,
+                             visible=lambda i: g.current == g.Status.UPDATING),
                     Menu.SEPARATOR,
                     MenuItem("Exit", self._exit_func))
 
@@ -59,7 +67,7 @@ class SystemTrayIcon:
         g.current = g.Status.WAITING_FOR_DISCORD
 
         notification_called = False
-        self.tray_icon.update_menu()
+        self.ti.update_menu()
 
         while True:
             if util.process.check_process_running("Discord", "DiscordCanary"):
@@ -86,4 +94,4 @@ class SystemTrayIcon:
                 time.sleep(10)
 
         g.current = g.Status.ENABLED
-        self.tray_icon.update_menu()
+        self.ti.update_menu()
