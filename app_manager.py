@@ -1,14 +1,16 @@
 import atexit
 import logging
 import sys
-import loop_handler
 import util
+import loop_handler
 import globals as g
 import util.process
+import util.updates
+import util.install
 from time import sleep
 from os.path import isfile
 from pypresence import InvalidID
-from settings import local_settings
+from settings import local_settings, get_version
 from wrappers import system_tray_icon
 from util.updates import check_version_and_download
 
@@ -34,9 +36,21 @@ class AppManager:
             logger.info("Discord.fm is already running!")
             self.close()
 
-        if util.updates.check_version_and_download() and not util.is_frozen():
-            logger.info("Quitting to allow installation of newer version")
-            self.close()
+        if local_settings.get("auto_update"):
+            logger.debug("Checking for updates")
+
+            latest, latest_asset = util.updates.get_newest_release()
+            current = get_version(True)
+            if latest is not None and latest > current or util.arg_exists("--force-update"):
+                g.current = g.Status.UPDATING
+                self.tray_icon.ti.update_menu()
+
+                logger.info(f"Found newer version (current v{current} vs. latest v{latest})")
+                path = util.updates.download_asset(latest_asset)
+
+                util.install.windows.do_silent_install(path)
+                logger.info("Quitting to allow installation of newer version")
+                self.close()
 
         if not isfile(util.resource_path(".env")):
             logger.critical(".env file not found, unable to get API keys and data!")

@@ -3,24 +3,10 @@ import requests
 import logging
 from typing import Optional
 from packaging import version
-from settings import get_version, local_settings
-from util import arg_exists, request_handler, install
+from settings import local_settings
+from util import request_handler
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
-
-
-def check_version_and_download() -> bool:
-    if not local_settings.get("auto_update"):
-        return False
-
-    latest, latest_asset = get_newest_release()
-    current = get_version(True)
-    if latest is not None and latest > current or arg_exists("--force-update"):
-        path = download_asset(latest_asset)
-        install.windows.do_silent_install(path)
-        return True
-    else:
-        return False
 
 
 def get_newest_release() -> Optional[tuple[version.Version, dict]]:
@@ -58,6 +44,7 @@ def download_asset(asset: dict) -> str:
     headers = {"Accept": "application/octet-stream",
                "User-Agent": "Discord.fm"}
 
+    logger.info(f'Requesting asset "{asset["name"]}" from GitHub')
     handler = request_handler.RequestHandler("GitHub download")
     request = handler.attempt_request(
         requests.get,
@@ -66,7 +53,7 @@ def download_asset(asset: dict) -> str:
         headers=headers)
     response_size = int(request.headers['content-length'])
 
-    logger.info(f"Starting downloading {response_size} bytes...")
+    logger.info(f"Starting writing {response_size} bytes")
     downloaded_path = os.path.join(local_settings.app_data_path, asset["name"])
     with open(downloaded_path, "wb") as file:
         bytes_read = 0
@@ -77,5 +64,5 @@ def download_asset(asset: dict) -> str:
 
             bytes_read += chunk_size
 
-    logger.info(f"Successfully finished downloading {asset['name']}")
+    logger.info(f"Successfully finished writing {asset['name']}")
     return downloaded_path
