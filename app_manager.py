@@ -12,7 +12,6 @@ from os.path import isfile
 from pypresence import InvalidID
 from settings import local_settings, get_version
 from wrappers import system_tray_icon
-from util.updates import check_version_and_download
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -32,8 +31,11 @@ class AppManager:
     def start(self):
         atexit.register(g.manager.close)
 
+        if not util.is_frozen():
+            logger.warning("Running in non-frozen mode")
+
         if util.process.check_process_running("discord_fm") and not util.arg_exists("--ignore-open"):
-            logger.info("Discord.fm is already running!")
+            logger.error("Discord.fm is already running!")
             self.close()
 
         if local_settings.get("auto_update"):
@@ -104,7 +106,7 @@ class AppManager:
 
         try:
             self.tray_icon.discord_rp.exit_rp()
-            self.tray_icon.tray_icon.stop()
+            self.tray_icon.ti.stop()
         except (RuntimeError, AttributeError, AssertionError, InvalidID, NameError):
             pass
 
