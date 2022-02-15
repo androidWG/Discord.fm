@@ -1,8 +1,10 @@
 import queue
+import sys
 import threading
 import time
 import pylast
 import logging
+import globals as g
 from typing import Any, Callable
 from requests import get, exceptions
 
@@ -59,6 +61,9 @@ class RequestHandler:
         self._bucket = queue.Queue()
 
         while True:
+            if g.current == g.Status.KILL:
+                sys.exit()
+
             def cancel_timers():
                 timeout_timer.cancel()
                 if inactive_timer is not None:
@@ -120,7 +125,7 @@ class RequestHandler:
         finally:
             if self._current_thread != thread_id:
                 logger.debug(f"current_thread is mismatched with this thread ({self._current_thread} "
-                               f"vs. {thread_id})")
+                             f"vs. {thread_id})")
                 return
 
         if exc is not None:

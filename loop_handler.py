@@ -67,7 +67,7 @@ class LoopHandler:
         image_path = util.resource_path("resources/white/icon.png"
                                         if util.check_dark_mode() else "resources/black/icon.png")
         icon = Image.open(image_path)
-        self.tray.tray_icon.icon = icon
+        self.tray.ti.icon = icon
 
         local_settings.load()
         if self.user.user.name is not None and not local_settings.get("username") == self.user.user.name:
