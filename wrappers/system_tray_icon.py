@@ -11,7 +11,7 @@ from PIL import Image
 from typing import Callable
 from threading import Thread
 from pystray import MenuItem, Menu, Icon
-from pypresence import InvalidPipe, DiscordNotFound
+from pypresence import InvalidPipe, DiscordNotFound, DiscordError
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -74,7 +74,7 @@ class SystemTrayIcon:
                 try:
                     self.discord_rp = wrappers.discord_rp.DiscordRP()
                     self.discord_rp.connect()
-                except (FileNotFoundError, InvalidPipe, DiscordNotFound):
+                except (FileNotFoundError, InvalidPipe, DiscordNotFound, DiscordError):
                     continue
                 except PermissionError as e:
                     if not notification_called and platform.system() == "Windows":
