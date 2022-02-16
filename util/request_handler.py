@@ -25,6 +25,8 @@ def wait_for_internet():
 
 
 class RequestHandler:
+    _inactive_timer = None
+    _timeout_timer = None
     _interrupt_request = False
     _current_thread = 0
     _result = None
@@ -49,43 +51,40 @@ class RequestHandler:
         :return: request_func result
         """
 
-        timeout_timer = threading.Timer(timeout, self._interrupt)
-        timeout_timer.start()
-        inactive_timer = None
+        self._timeout_timer = threading.Timer(timeout, self._interrupt)
+        self._timeout_timer.start()
+        self._inactive_timer = None
 
         if self.inactive_func is not None:
-            inactive_timer = threading.Timer(30, self.inactive_func)
-            inactive_timer.start()
+            self._inactive_timer = threading.Timer(30, self.inactive_func)
+            self._inactive_timer.start()
 
         self._result = None
         self._bucket = queue.Queue()
 
         while True:
             if g.current == g.Status.KILL:
-                sys.exit()
-
-            def cancel_timers():
-                timeout_timer.cancel()
-                if inactive_timer is not None:
-                    inactive_timer.cancel()
+                self._cancel_timers()
+                g.manager.close()
 
             if 0 < self._limit <= self._tries:
-                logger.error(f"Hit or exceeded maximum tries (over {self._limit} tries)")
-                cancel_timers()
+                logger.warning(f"Hit or exceeded maximum tries (over {self._limit} tries)")
+                self._cancel_timers()
                 return None
 
             thread = threading.Thread(target=self._wrapper, args=(request_func, args, kwargs))
             thread.start()
             self._current_thread = thread.ident
 
-            try:
-                while thread.is_alive():
-                    if self._interrupt_request:
-                        logger.info(f"Request for {self.message} timed out")
-                        self._tries += 1
-                        continue
-            except KeyboardInterrupt:
-                return None
+            while thread.is_alive():
+                if g.current == g.Status.KILL:
+                    self._cancel_timers()
+                    g.manager.close()
+
+                if self._interrupt_request:
+                    logger.info(f"Request for {self.message} timed out")
+                    self._tries += 1
+                    continue
 
             if not self._bucket.empty():
                 e = self._bucket.get(block=False)
@@ -96,19 +95,24 @@ class RequestHandler:
                 elif isinstance(e, exceptions.ChunkedEncodingError):
                     logger.warning(f"Connection error while downloading {self.message}")
                 elif isinstance(e, pylast.MalformedResponseError):
-                    logger.info(f"Received a Last.fm internal server error while getting {self.message}", exc_info=e)
+                    logger.warning(f"Received a Last.fm internal server error while getting {self.message}", exc_info=e)
                 elif isinstance(e, exceptions.RequestException):
                     logger.error(f"Unexpected generic exception while getting {self.message}", exc_info=e)
                 else:
-                    cancel_timers()
+                    self._cancel_timers()
                     raise e
 
                 wait_for_internet()
                 self._tries += 1
                 continue
 
-            cancel_timers()
+            self._cancel_timers()
             return self._result
+
+    def _cancel_timers(self):
+        self._timeout_timer.cancel()
+        if self._inactive_timer is not None:
+            self._inactive_timer.cancel()
 
     def _interrupt(self):
         self._interrupt_request = True
@@ -136,3 +140,4 @@ class RequestHandler:
         # noinspection PyUnboundLocalVariable
         logger.debug(f"Thread result: {result}")
         self._result = result
+        return
