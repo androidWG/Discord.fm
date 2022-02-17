@@ -3,7 +3,7 @@ import os.path
 import packaging.version
 from platform import system
 
-__version = "0.5.1"
+__version = "0.6.0"
 __debug = True
 
 
