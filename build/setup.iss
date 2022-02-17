@@ -76,7 +76,9 @@ Name: "{userstartmenu}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; 
 [InstallDelete]
 Type: filesandordirs; Name: "{app}"
 
+[UninstallRun]
+Filename: "taskkill.exe"; Parameters: "/T /IM discord_fm.exe /F"; Flags: waituntilterminated runhidden
+
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
 Type: filesandordirs; Name: "{localappdata}\Discord.fm"
-Type: filesandordirs; Name: "{userappdata}\Discord.fm"
