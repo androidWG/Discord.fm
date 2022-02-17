@@ -8,7 +8,7 @@ from util import process
 class TestProcess(unittest.TestCase):
     data_list = [MagicMock(pid=x) for x in range(0, 128)]
 
-    @patch("sys.exit")
+    @patch("app_manager.AppManager.close")
     @patch("psutil.process_iter")
     def test_iter_exception(self, mock_iter: MagicMock, mock_exit: MagicMock):
         mock_iter.side_effect = psutil.AccessDenied(1234, "test", "testtest")
