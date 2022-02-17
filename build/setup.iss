@@ -3,6 +3,7 @@
 #define Publisher "androidWG"
 #define InfoURL "https://github.com/AndroidWG/Discord.fm"
 #define LocalPath "#REPO#"
+#define Suffix "#SUFFIX#"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -21,7 +22,7 @@ DisableProgramGroupPage=yes
 CloseApplications=force
 AllowNoIcons=no
 OutputDir={#LocalPath}\dist
-OutputBaseFilename=discord.fm-setup-win-#VERSION#
+OutputBaseFilename=discord.fm-setup-win64-{#Version}{#Suffix}
 SetupIconFile={#LocalPath}\resources\icon.ico
 SolidCompression=yes
 UninstallDisplayName=Discord.fm
@@ -67,7 +68,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: 
 Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: postinstall nowait
 
 [ThirdParty]
-CompileLogFile={#LocalPath}\dist\{#Version}-installer.log
+CompileLogFile={#LocalPath}\dist\{#Version}{#Suffix}-installer.log
 
 [Icons]
 Name: "{userstartmenu}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; IconFilename: "{app}\discord_fm.exe"

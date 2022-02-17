@@ -9,7 +9,7 @@ from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import util
-from settings import get_version
+from settings import get_version, get_debug
 
 
 def make_windows_installer(version: str):
@@ -24,7 +24,8 @@ def make_windows_installer(version: str):
 
     tags = [
         ("#VERSION#", version),
-        ("#REPO#", os.getcwd())
+        ("#REPO#", os.getcwd()),
+        ("#SUFFIX#", "-debug" if get_debug() else "")
     ]
     util.replace_instances("build/setup.iss", tags, out_file=temp_setup_script)
 

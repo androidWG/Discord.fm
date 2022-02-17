@@ -5,7 +5,7 @@ import util
 import util.process
 import wrappers.last_fm_user
 from threading import Thread, get_ident, Timer
-from settings import local_settings, get_version
+from settings import local_settings, get_version, get_debug
 from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon, Qt, QCloseEvent
 from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QMainWindow, QPushButton, QSlider, \
@@ -90,7 +90,7 @@ class SettingsWindow(QMainWindow):
         # region Status Bar
         self.status_bar = QStatusBar()
         self.status_label = QLabel("Waiting...")
-        version_label = QLabel("v" + get_version())
+        version_label = QLabel("v" + get_version() + " (debug)" if get_debug() else "")
         version_label.setAlignment(Qt.AlignRight)
         self.status_bar.addPermanentWidget(version_label, 1)
         self.status_bar.addWidget(self.status_label, 7)
