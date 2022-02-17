@@ -22,7 +22,7 @@ class LoopHandler:
         self.sc = scheduler(time.time)
 
         self.cooldown = local_settings.get("cooldown")
-        self.misc_cooldown = 30
+        self.misc_cooldown = 15
 
     def handle_update(self):
         self.sc.enter(self.cooldown, 1, self._lastfm_update, (self.sc,))
