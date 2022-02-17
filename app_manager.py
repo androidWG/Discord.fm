@@ -27,6 +27,7 @@ class AppManager:
                 util.basic_notification("Invalid username",
                                         "Please change to a valid username.")
                 open_settings_and_wait()
+                local_settings.load()
 
     def start(self):
         atexit.register(g.manager.close)
@@ -60,9 +61,6 @@ class AppManager:
 
         if util.arg_exists("-o"):
             logger.info("\"-o\" argument was found, opening settings")
-            open_settings_and_wait()
-        elif local_settings.first_load:
-            logger.info("First load, opening settings UI and waiting for it to be closed...")
             open_settings_and_wait()
 
         no_username = local_settings.get("username") == ""
