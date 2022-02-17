@@ -22,7 +22,7 @@ DisableProgramGroupPage=yes
 CloseApplications=force
 AllowNoIcons=no
 OutputDir={#LocalPath}\dist
-OutputBaseFilename=discord.fm-setup-win64-{#Version}{#Suffix}
+OutputBaseFilename=discord.fm-setup-win64-#VERSION##SUFFIX#
 SetupIconFile={#LocalPath}\resources\icon.ico
 SolidCompression=yes
 UninstallDisplayName=Discord.fm
@@ -68,7 +68,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: 
 Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: postinstall nowait
 
 [ThirdParty]
-CompileLogFile={#LocalPath}\dist\{#Version}{#Suffix}-installer.log
+CompileLogFile={#LocalPath}\dist\#VERSION##SUFFIX#-installer.log
 
 [Icons]
 Name: "{userstartmenu}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; IconFilename: "{app}\discord_fm.exe"
@@ -79,4 +79,4 @@ Type: filesandordirs; Name: "{app}"
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
 Type: filesandordirs; Name: "{localappdata}\Discord.fm"
-Type: filesandordirs; Name: "{appdata}\Discord.fm"
+Type: filesandordirs; Name: "{userappdata}\Discord.fm"
