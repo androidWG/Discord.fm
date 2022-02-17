@@ -2,6 +2,7 @@ import logging
 import sys
 import ctypes
 import util.process
+from settings import get_debug, get_version
 from sys import argv, exit
 from platform import system
 from util.log_setup import setup_logging
@@ -22,6 +23,8 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 if __name__ == "__main__":
     sys.excepthook = util.process.handle_exception
+    logger.info(f' -------- Discord.fm Settings UI version {get_version()}'
+                f' {"(debug mode)" if get_debug() else ""} -------- ')
 
     # Set app ID so Windows will show the correct icon on the taskbar
     if system() == "Windows":
