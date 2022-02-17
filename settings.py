@@ -25,8 +25,6 @@ class Settings:
         self.config_file_path = os.path.join(self.app_data_path, settings_filename)
 
         self.__settings_dict = {}
-        self.first_load = False
-
         self.load()
 
     def load(self):
@@ -48,7 +46,6 @@ class Settings:
                 self.__settings_dict = loaded_dict
         except (FileNotFoundError, json.decoder.JSONDecodeError, UnicodeDecodeError):
             self.save()
-            self.first_load = True
 
     def save(self):
         """Saves the settings dictionary as a JSON in a file specified by config_path."""
