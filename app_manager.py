@@ -25,7 +25,7 @@ class AppManager:
                 break
             except ValueError:
                 util.basic_notification("Invalid username",
-                                        "Please open Discord.fm Settings to change to a valid username.")
+                                        "Please change to a valid username.")
                 open_settings_and_wait()
 
     def start(self):
@@ -76,15 +76,13 @@ class AppManager:
         if g.current != g.Status.KILL:
             g.current = g.Status.ENABLED
             self.tray_icon.ti.update_menu()
-        else:
-            return
 
-        try:
-            self.loop.handle_update()
-        except (KeyboardInterrupt, SystemExit):
-            self.close()
+            try:
+                self.loop.handle_update()
+            except (KeyboardInterrupt, SystemExit):
+                pass
 
-        sys.exit()
+        self.close()
 
     def reload(self):
         logger.info("Reloading...")
@@ -101,8 +99,8 @@ class AppManager:
         g.current = g.Status.ENABLED
 
     def close(self):
-        logger.info("Closing app...")
         g.current = g.Status.KILL
+        logger.info("Closing app...")
 
         try:
             self.tray_icon.discord_rp.exit_rp()
@@ -124,6 +122,9 @@ class AppManager:
 
 def open_settings_and_wait():
     util.process.open_settings()
+    if not util.is_frozen():
+        return
+
     # Starting the process takes a bit, if we went straight into the next while block, the method would
     # finish immediately because "settings_ui" is not running.
     while not util.process.check_process_running("settings_ui"):

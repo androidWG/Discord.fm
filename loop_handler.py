@@ -70,6 +70,7 @@ class LoopHandler:
         self.tray.ti.icon = icon
 
         local_settings.load()
+        # Reload if username has been changed
         if self.user.user.name is not None and not local_settings.get("username") == self.user.user.name:
             g.manager.reload()
 
