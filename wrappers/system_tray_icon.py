@@ -29,6 +29,7 @@ class SystemTrayIcon:
         Thread(target=self.ti.run).start()
 
     def create_tray_icon(self):
+        logger.debug("Creating tray icon")
         image_path = util.resource_path(
             "resources/white/icon.png" if util.check_dark_mode() else "resources/black/icon.png")
         icon = Image.open(image_path)
@@ -61,10 +62,11 @@ class SystemTrayIcon:
             self.discord_rp.disconnect()
             g.current = g.Status.DISABLED
 
-        logger.info(f"Changed rpc_state to {self.rpc_state}")
+        logger.info(f"Changed state to {self.rpc_state}")
 
     def wait_for_discord(self):
         g.current = g.Status.WAITING_FOR_DISCORD
+        logger.info("Attempting to connect to Discord")
 
         notification_called = False
         self.ti.update_menu()
@@ -74,7 +76,9 @@ class SystemTrayIcon:
                 try:
                     self.discord_rp = wrappers.discord_rp.DiscordRP()
                     self.discord_rp.connect()
-                except (FileNotFoundError, InvalidPipe, DiscordNotFound, DiscordError):
+                    logger.info("Sucessfully connected to Discord")
+                except (FileNotFoundError, InvalidPipe, DiscordNotFound, DiscordError) as e:
+                    logger.debug(f"Recieved {e}")
                     continue
                 except PermissionError as e:
                     if not notification_called and platform.system() == "Windows":

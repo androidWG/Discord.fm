@@ -21,11 +21,11 @@ class DiscordRP:
     def connect(self):
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.presence.connect()
-        logger.debug("Connected to Discord")
+        logger.info("Connected to Discord")
 
     def disconnect(self):
         self.presence.clear()
-        logger.debug("Cleared Discord status")
+        logger.info("Cleared Discord status")
 
     def exit_rp(self):
         self.presence.clear()

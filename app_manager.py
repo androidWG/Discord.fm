@@ -35,7 +35,7 @@ class AppManager:
             logger.warning("Running in non-frozen mode")
 
         if util.process.check_process_running("discord_fm") and not util.arg_exists("--ignore-open"):
-            logger.error("Discord.fm is already running!")
+            logger.error("Discord.fm is already running")
             self.close()
 
         if local_settings.get("auto_update"):

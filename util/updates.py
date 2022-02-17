@@ -14,6 +14,7 @@ def get_newest_release() -> Optional[tuple[version.Version, dict]]:
     headers = {"Accept": "application/vnd.github.v3+json",
                "User-Agent": "Discord.fm"}
 
+    logger.debug("Requesting newest release from GitHub")
     handler = request_handler.RequestHandler("GitHub request")
     if local_settings.get("pre_releases"):
         request = handler.attempt_request(
@@ -31,6 +32,8 @@ def get_newest_release() -> Optional[tuple[version.Version, dict]]:
         latest = request.json()
 
     try:
+        logger.debug(f'Latest version is {latest["tag_name"]}, published at {latest["published_at"]} '
+                     f'{"(pre-release)" if latest["prerelease"] == True else ""}')
         return version.parse(latest["tag_name"]), \
                next(x for x in latest["assets"]
                     if x["content_type"] == "application/x-msdownload" and "setup-win" in x["name"])
@@ -44,11 +47,11 @@ def download_asset(asset: dict) -> str:
     headers = {"Accept": "application/octet-stream",
                "User-Agent": "Discord.fm"}
 
-    logger.info(f'Requesting asset "{asset["name"]}" from GitHub')
+    logger.debug(f'Requesting asset "{asset["name"]}" from GitHub')
     handler = request_handler.RequestHandler("GitHub download")
     request = handler.attempt_request(
         requests.get,
-        timeout=1200,
+        timeout=3600,
         url=asset["url"],
         headers=headers)
     response_size = int(request.headers['content-length'])

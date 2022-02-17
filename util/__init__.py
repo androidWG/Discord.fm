@@ -101,8 +101,8 @@ def is_frozen():  # I could just use hasattr() directly but this makes it more c
 
 
 def basic_notification(title, message):
-    current_platform = system()
-    if current_platform == "Windows":
+    logger.debug(f'Sending notification with title "{title}" and message "{message}"')
+    if system() == "Windows":
         icon = resource_path("resources/icon.ico")
     else:
         icon = resource_path("resources/white/icon.png" if check_dark_mode() else "resources/black/icon.png")

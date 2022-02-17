@@ -65,6 +65,7 @@ def delete_old_logs(name: str):
     """
     logs = []
 
+    print("Deleting old logs")
     for file in os.listdir(local_settings.logs_path):
         contains_ext = re.search(r"\.log\.?\d?$", file) is not None
         if contains_ext and file.__contains__(name):
@@ -75,7 +76,9 @@ def delete_old_logs(name: str):
 
     for log in logs:
         try:
-            os.remove(os.path.join(local_settings.logs_path, log))
+            path = os.path.join(local_settings.logs_path, log)
+            print(f"Deleting file {path}")
+            os.remove(path)
         except PermissionError as e:
             logging.warning(f"PermissionError while trying to delete log file \"{log}\"", exc_info=e)
 

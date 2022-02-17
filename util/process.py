@@ -41,12 +41,15 @@ class ExecutableInfo:
             raise NotImplementedError
 
         if os.path.isfile(path):
+            logger.debug(f"Path for \"{self.name}\": \"{path}\"")
             return [path]
         elif os.path.isfile(install_path) and is_frozen():
+            logger.debug(f"Path for \"{self.name}\": \"{install_path}\"")
             return [install_path]
         elif not is_frozen():
             python_path = os.path.abspath("venv/Scripts/python.exe"
                                           if current_platform == "Windows" else "venv/bin/python")
+            logger.debug(f"Path for \"{self.name}\": \"{[python_path, self.script_path]}\"")
             return [python_path, self.script_path]
 
 
@@ -64,8 +67,7 @@ def get_external_process(*process_names: str, ignore_self: bool = True) -> list[
     try:
         process_list = psutil.process_iter()
     except psutil.AccessDenied:
-        g.current = g.Status.KILL
-        sys.exit()  # Exit from here since the unexpected exception handler uses kill_process
+        g.manager.close()  # Exit from here since the unexpected exception handler uses kill_process
         return []
 
     for process in process_list:
@@ -88,7 +90,7 @@ def check_process_running(*process_names: str) -> bool:
     ".exe" removed from them.
     :return: Boolean indicating if the processes are running
     """
-    logger.info(f"Checking if {process_names} is running...")
+    logger.debug(f"Checking if {process_names} is running...")
     return len(get_external_process(*process_names)) != 0
 
 
@@ -108,6 +110,7 @@ def kill_process(process_name: str, ignore_self=True):
 
     for p in children:
         try:
+            logger.debug(f"Killing process \"{p.name()}\" ({p.pid})")
             p.kill()
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
@@ -161,8 +164,10 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         return
 
     logger.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+    logger.debug(f"Current status: {g.current}")
 
-    main_proc = ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
-    subprocess.Popen(main_proc.path + ["--ignore-open"])
+    if g.current != g.Status.KILL:
+        main_proc = ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
+        subprocess.Popen(main_proc.path + ["--ignore-open"])
 
     g.manager.close()
