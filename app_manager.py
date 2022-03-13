@@ -8,7 +8,6 @@ import util.process
 import util.updates
 import util.install
 from time import sleep
-from os.path import isfile
 from pypresence import InvalidID
 from settings import local_settings, get_version
 from wrappers import system_tray_icon
@@ -26,7 +25,7 @@ class AppManager:
             except ValueError:
                 util.basic_notification("Invalid username",
                                         "Please change to a valid username.")
-                open_settings_and_wait()
+                self.open_settings_and_wait()
                 local_settings.load()
 
     def start(self):
@@ -55,13 +54,9 @@ class AppManager:
                 logger.info("Quitting to allow installation of newer version")
                 self.close()
 
-        if not isfile(util.resource_path(".env")):
-            logger.critical(".env file not found, unable to get API keys and data!")
-            self.close()
-
         if util.arg_exists("-o"):
             logger.info("\"-o\" argument was found, opening settings")
-            open_settings_and_wait()
+            self.open_settings_and_wait()
 
         no_username = local_settings.get("username") == ""
         if no_username and not util.is_frozen():
@@ -69,7 +64,7 @@ class AppManager:
             self.close()
         elif no_username and util.is_frozen():
             logger.info("No username found, opening settings UI and waiting for it to be closed...")
-            open_settings_and_wait()
+            self.open_settings_and_wait()
 
         if g.current != g.Status.KILL:
             g.current = g.Status.ENABLED
@@ -117,16 +112,15 @@ class AppManager:
 
         sys.exit()
 
+    def open_settings_and_wait(self):
+        util.process.open_settings()
+        if not util.is_frozen():
+            self.close()
 
-def open_settings_and_wait():
-    util.process.open_settings()
-    if not util.is_frozen():
-        return
+        # Starting the process takes a bit, if we went straight into the next while block, the method would
+        # finish immediately because "settings_ui" is not running.
+        while not util.process.check_process_running("settings_ui"):
+            pass
 
-    # Starting the process takes a bit, if we went straight into the next while block, the method would
-    # finish immediately because "settings_ui" is not running.
-    while not util.process.check_process_running("settings_ui"):
-        pass
-
-    while util.process.check_process_running("settings_ui"):
-        sleep(1.5)
+        while util.process.check_process_running("settings_ui"):
+            sleep(1.5)
