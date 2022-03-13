@@ -1,7 +1,7 @@
 import os
 import requests
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 from packaging import version
 from settings import local_settings
 from util import request_handler
@@ -9,7 +9,7 @@ from util import request_handler
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
-def get_newest_release() -> Optional[tuple[version.Version, dict]]:
+def get_newest_release() -> Optional[Tuple[version.Version, dict]]:
     """Gets the newest release from GitHub, returned as a tuple of the version and a GitHub asset object for Windows."""
     headers = {"Accept": "application/vnd.github.v3+json",
                "User-Agent": "Discord.fm"}

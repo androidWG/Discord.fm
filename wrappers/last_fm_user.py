@@ -1,14 +1,14 @@
 import pylast
 from util import request_handler
 from os import environ
-from typing import Callable
+from typing import Callable, Tuple
 from dotenv import load_dotenv
 from util import resource_path
 from wrappers import track_info
 
 
 class LastFMUser:
-    _last_request: tuple[pylast.Track, track_info.TrackInfo] = (None, None)
+    _last_request: Tuple[pylast.Track, track_info.TrackInfo] = (None, None)
 
     def __init__(self, username: str, inactive_func: Callable = None):
         if username == "":

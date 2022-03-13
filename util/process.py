@@ -4,6 +4,7 @@ import psutil
 import logging
 import subprocess
 import globals as g
+from typing import List
 from util import is_frozen
 from platform import system
 from settings import local_settings
@@ -27,7 +28,7 @@ class ExecutableInfo:
         self.script_path = script_path
 
     @property
-    def path(self) -> list[str]:
+    def path(self) -> List[str]:
         """Gets the full path of this executable for this instance of the app. If the app is not frozen, a path to the
         Python interpreter with the script as an argument will be passed."""
         install_path = get_install_folder(self.windows_exe_name, self.macos_app_name)
@@ -54,7 +55,7 @@ class ExecutableInfo:
 
 
 # noinspection PyUnreachableCode
-def get_external_process(*process_names: str, ignore_self: bool = True) -> list[psutil.Process]:
+def get_external_process(*process_names: str, ignore_self: bool = True) -> List[psutil.Process]:
     """Returns a list of all the processes that match any of the names given as args, and ignores itself by default.
 
     :param process_names: Argument list of process names to look for. These strings will be made lowercase and have
