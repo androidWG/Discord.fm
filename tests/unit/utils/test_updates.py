@@ -11,27 +11,6 @@ class TestUpdates(unittest.TestCase):
 
     get_newest_tuple = (version.parse("1.2.3"), asset)
 
-    @patch("util.install.windows.do_silent_install")
-    @patch.object(updates, "download_asset")
-    @patch("settings.Settings.get")
-    @patch.object(updates, "get_newest_release")
-    def test_check(self, mock_newest: MagicMock, mock_get: MagicMock, mock_download: MagicMock, *mocks):
-        mock_get.return_value = False
-        # Should return false and get_newest_release shouldn't be called because auto-updates are disabled
-        self.assertFalse(updates.check_version_and_download())
-
-        mock_get.return_value = True
-        mock_newest.return_value = None, None
-        # Should return false since get_newest_returned an error
-        self.assertFalse(updates.check_version_and_download())
-
-        mock_newest.return_value = self.get_newest_tuple
-        # Should return true since an update was found, and download_asset should be called
-        self.assertTrue(updates.check_version_and_download())
-
-        self.assertEqual(mock_newest.call_count, 2)
-        self.assertEqual(mock_download.call_count, 1)
-
     @patch("settings.Settings.get")
     @patch("util.request_handler.RequestHandler.attempt_request")
     def test_newest_release(self, mock_request: MagicMock, mock_get: MagicMock):
