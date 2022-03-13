@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QLineEdit, QMainWi
     QStatusBar, QVBoxLayout, QWidget, QMessageBox
 
 
+# noinspection PyUnresolvedReferences
 class SettingsWindow(QMainWindow):
     starting = False
     stopping = False
