@@ -143,7 +143,7 @@ def open_settings():
     logger.debug("Opening settings UI")
     settings_proc = ExecutableInfo("settings_ui", "settings_ui.exe", "Discord.fm Settings.app",
                                    os.path.join("ui", "ui.py"))
-    subprocess.Popen(settings_proc.path)
+    subprocess.Popen(settings_proc.path, cwd=os.getcwd())
 
 
 def open_logs_folder():

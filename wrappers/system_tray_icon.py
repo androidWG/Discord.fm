@@ -77,7 +77,7 @@ class SystemTrayIcon:
                     self.discord_rp = wrappers.discord_rp.DiscordRP()
                     self.discord_rp.connect()
                     logger.info("Sucessfully connected to Discord")
-                except (FileNotFoundError, InvalidPipe, DiscordNotFound, DiscordError) as e:
+                except (FileNotFoundError, InvalidPipe, DiscordNotFound, DiscordError, ValueError) as e:
                     logger.debug(f"Recieved {e}")
                     continue
                 except PermissionError as e:
