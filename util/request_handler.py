@@ -97,6 +97,8 @@ class RequestHandler:
                     logger.warning(f"Received a Last.fm internal server error while getting {self.message}", exc_info=e)
                 elif isinstance(e, exceptions.RequestException):
                     logger.error(f"Unexpected generic exception while getting {self.message}", exc_info=e)
+                elif isinstance(e, pylast.WSError) and e.get_id() == 8:
+                    logger.warning(f"Error with WSError when getting {self.message}", exc_info=e)
                 else:
                     self._cancel_timers()
                     raise e
