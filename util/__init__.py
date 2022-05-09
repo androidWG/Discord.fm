@@ -81,6 +81,8 @@ def check_dark_mode() -> bool:
         return value == 0
     elif system() == "Darwin":
         return True
+    else:
+        return True
 
 
 def arg_exists(*args):

@@ -13,4 +13,4 @@ def get_install_folder(windows_exe_name: str, macos_app_name: str):
     elif platform.system() == "Darwin":
         return macos.get_app_folder_and_version(macos_app_name)[0]
     else:
-        raise NotImplementedError
+        return  # TODO: Implement Linux install getter
