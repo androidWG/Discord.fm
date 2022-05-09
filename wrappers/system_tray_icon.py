@@ -34,11 +34,11 @@ class SystemTrayIcon:
             "resources/white/icon.png" if util.check_dark_mode() else "resources/black/icon.png")
         icon = Image.open(image_path)
 
-        menu = Menu(MenuItem("Enable Rich Presence", self.toggle_rpc,
+        menu = Menu(MenuItem("Enable Rich Presence", lambda ic, it: self.toggle_rpc(it),
                              enabled=lambda i: g.current != g.Status.WAITING_FOR_DISCORD,
                              checked=lambda i: self.rpc_state,
                              visible=lambda i: g.current != g.Status.STARTUP and g.current != g.Status.UPDATING),
-                    MenuItem("Open Settings", util.process.open_settings,
+                    MenuItem("Open Settings", lambda: util.process.open_settings(),
                              visible=lambda i: g.current != g.Status.STARTUP and g.current != g.Status.UPDATING),
                     MenuItem("Starting...", None,
                              enabled=False,
@@ -47,12 +47,12 @@ class SystemTrayIcon:
                              enabled=False,
                              visible=lambda i: g.current == g.Status.UPDATING),
                     Menu.SEPARATOR,
-                    MenuItem("Exit", self._exit_func))
+                    MenuItem("Exit", lambda: self._exit_func()))
 
         icon = Icon("Discord.fm", icon=icon, title="Discord.fm", menu=menu)
         return icon
 
-    def toggle_rpc(self, icon, item):
+    def toggle_rpc(self, item):
         self.rpc_state = not item.checked
 
         if self.rpc_state:
@@ -76,9 +76,9 @@ class SystemTrayIcon:
                 try:
                     self.discord_rp = wrappers.discord_rp.DiscordRP()
                     self.discord_rp.connect()
-                    logger.info("Sucessfully connected to Discord")
+                    logger.info("Successfully connected to Discord")
                 except (FileNotFoundError, InvalidPipe, DiscordNotFound, DiscordError, ValueError) as e:
-                    logger.debug(f"Recieved {e}")
+                    logger.debug(f"Received {e}")
                     continue
                 except PermissionError as e:
                     if not notification_called and platform.system() == "Windows":

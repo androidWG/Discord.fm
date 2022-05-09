@@ -197,7 +197,11 @@ class SettingsWindow(QMainWindow):
             self.starting = True
             self.service_button.setText("Starting...")
 
-            main_proc = util.process.ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
+            main_proc = util.process.ExecutableInfo("Discord.fm",
+                                                    "discord_fm.exe",
+                                                    "Discord.fm.app",
+                                                    "discord_fm",
+                                                    "main.py")
             Thread(target=subprocess.Popen, args=main_proc.path).start()
 
         self.service_button.setEnabled(False)
@@ -208,6 +212,8 @@ class SettingsWindow(QMainWindow):
         self.debounce.start()
 
     def _check_username(self):
+        if self.thread is None:
+            return
         if self.thread.ident != get_ident():
             return
 
