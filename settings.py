@@ -127,20 +127,17 @@ def setup_app_data_dir(folder_name: str) -> str:
     :rtype: str
     """
     current_platform = system()
-
     if current_platform == "Windows":
         # Here it's AppData NOT LocalAppData, since settings should always be present for the user
         path = os.path.join(os.getenv("appdata"), folder_name)
-        make_dir(path)
-        clear_executables(path)
-        return path
     elif current_platform == "Darwin":
         path = os.path.join(os.path.expanduser("~/Library/Application Support"), folder_name)
-        make_dir(path)
-        clear_executables(path)
-        return path
     else:
-        raise NotImplementedError("Linux is currently unsupported")
+        path = os.path.expanduser(f"~/.{folder_name.replace('.', '_').lower()}")
+
+    make_dir(path)
+    clear_executables(path)
+    return path
 
 
 def setup_logs_dir(folder_name: str) -> str:
@@ -153,18 +150,16 @@ def setup_logs_dir(folder_name: str) -> str:
     :rtype: str
     """
     current_platform = system()
-
     if current_platform == "Windows":
         # And here it's LocalAppData NOT AppData, since logs can occupy a lot of space and are not needed by the app
         path = os.path.join(os.getenv("localappdata"), folder_name)
-        make_dir(path)
-        return path
     elif current_platform == "Darwin":
         path = os.path.join(os.path.expanduser("~/Library/Logs"), folder_name)
-        make_dir(path)
-        return path
     else:
-        raise NotImplementedError("Linux is currently unsupported")
+        path = os.path.expanduser(f"~/.{folder_name.replace('.', '_').lower()}")
+
+    make_dir(path)
+    return path
 
 
 local_settings = Settings("Discord.fm")
