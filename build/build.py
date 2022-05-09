@@ -16,6 +16,7 @@ Options:
     --ui-only              Builds only the UI script and ignores main script. Installer will try to find both
                            executables anyway"""
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -87,7 +88,15 @@ ui_args = [
 
 # Run PyInstaller
 if not arg_exists("--no-build", "-NB"):
-    run_command = [f"{os.path.abspath('venv/Scripts/python.exe')} -O -m PyInstaller"]
+    current_platform = platform.system()
+    if current_platform == "Windows":
+        venv_path = os.path.abspath("venv/Scripts/python.exe")
+    elif current_platform == "Linux":
+        venv_path = os.path.abspath("venv/bin/python")
+    else:
+        raise NotImplementedError("Please use the build_mac.py script")
+
+    run_command = [f"{venv_path} -O -m PyInstaller"]
 
     if not arg_exists("--ui-only"):
         print("\nRunning PyInstaller for main.py...")
@@ -115,6 +124,11 @@ except FileNotFoundError:
 
 # Make platform installer
 if not arg_exists("--no-installer", "-NI"):
-    installer.make_windows_installer(version)
+    if current_platform == "Windows":
+        installer.make_windows_installer(version)
+    elif current_platform == "Linux":
+        pass
+    else:
+        raise NotImplementedError
 
 print(f"Finished building version {version}")
