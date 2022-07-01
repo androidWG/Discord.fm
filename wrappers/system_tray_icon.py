@@ -8,6 +8,8 @@ import util.log_setup
 import globals as g
 import wrappers.discord_rp
 from PIL import Image
+from struct import error
+from platform import system
 from typing import Callable
 from threading import Thread
 from pystray import MenuItem, Menu, Icon
@@ -81,7 +83,7 @@ class SystemTrayIcon:
                     logger.debug(f"Received {e}")
                     continue
                 except PermissionError as e:
-                    if not notification_called and platform.system() == "Windows":
+                    if not notification_called and system() == "Windows":
                         logger.critical("Another user has Discord open, notifying user", exc_info=e)
 
                         title = "Another user has Discord open"
