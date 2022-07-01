@@ -114,6 +114,8 @@ class AppManager:
 
     def open_settings_and_wait(self):
         util.process.open_settings()
+        # Discord.fm can take a little while to start the settings UI, so wait before closing
+        sleep(1)
         if not util.is_frozen():
             self.close()
 
