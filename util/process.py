@@ -143,7 +143,7 @@ def start_stop_process(process: ExecutableInfo):
 def open_settings():
     """Opens the settings UI. Works even if the app is not frozen (is running as a script)."""
     logger.debug("Opening settings UI")
-    settings_proc = ExecutableInfo("settings_ui", "settings_ui.exe", "Discord.fm Settings.app",
+    settings_proc = ExecutableInfo("settings_ui", "settings_ui.exe", "Discord.fm Settings.app", "discord_fm",
                                    os.path.join("ui", "ui.py"))
     subprocess.Popen(settings_proc.path, cwd=os.getcwd())
 
