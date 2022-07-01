@@ -1,10 +1,5 @@
 import logging
-import platform
 import time
-import util
-import util.process
-import util.updates
-import util.log_setup
 import globals as g
 import wrappers.discord_rp
 from PIL import Image
@@ -14,6 +9,7 @@ from typing import Callable
 from threading import Thread
 from pystray import MenuItem, Menu, Icon
 from pypresence import InvalidPipe, DiscordNotFound, DiscordError
+from util import process, basic_notification, resource_path, check_dark_mode
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -32,15 +28,15 @@ class SystemTrayIcon:
 
     def create_tray_icon(self):
         logger.debug("Creating tray icon")
-        image_path = util.resource_path(
-            "resources/white/icon.png" if util.check_dark_mode() else "resources/black/icon.png")
+        image_path = resource_path(
+            "resources/white/icon.png" if check_dark_mode() else "resources/black/icon.png")
         icon = Image.open(image_path)
 
         menu = Menu(MenuItem("Enable Rich Presence", lambda ic, it: self.toggle_rpc(it),
                              enabled=lambda i: g.current != g.Status.WAITING_FOR_DISCORD,
                              checked=lambda i: self.rpc_state,
                              visible=lambda i: g.current != g.Status.STARTUP and g.current != g.Status.UPDATING),
-                    MenuItem("Open Settings", lambda: util.process.open_settings(),
+                    MenuItem("Open Settings", lambda: process.open_settings(),
                              visible=lambda i: g.current != g.Status.STARTUP and g.current != g.Status.UPDATING),
                     MenuItem("Starting...", None,
                              enabled=False,
@@ -74,12 +70,12 @@ class SystemTrayIcon:
         self.ti.update_menu()
 
         while True:
-            if util.process.check_process_running("Discord", "DiscordCanary"):
+            if process.check_process_running("Discord", "DiscordCanary"):
                 try:
                     self.discord_rp = wrappers.discord_rp.DiscordRP()
                     self.discord_rp.connect()
                     logger.info("Successfully connected to Discord")
-                except (FileNotFoundError, InvalidPipe, DiscordNotFound, DiscordError, ValueError) as e:
+                except (FileNotFoundError, InvalidPipe, DiscordNotFound, DiscordError, ValueError, error) as e:
                     logger.debug(f"Received {e}")
                     continue
                 except PermissionError as e:
@@ -90,7 +86,7 @@ class SystemTrayIcon:
                         message = "Discord.fm will not update your Rich Presence or theirs. Please close the other " \
                                   "instance before scrobbling with this user. "
 
-                        util.basic_notification(title, message)
+                        basic_notification(title, message)
 
                         notification_called = True
                     continue
