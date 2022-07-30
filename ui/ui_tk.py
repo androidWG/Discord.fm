@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk as tk
 from settings import local_settings, get_version, get_debug
 
+SMALL_PAD = (4, 0, 4, 0)
 LABEL_PAD = (0, 0, 8, 0)
 VERT_PAD = 2
 
@@ -15,7 +16,7 @@ username_label.pack(side=LEFT)
 username_input.pack(side=LEFT, fill=X)
 username_layout.grid(column=0, sticky=(W, E))
 
-username_status = tk.Label(root, text="Checking...", padding=(80, 0, 0, 0))
+username_status = tk.Label(root, text="Checking...", padding=(128, 0, 0, 0))
 username_status.grid(column=0, sticky=W)
 
 # region Cooldown Slider
@@ -61,8 +62,8 @@ root.pack()
 
 # region Status Bar
 status_bar = tk.Frame(window)
-status_label = tk.Label(status_bar, text="Waiting...", relief=SUNKEN)
-version_label = tk.Label(status_bar, text="v" + get_version() + " (debug)" if get_debug() else "", relief=SUNKEN, padding=(8, 0, 0, 0))
+status_label = tk.Label(status_bar, text="Waiting...", relief=SUNKEN, padding=SMALL_PAD)
+version_label = tk.Label(status_bar, text="v" + get_version() + " (debug)" if get_debug() else "", relief=SUNKEN, padding=SMALL_PAD)
 status_label.grid(column=0, row=0, sticky=(W, E))
 version_label.grid(column=1, row=0)
 status_bar.columnconfigure(0, weight=5)
