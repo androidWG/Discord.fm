@@ -1,15 +1,14 @@
 import sys
 import os
+from settings_window_tk import SettingsWindow
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import logging
 import ctypes
 import util.process
 from settings import get_debug, get_version
-from sys import argv, exit
 from platform import system
 from util.log_setup import setup_logging
-from settings_window import SettingsWindow
-from PySide6.QtWidgets import QApplication
 
 setup_logging("qt_settings")
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -33,10 +32,7 @@ if __name__ == "__main__":
         app_id = u"com.androidwg.discordfm.ui"
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
 
-    app = QApplication(argv)
+    window = SettingsWindow()
+    window.mainloop()
 
-    main_window = SettingsWindow()
-    main_window.show()
-    main_window.call_running_status()
-
-    exit(app.exec())
+    sys.exit()
