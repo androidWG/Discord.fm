@@ -51,10 +51,10 @@ class SettingsWindow(Tk):
 
         usr_layout = ttk.Frame(self.root)
         self.usr_lbl = ttk.Label(usr_layout, text="Last.fm Username", padding=LABEL_PAD)
-        self.usr_input = ttk.Entry(usr_layout, textvariable=self.username)
+        self.usr_input = ttk.Entry(usr_layout, textvariable=self.username, width=28)
         self.usr_input.bind("<KeyPress>", self.call_debounce)
         self.usr_lbl.pack(side=LEFT)
-        self.usr_input.pack(side=LEFT, fill=X)
+        self.usr_input.pack(side=LEFT)
         usr_layout.grid(column=0, sticky=(W, E))
 
         self.usr_status = ttk.Label(self.root, textvariable=self.usr_status_text, padding=(128, 0, 0, 0))
@@ -64,7 +64,7 @@ class SettingsWindow(Tk):
         # region Cooldown Slider
         cld_layout = ttk.Frame(self.root)
         cld_lbl = ttk.Label(cld_layout, text="Cooldown", padding=LABEL_PAD)
-        self.cld_timelbl = ttk.Label(cld_layout, padding=LABEL_PAD, textvariable=self.cld_timelbl_text)
+        self.cld_timelbl = ttk.Label(cld_layout, padding=(8, 0, 0, 0), textvariable=self.cld_timelbl_text)
         self.cld_scale = ttk.Scale(cld_layout, from_=2, to=30, orient=HORIZONTAL, length=200, variable=self.cooldown)
 
         self.cld_scale.bind("<ButtonRelease>", lambda x: local_settings.define("cooldown", self.cooldown.get()))
