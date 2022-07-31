@@ -1,6 +1,6 @@
 import sys
 import os
-from settings_window_tk import SettingsWindow
+from settings_window import SettingsWindow
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import logging
