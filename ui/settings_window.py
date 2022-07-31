@@ -51,10 +51,11 @@ class SettingsWindow(Tk):
 
         usr_layout = ttk.Frame(self.root)
         self.usr_lbl = ttk.Label(usr_layout, text="Last.fm Username", padding=LABEL_PAD)
-        self.usr_input = ttk.Entry(usr_layout, textvariable=self.username, width=28)
+        self.usr_input = ttk.Entry(usr_layout, textvariable=self.username)
         self.usr_input.bind("<KeyPress>", self.call_debounce)
-        self.usr_lbl.pack(side=LEFT)
-        self.usr_input.pack(side=LEFT)
+        self.usr_lbl.grid(column=0, row=0)
+        self.usr_input.grid(column=1, row=0, sticky=(W, E))
+        usr_layout.columnconfigure(1, weight=10)
         usr_layout.grid(column=0, sticky=(W, E))
 
         self.usr_status = ttk.Label(self.root, textvariable=self.usr_status_text, padding=(128, 0, 0, 0))
