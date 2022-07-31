@@ -97,8 +97,8 @@ class SettingsWindow(Tk):
 
         # region Status Bar
         self.bar = ttk.Frame(self)
-        self.status_lbl = ttk.Label(self.bar, textvariable=self.status_lbl_text, relief=SUNKEN, padding=SMALL_PAD)
-        ver_lbl = ttk.Label(self.bar, text="v" + get_version() + " (debug)" if get_debug() else "", relief=SUNKEN,
+        self.status_lbl = ttk.Label(self.bar, textvariable=self.status_lbl_text, padding=SMALL_PAD)
+        ver_lbl = ttk.Label(self.bar, text="v" + get_version() + " (debug)" if get_debug() else "",
                             padding=SMALL_PAD)
         self.status_lbl.grid(column=0, row=0, sticky=(W, E))
         ver_lbl.grid(column=1, row=0)
