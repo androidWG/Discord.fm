@@ -1,14 +1,11 @@
 import sys
-import os
-from settings_window import SettingsWindow
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import logging
 import ctypes
 import util.process
-from settings import get_debug, get_version
 from platform import system
 from util.log_setup import setup_logging
+from settings import get_debug, get_version
+from ui import SettingsWindow
 
 setup_logging("qt_settings")
 logger = logging.getLogger("discord_fm").getChild(__name__)

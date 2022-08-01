@@ -4,7 +4,7 @@ import wrappers.last_fm_user
 from threading import Thread, Timer, get_ident
 from tkinter import *
 from tkinter import ttk, messagebox
-from repeat_timer import RepeatTimer
+from ui.repeat_timer import RepeatTimer
 from util import process, resource_path
 from settings import local_settings, get_version, get_debug
 
@@ -22,7 +22,7 @@ class SettingsWindow(Tk):
         super().__init__()
         self.resizable(False, False)
         self.wm_title("Discord.fm Settings")
-        icon = Image("photo", file=resource_path("resources/settings.png"))
+        icon = Image("photo", file=resource_path("resources", "settings.png"))
         self.iconphoto(True, icon)
 
         self.root = ttk.Frame(self, padding=(12, 8))
