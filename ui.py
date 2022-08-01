@@ -7,7 +7,7 @@ from util.log_setup import setup_logging
 from settings import get_debug, get_version
 from ui import SettingsWindow
 
-setup_logging("qt_settings")
+setup_logging("settings")
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
