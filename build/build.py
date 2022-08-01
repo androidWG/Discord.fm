@@ -19,6 +19,8 @@ import os
 import shutil
 import subprocess
 import sys
+from platform import system
+
 import installer
 from time import sleep
 from util import arg_exists, replace_instances
@@ -33,8 +35,14 @@ if get_debug():
 
 # Make Version Info files for Windows
 version_split = version.split(".")
+icon_main = "resources/icon." + "ico" if system() == "Windows" else "png"
+icon_settings = "resources/settings." + "ico" if system() == "Windows" else "png"
+
 temp_ver_main_file = "file_version_main.temp"
 temp_ver_ui_file = "file_version_ui.temp"
+temp_spec_file = "build.spec"
+
+
 main_tags = [
     ("#VERSION#", version),
     ("#VERSION_TUPLE#", f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0"),
@@ -47,67 +55,40 @@ ui_tags = [
     ("#DESCRIPTION#", "Discord.fm Settings UI"),
     ("#FILENAME#", "settings_ui")
 ]
+spec_tags = [
+    ("#VER_MAIN#", temp_ver_main_file),
+    ("#VER_UI#", temp_ver_ui_file),
+    ("#ICON_MAIN#", icon_main),
+    ("#ICON_UI#", icon_settings),
+]
 
-replace_instances("build/file_version.txt", main_tags, temp_ver_main_file)
 replace_instances("build/file_version.txt", main_tags, temp_ver_ui_file)
+replace_instances("build/file_version.txt", ui_tags, temp_ver_main_file)
+replace_instances("build/main.spec", spec_tags, temp_spec_file)
 
 # noinspection PyUnboundLocalVariable
 main_args = [
-    "main.py",
-    f"--icon=resources/icon.ico",
-    "--name=discord_fm",
-    f"--version-file={temp_ver_main_file}",
-    "--hidden-import=plyer.platforms.win.notification",
-    f"--add-data=resources/black/.{os.pathsep}resources/black",
-    f"--add-data=resources/white/.{os.pathsep}resources/white",
-    f"--add-data=.env{os.pathsep}.",
-    "--additional-hooks-dir=hooks",
+    temp_spec_file,
     "--workpath=pyinstaller_temp",
     "--upx-dir=upx/",
     "-y",
-    "--onefile",
-    "--noconsole",
-]
-
-ui_args = [
-    "ui/ui.py",
-    f"--icon=resources/settings.ico",
-    "--name=settings_ui",
-    f"--version-file={temp_ver_ui_file}",
-    f"--add-data=resources/black/.{os.pathsep}resources/black",
-    f"--add-data=resources/white/.{os.pathsep}resources/white",
-    f"--add-data=.env{os.pathsep}.",
-    "--additional-hooks-dir=hooks",
-    "--workpath=pyinstaller_temp",
-    "--noupx",
-    "-y",
-    "--windowed",
-    "--onefile",
 ]
 
 # Run PyInstaller
 if not arg_exists("--no-build", "-NB"):
     run_command = [f"{os.path.abspath('venv/Scripts/python.exe')} -O -m PyInstaller"]
 
-    if not arg_exists("--ui-only"):
-        print("\nRunning PyInstaller for main.py...")
-        process = subprocess.Popen(" ".join(run_command + main_args), shell=True,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT)
-        while stream_process(process):
-            sleep(0.1)
-
-    if not arg_exists("--main-only"):
-        print("\nRunning PyInstaller for ui.py...")
-        process = subprocess.Popen(" ".join(run_command + ui_args), shell=True,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT)
-        while stream_process(process):
-            sleep(0.1)
+    print("\nRunning PyInstaller...")
+    process = subprocess.Popen(" ".join(run_command + main_args), shell=True,
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT)
+    while stream_process(process):
+        sleep(0.2)
 
 # Clean temp file after use
 os.remove(temp_ver_main_file)
 os.remove(temp_ver_ui_file)
+os.remove(temp_spec_file)
 try:
     shutil.rmtree("pyinstaller_temp")
 except FileNotFoundError:

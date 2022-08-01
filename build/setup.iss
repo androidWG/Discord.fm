@@ -57,8 +57,7 @@ DisableReadyMemo=True
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "{#LocalPath}\dist\discord_fm.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#LocalPath}\dist\settings_ui.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#LocalPath}\dist\discord_fm\*"; DestDir: "{app}"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#Name}"; ValueData: "{app}\discord_fm.exe";
