@@ -145,7 +145,7 @@ class SettingsWindow(Tk):
                                                "discord_fm")
             Thread(target=subprocess.Popen, args=main_proc.path).start()
 
-        self.service_btn.state("disabled")
+        self.service_btn["state"] = "disable"
         Timer(12, _update)
 
     def call_debounce(self, value=""):
@@ -162,12 +162,12 @@ class SettingsWindow(Tk):
 
         is_running = process.check_process_running("discord_fm")
         if is_running and not self.stopping:
-            self.service_btn.state("disabled")
+            self.service_btn["state"] = "enable"
             self.status_lbl_text.set("Running")
             self.service_btn_text.set("Stop service")
             self.starting = False
         elif not is_running and not self.starting:
-            self.service_btn.state("enable")
+            self.service_btn["state"] = "enable"
             self.status_lbl_text.set("Stopped")
             self.service_btn_text.set("Start service")
             self.stopping = False
