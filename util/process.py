@@ -112,7 +112,7 @@ def kill_process(process_name: str, ignore_self=True):
     proc_pid = proc.pid if proc.parent() is None else proc.parent().pid
 
     parent = psutil.Process(proc_pid)
-    children = parent.children(recursive=True)
+    children = parent.children()
     children.append(parent)
 
     for p in children:
