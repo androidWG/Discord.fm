@@ -10,11 +10,11 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 # From https://stackoverflow.com/a/13790741/8286014
 # noinspection PyProtectedMember
-def resource_path(relative_path: str, base_path: str = ".") -> str:
+def resource_path(*paths: str, base_path: str = ".") -> str:
     """Gets the absolute path to a file, dealing with temp resources folders from PyInstaller
 
-    :param relative_path: Path of a file in relative space
-    :type relative_path: str
+    :param paths: Multiple args that make a file path without separators to a local resource.
+    :type paths: str
     :param base_path: Base path to get absolute path. Default is . to get it relative to the current working directory.
     :type base_path: str
     :return: Absolute path to a resource
@@ -26,7 +26,7 @@ def resource_path(relative_path: str, base_path: str = ".") -> str:
     else:
         base_path = os.path.abspath(base_path)
 
-    return os.path.join(base_path, relative_path)
+    return os.path.join(base_path, *paths)
 
 
 def replace_instances(file: str, tags: list, out_file: str = "temp_", encoding: str = "utf-8"):
@@ -103,9 +103,9 @@ def is_frozen():  # I could just use hasattr() directly but this makes it more c
 def basic_notification(title, message):
     logger.debug(f'Sending notification with title "{title}" and message "{message}"')
     if system() == "Windows":
-        icon = resource_path("resources/icon.ico")
+        icon = resource_path("resources", "icon.ico")
     else:
-        icon = resource_path("resources/white/icon.png" if check_dark_mode() else "resources/black/icon.png")
+        icon = resource_path("resources", "white", "icon.png" if check_dark_mode() else "resources", "black", "icon.png")
 
     notification.notify(
         title=title,

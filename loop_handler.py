@@ -64,8 +64,8 @@ class LoopHandler:
             return
 
         self.cooldown = local_settings.get("cooldown")
-        image_path = util.resource_path("resources/white/icon.png"
-                                        if util.check_dark_mode() else "resources/black/icon.png")
+        image_path = util.resource_path("resources", "white", "icon.png"
+                                        if util.check_dark_mode() else "resources", "black", "icon.png")
         icon = Image.open(image_path)
         self.tray.ti.icon = icon
 
