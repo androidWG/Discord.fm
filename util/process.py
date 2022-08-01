@@ -62,7 +62,13 @@ def get_external_process(*process_names: str, ignore_self: bool = True) -> List[
     ".exe" removed from them.
     :param ignore_self: Should the method ignore itself and all related processes.
     """
-    related_processes = [psutil.Process().pid, psutil.Process(os.getppid()).pid] if ignore_self else []
+    related_processes = []
+    if ignore_self:
+        try:
+            related_processes.append(psutil.Process().pid)
+            related_processes.append(psutil.Process(os.getppid()).pid)
+        except psutil.NoSuchProcess as e:
+            logger.error("Unable to get related processes", exc_info=e)
     matched = []
 
     try:
