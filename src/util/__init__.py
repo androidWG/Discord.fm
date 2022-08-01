@@ -105,7 +105,7 @@ def basic_notification(title, message):
     if system() == "Windows":
         icon = resource_path("resources", "icon.ico")
     else:
-        icon = resource_path("resources", "white", "icon.png" if check_dark_mode() else "resources", "black", "icon.png")
+        icon = resource_path("resources", "white" if check_dark_mode() else "black", "icon.png")
 
     notification.notify(
         title=title,

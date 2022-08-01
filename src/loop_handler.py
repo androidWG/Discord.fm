@@ -6,7 +6,7 @@ import wrappers.last_fm_user
 from PIL import Image
 from sched import scheduler
 from pypresence import InvalidID
-from settings import local_settings
+from globals import local_settings
 from wrappers.system_tray_icon import SystemTrayIcon
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -17,8 +17,6 @@ class LoopHandler:
         self._last_track = None
         self.tray = tray_icon
         self.user = wrappers.last_fm_user.LastFMUser(local_settings.get("username"))
-        if not self.user.check_username():
-            raise ValueError("Username is invalid")
         self.sc = scheduler(time.time)
 
         self.cooldown = local_settings.get("cooldown")
@@ -44,11 +42,11 @@ class LoopHandler:
 
         if track is not None:
             try:
-                self.tray.discord_rp.update_status(track)
+                g.discord_rp.update_status(track)
                 self._last_track = track
             except (BrokenPipeError, InvalidID):
                 logger.info("Discord is being closed, will wait for it to open again")
-                self.tray.wait_for_discord()
+                g.manager.wait_for_discord()
         else:
             logger.debug("Not playing anything")
 

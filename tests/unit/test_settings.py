@@ -4,6 +4,9 @@ import json
 import os
 import random
 import shutil
+
+import settings
+import settings.util
 import settings
 from stat import S_IREAD, S_IWRITE
 from filelock import FileLock
@@ -119,11 +122,11 @@ class UtilsTest(TestCase):
         data3 = os.path.join(self.temp_dir, "test3")
         os.mkdir(data2)
 
-        settings.make_dir(data1)
-        settings.make_dir(data2)
+        settings.util.make_dir(data1)
+        settings.util.make_dir(data2)
 
         with self.assertRaises(PermissionError) and FileLock(data3):
-            settings.make_dir(data3)
+            settings.util.make_dir(data3)
 
     def test_executables(self, mock_app_data):
         mock_app_data.return_value = self.temp_dir
@@ -135,7 +138,7 @@ class UtilsTest(TestCase):
                 file.write(random.randbytes(4096))
                 exe_list.append(file.name)
 
-        settings.clear_executables(self.temp_dir)
+        settings.util.clear_executables(self.temp_dir)
 
         for exe in exe_list:
             path = os.path.join(self.temp_dir, exe)

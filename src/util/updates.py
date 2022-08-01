@@ -3,7 +3,7 @@ import requests
 import logging
 from typing import Optional, Tuple
 from packaging import version
-from settings import local_settings
+from globals import local_settings
 from util import request_handler
 
 logger = logging.getLogger("discord_fm").getChild(__name__)

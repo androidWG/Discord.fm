@@ -13,12 +13,14 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 class DiscordRP:
     def __init__(self):
         load_dotenv(resource_path(".env"))
-        client_id = environ.get("discord_app_id")
 
-        self.presence = Presence(client_id)
+        self.presence = None
         self.last_track = None
 
     def connect(self):
+        if self.presence is None:
+            self.presence = Presence(environ.get("discord_app_id"))
+        
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.presence.connect()
         logger.info("Connected to Discord")

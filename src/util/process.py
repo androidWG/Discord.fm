@@ -7,7 +7,7 @@ import globals as g
 from typing import List
 from util import is_frozen
 from platform import system
-from settings import local_settings
+from globals import local_settings
 from util.install import get_install_folder
 
 logger = logging.getLogger("discord_fm").getChild(__name__)

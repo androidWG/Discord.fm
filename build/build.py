@@ -27,7 +27,7 @@ from util import arg_exists, replace_instances
 from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from settings import get_version, get_debug
+from main import get_debug, get_version
 
 version = get_version()
 if get_debug():

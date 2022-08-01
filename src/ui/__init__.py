@@ -6,7 +6,8 @@ from tkinter import *
 from tkinter import ttk, messagebox
 from ui.repeat_timer import RepeatTimer
 from util import process, resource_path
-from settings import local_settings, get_version, get_debug
+from globals import local_settings
+from main import get_debug, get_version
 
 SMALL_PAD = (4, 0, 4, 0)
 LABEL_PAD = (0, 0, 8, 0)

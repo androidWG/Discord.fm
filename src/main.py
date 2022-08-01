@@ -2,10 +2,25 @@ import logging
 import sys
 import globals
 import util.process
+import packaging.version
 from app_manager import AppManager
 from os.path import isfile
 from util.log_setup import setup_logging
-from settings import get_debug, get_version
+
+__version = "0.7.0"
+__debug = True
+
+
+def get_version(parsed=False):
+    if parsed:
+        return packaging.version.parse(__version)
+    else:
+        return __version
+
+
+def get_debug():
+    return __debug
+
 
 if __name__ == "__main__":
     print("Application started")

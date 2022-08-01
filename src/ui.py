@@ -4,7 +4,7 @@ import ctypes
 import util.process
 from platform import system
 from util.log_setup import setup_logging
-from settings import get_debug, get_version
+from main import get_debug, get_version
 from ui import SettingsWindow
 
 setup_logging("settings")

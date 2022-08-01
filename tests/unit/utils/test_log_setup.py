@@ -2,7 +2,7 @@ import os.path
 import random
 import tempfile
 import unittest
-import util.log_setup
+import util
 from unittest.mock import patch
 
 
