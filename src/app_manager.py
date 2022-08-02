@@ -13,6 +13,7 @@ import process
 import util
 import util.install
 import util.updates
+import wrappers.discord_rp
 from globals import get_version
 from wrappers import system_tray_icon
 
@@ -23,6 +24,8 @@ class AppManager:
     def __init__(self):
         self.tray_icon = system_tray_icon.SystemTrayIcon(self.close)
         self.loop = loop_handler.LoopHandler(self.tray_icon)
+
+        g.discord_rp = wrappers.discord_rp.DiscordRP()
 
     def _perform_checks(self):
         if not util.is_frozen():

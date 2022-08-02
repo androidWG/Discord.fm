@@ -3,7 +3,6 @@ import enum
 import packaging.version
 
 from settings import Settings
-from wrappers.discord_rp import DiscordRP
 
 __version = "0.7.1"
 __debug = True
@@ -30,9 +29,8 @@ class Status(enum.Enum):
 
 
 local_settings = Settings("Discord.fm")
-discord_rp = DiscordRP()
-
 current = Status(Status.STARTUP)
+discord_rp = None
 manager = None
 
 
