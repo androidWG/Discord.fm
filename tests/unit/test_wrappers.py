@@ -67,10 +67,14 @@ class TestDiscordRP(TestCase):
     rp = discord_rp.DiscordRP()
 
     @patch.object(discord_rp, "logger")
+    @patch("pypresence.utils")
+    @patch("pypresence.Presence")
     @patch("pypresence.Presence.update")
     def test_update_status(self, mock_update: MagicMock, *mocks):
         """Test if status updates function correctly with TrackInfo objects"""
         mock_update.return_value = True
+
+        self.rp.start()
 
         self.rp.update_status(self.data1)
         self.rp.update_status(self.data2)
