@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import psutil
 
-from util import process
+import process
 
 
 class TestProcess(unittest.TestCase):
@@ -36,7 +36,9 @@ class TestProcess(unittest.TestCase):
         mock_proc.return_value.children.return_value = self.data_list
 
         random_proc = random.randint(0, 128)
-        mock_proc.return_value.children.return_value[random_proc].side_effect = psutil.NoSuchProcess
+        mock_proc.return_value.children.return_value[
+            random_proc
+        ].side_effect = psutil.NoSuchProcess
 
         process.kill_process("process")
 
@@ -46,7 +48,9 @@ class TestProcess(unittest.TestCase):
     @patch("util.process.check_process_running")
     @patch("util.process.kill_process")
     @patch("subprocess.Popen")
-    def test_start_stop(self, mock_open: MagicMock, mock_kill: MagicMock, mock_running: MagicMock):
+    def test_start_stop(
+        self, mock_open: MagicMock, mock_kill: MagicMock, mock_running: MagicMock
+    ):
         mock_running.return_value = False
         process.start_stop_process(MagicMock(path="test"))
         mock_open.assert_called_once_with("test")
@@ -58,5 +62,5 @@ class TestProcess(unittest.TestCase):
         mock_kill.assert_called_once_with("test")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

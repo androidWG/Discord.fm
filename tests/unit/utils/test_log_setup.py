@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-import util
+import util.log_setup
 
 
 class LogSetupTests(unittest.TestCase):
@@ -15,7 +15,9 @@ class LogSetupTests(unittest.TestCase):
     def test_delete_old_logs(self, mock_get):
         mock_get.return_value = 10
 
-        rand_files = create_random_files(random.randint(2, 12), self.temp_dir.name, extension=".txt")
+        rand_files = create_random_files(
+            random.randint(2, 12), self.temp_dir.name, extension=".txt"
+        )
 
         log_files = create_random_files(10, self.temp_dir.name, "test-")
         util.log_setup.delete_old_logs("test")
@@ -50,8 +52,9 @@ class LogSetupTests(unittest.TestCase):
         return contains
 
     def _check_files_remain(self, files: list):
-        temp_files = [os.path.join(self.temp_dir.name, f)
-                      for f in os.listdir(self.temp_dir.name)]
+        temp_files = [
+            os.path.join(self.temp_dir.name, f) for f in os.listdir(self.temp_dir.name)
+        ]
         for file in files:
             if file in temp_files:
                 return False
@@ -59,7 +62,9 @@ class LogSetupTests(unittest.TestCase):
         return True
 
 
-def create_random_files(file_count: int, temp_dir: str, filename: str = "", extension: str = ".log"):
+def create_random_files(
+    file_count: int, temp_dir: str, filename: str = "", extension: str = ".log"
+):
     files = []
     for x in range(file_count):
         text_name = filename + str(random.randint(100, 999)) + extension
@@ -72,5 +77,5 @@ def create_random_files(file_count: int, temp_dir: str, filename: str = "", exte
     return files
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
