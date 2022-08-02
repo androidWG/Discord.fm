@@ -94,7 +94,7 @@ def create_package(info: PackageInfo, files: list, temp_dir: str) -> str:
 
 
 def create_product_installer(
-    info: PackageInfo, distribution: str, resources: str, packages: str, temp_dir: str
+    info: PackageInfo, distribution: str, resources: str, packages: str
 ) -> str:
     """Creates product installer using productbuild.
 
@@ -106,8 +106,6 @@ def create_product_installer(
     :type resources: str
     :param packages: Path to packages folder that the installer will install
     :type packages: str
-    :param temp_dir: Temporary directory to be used
-    :type temp_dir: str
     :return: Path of created installer
     :rtype: str
     """

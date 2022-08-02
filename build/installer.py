@@ -77,7 +77,7 @@ def make_macos_installer(version: str):
 
         package_build.create_package(info, files, temp_dir)
         package_build.create_product_installer(
-            info, distribution, resources_path, packages_path, temp_dir
+            info, distribution, resources_path, packages_path
         )
 
 
