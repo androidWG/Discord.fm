@@ -11,7 +11,7 @@ import util
 import util.install
 import util.process
 import util.updates
-from main import get_version
+from globals import get_version
 from wrappers import system_tray_icon
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -22,7 +22,7 @@ class AppManager:
         self.tray_icon = system_tray_icon.SystemTrayIcon(self.close)
         self.loop = loop_handler.LoopHandler(self.tray_icon)
 
-    def perform_checks(self):
+    def _perform_checks(self):
         if not util.is_frozen():
             logger.warning("Running in non-frozen mode")
 
@@ -61,7 +61,7 @@ class AppManager:
     def start(self):
         atexit.register(self.close)
         self._wait_for_discord()
-        self.perform_checks()
+        self._perform_checks()
 
         if g.current != g.Status.KILL:
             g.current = g.Status.ENABLED
