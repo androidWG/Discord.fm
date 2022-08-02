@@ -4,7 +4,6 @@ import shutil
 import logging
 from platform import system
 from plyer import notification as plyer_notif
-from aquaui.notification.native_notification import Notification
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -116,6 +115,8 @@ def basic_notification(title: str, message: str):
         )
 
     if system() == "Darwin":
+        from aquaui.notification.native_notification import Notification
+
         mac_notif = (
             Notification(message)
             .with_subtitle(title)
