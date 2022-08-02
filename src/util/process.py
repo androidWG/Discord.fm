@@ -16,7 +16,9 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 class ExecutableInfo:
-    def __init__(self, name, windows_exe_name="", macos_app_name="", script_path=""):
+    def __init__(
+        self, name, windows_exe_name, macos_app_name, linux_executable_name, script_path
+    ):
         """Holds info about an executable and gives its path independent of platform or app state (frozen or not).
 
         :param name: General process name
@@ -27,6 +29,7 @@ class ExecutableInfo:
         self.name = name
         self.windows_exe_name = windows_exe_name
         self.macos_app_name = macos_app_name
+        self.linux_executable_name = linux_executable_name
         self.script_path = script_path
 
     @property
@@ -41,7 +44,7 @@ class ExecutableInfo:
         elif current_platform == "Darwin":
             path = os.path.abspath(self.macos_app_name)
         else:
-            raise NotImplementedError
+            path = os.path.abspath(self.linux_executable_name)
 
         if os.path.isfile(path):
             logger.debug(f'Path for "{self.name}": "{path}"')
@@ -159,6 +162,7 @@ def open_settings():
         "settings_ui",
         "settings_ui.exe",
         "Discord.fm Settings.app",
+        "discord_fm",
         os.path.join("ui", "ui.py"),
     )
     subprocess.Popen(settings_proc.path, cwd=os.getcwd())
@@ -186,7 +190,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
     if g.current != g.Status.KILL:
         main_proc = ExecutableInfo(
-            "Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py"
+            "Discord.fm", "discord_fm.exe", "Discord.fm.app", "discord_fm", "main.py"
         )
         subprocess.Popen(main_proc.path + ["--ignore-open"])
 
