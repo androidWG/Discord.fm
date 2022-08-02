@@ -80,9 +80,9 @@ main_args = [
     "-y",
 ]
 
+current_platform = platform.system()
 # Run PyInstaller
 if not arg_exists("--no-build", "-NB"):
-    current_platform = platform.system()
     if current_platform == "Windows":
         venv_path = os.path.abspath("venv/Scripts/python.exe")
     elif current_platform == "Linux":
