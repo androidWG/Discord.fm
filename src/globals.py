@@ -4,7 +4,7 @@ from settings import Settings
 from wrappers.discord_rp import DiscordRP
 
 
-__version = "0.7.0"
+__version = "0.7.1"
 __debug = True
 
 
