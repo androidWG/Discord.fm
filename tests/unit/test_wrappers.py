@@ -9,11 +9,7 @@ from wrappers import discord_rp, last_fm_user, track_info
 class TestLastFm(TestCase):
     data = pylast.Track("TestArtist", "TestTitle", None, "TestUsername")
     error = pylast.WSError(None, None, "User not found")
-    usernames = {
-        "test": True,
-        "TEST01": False,
-        "andodide": True,
-        "androidWG": False}
+    usernames = {"test": True, "TEST01": False, "andodide": True, "androidWG": False}
 
     def test_invalid_username(self):
         with self.assertRaises(ValueError):
@@ -28,7 +24,8 @@ class TestLastFm(TestCase):
             self.data,
             self.error,
             self.data,
-            self.error]
+            self.error,
+        ]
 
         for name in self.usernames.keys():
             user = last_fm_user.LastFMUser(name)
@@ -39,8 +36,10 @@ class TestLastFm(TestCase):
 
     @patch("util.request_handler.RequestHandler.attempt_request")
     @patch("wrappers.track_info.TrackInfo")
-    def test_now_playing(self, mock_track_info: MagicMock, mock_request_handler: MagicMock):
-        """Test if now_playing properly handles None objects and """
+    def test_now_playing(
+        self, mock_track_info: MagicMock, mock_request_handler: MagicMock
+    ):
+        """Test if now_playing properly handles None objects and"""
         mock = MagicMock(name="TestTitle", artist="TestArtist", duration=2852)
         mock_track_info.return_value = mock
         mock_request_handler.side_effect = [None, self.data, self.data]
@@ -115,5 +114,5 @@ class TestTrackInfo(TestCase):
         self.assertFalse(info1 == info3)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

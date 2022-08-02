@@ -40,12 +40,14 @@ class TestRequestHandler(unittest.TestCase):
         rh.attempt_request(timeout_method, timeout=5)
 
         mock_wait.assert_called()
-        mock_error.assert_called_once_with(f"Hit or exceeded maximum tries (over {limit} tries)")
+        mock_error.assert_called_once_with(
+            f"Hit or exceeded maximum tries (over {limit} tries)"
+        )
 
     def test_exception_request(self):
         rh = request_handler.RequestHandler("test3")
         self.assertRaises(OSError, rh.attempt_request, bad_method)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

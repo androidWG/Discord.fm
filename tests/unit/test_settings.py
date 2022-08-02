@@ -152,5 +152,5 @@ def get_md5(path) -> str:
     return md5
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
