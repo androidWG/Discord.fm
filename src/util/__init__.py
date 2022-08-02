@@ -116,9 +116,11 @@ def basic_notification(title: str, message: str):
         )
 
     if system() == "Darwin":
-        mac_notif = Notification(message)\
-            .with_subtitle(title)\
-            .with_identity_image(resource_path("resources/icon.png"))  # the image on the right of the notification
+        mac_notif = (
+            Notification(message)
+            .with_subtitle(title)
+            .with_identity_image(resource_path("resources/icon.png"))
+        )
 
         mac_notif.send()
     else:
