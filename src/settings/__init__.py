@@ -1,5 +1,6 @@
 import json
 import os
+import urllib.parse
 
 from settings.util import setup_app_data_dir, setup_logs_dir
 
@@ -52,7 +53,9 @@ class Settings:
         :type value: any
         """
         if self.__settings_dict.keys().__contains__(name):
-            print(f'Setting value of "{name}" setting to "{value}"')
+            print(
+                f'Setting value of "{name}" setting to "{urllib.parse.quote(str(value).encode("utf-8"))}"'
+            )
             self.__settings_dict[name] = value
             self.save()
         else:
