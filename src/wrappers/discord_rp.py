@@ -19,9 +19,12 @@ class DiscordRP:
         self.presence = None
         self.last_track = None
 
+    def start(self):
+        self.presence = Presence(environ.get("discord_app_id"))
+
     def connect(self):
         if self.presence is None:
-            self.presence = Presence(environ.get("discord_app_id"))
+            self.start()
 
         asyncio.set_event_loop(asyncio.new_event_loop())
         self.presence.connect()
