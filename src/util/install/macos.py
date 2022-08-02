@@ -26,7 +26,7 @@ def get_app_folder_and_version(app_name: str) -> tuple:
             return path, plist["CFBundleShortVersionString"]
     else:
         logger.warning("Discord.fm installation not found")
-        return None, None
+        return "", ""
 
 
 @util.timeout.exit_after(180)

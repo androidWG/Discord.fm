@@ -1,10 +1,10 @@
-import logging
 import os
-import shutil
 import sys
+import shutil
+import logging
 from platform import system
-
-from plyer import notification
+from plyer import notification as plyer_notif
+from aquaui.notification.native_notification import Notification
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -106,7 +106,7 @@ def is_frozen():  # I could just use hasattr() directly but this makes it more c
     return hasattr(sys, "_MEIPASS")
 
 
-def basic_notification(title, message):
+def basic_notification(title: str, message: str):
     logger.debug(f'Sending notification with title "{title}" and message "{message}"')
     if system() == "Windows":
         icon = resource_path("resources", "icon.ico")
@@ -115,9 +115,16 @@ def basic_notification(title, message):
             "resources", "white" if check_dark_mode() else "black", "icon.png"
         )
 
-    notification.notify(
-        title=title,
-        message=message,
-        app_name="Discord.fm",
-        app_icon=icon,
-    )
+    if system() == "Darwin":
+        mac_notif = Notification(message)\
+            .with_subtitle(title)\
+            .with_identity_image(resource_path("resources/icon.png"))  # the image on the right of the notification
+
+        mac_notif.send()
+    else:
+        plyer_notif.notify(
+            title=title,
+            message=message,
+            app_name="Discord.fm",
+            app_icon=icon,
+        )
