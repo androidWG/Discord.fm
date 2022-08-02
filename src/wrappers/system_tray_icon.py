@@ -6,7 +6,8 @@ from PIL import Image
 from pystray import Icon, Menu, MenuItem
 
 import globals as g
-from util import check_dark_mode, process, resource_path
+import process
+from util import check_dark_mode, resource_path
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 

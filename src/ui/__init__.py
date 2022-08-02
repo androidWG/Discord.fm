@@ -5,9 +5,11 @@ from tkinter import *
 from tkinter import messagebox, ttk
 
 import wrappers.last_fm_user
+import process
+import process.executable_info
 from globals import get_debug, get_version, local_settings
 from ui.repeat_timer import RepeatTimer
-from util import process, resource_path
+from util import resource_path
 
 SMALL_PAD = (4, 0, 4, 0)
 LABEL_PAD = (0, 0, 8, 0)
@@ -182,8 +184,8 @@ class SettingsWindow(Tk):
             self.starting = True
             self.service_btn.text = "Starting..."
 
-            main_proc = process.ExecutableInfo(
-                "Discord.fm", "discord_fm.exe", "Discord.fm.app", "discord_fm"
+            main_proc = process.executable_info.ExecutableInfo(
+                "Discord.fm", "discord_fm.exe", "Discord.fm.app", "discord_fm", "ui.py"
             )
             Thread(target=subprocess.Popen, args=main_proc.path).start()
 

@@ -3,10 +3,9 @@ import sys
 from os.path import isfile
 
 import globals
-import util.process
-from app_manager import AppManager
+import app_manager
+import util
 from globals import get_debug, get_version
-from util.log_setup import setup_logging
 
 if __name__ == "__main__":
     print("Application started")
@@ -21,9 +20,9 @@ if __name__ == "__main__":
         f' -------- Discord.fm version {get_version()} {"(debug mode)" if get_debug() else ""} -------- '
     )
 
-    sys.excepthook = util.process.handle_exception
+    sys.excepthook = wrappers.process.handle_exception
 
-    globals.manager = AppManager()
+    globals.manager = app_manager.AppManager()
     try:
         globals.manager.start()
     except KeyboardInterrupt:

@@ -3,7 +3,7 @@ import logging
 import sys
 from platform import system
 
-import util.process
+import process
 from globals import get_debug, get_version
 from ui import SettingsWindow
 from util.log_setup import setup_logging
@@ -21,7 +21,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 
 
 if __name__ == "__main__":
-    sys.excepthook = util.process.handle_exception
+    sys.excepthook = process.handle_exception
     logger.info(
         f" -------- Discord.fm Settings UI version {get_version()}"
         f' {"(debug mode)" if get_debug() else ""} -------- '

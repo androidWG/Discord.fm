@@ -9,7 +9,7 @@ import subprocess
 import sys
 from time import sleep
 
-from util.process import stream_process
+from process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from globals import get_version

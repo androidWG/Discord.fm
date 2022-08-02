@@ -6,7 +6,7 @@ import tempfile
 from time import sleep
 
 import package_build
-from util.process import stream_process
+from process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import util

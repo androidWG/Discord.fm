@@ -9,9 +9,9 @@ import pypresence
 
 import globals as g
 import loop_handler
+import process
 import util
 import util.install
-import util.process
 import util.updates
 from globals import get_version
 from wrappers import system_tray_icon
@@ -28,7 +28,7 @@ class AppManager:
         if not util.is_frozen():
             logger.warning("Running in non-frozen mode")
 
-        if util.process.check_process_running("discord_fm") and not util.arg_exists(
+        if process.check_process_running("discord_fm") and not util.arg_exists(
             "--ignore-open"
         ):
             logger.error("Discord.fm is already running")
@@ -130,7 +130,7 @@ class AppManager:
         sys.exit()
 
     def open_settings_and_wait(self):
-        util.process.open_settings()
+        process.open_settings()
         # Discord.fm can take a little while to start the settings UI, so wait before closing
         time.sleep(1)
         if not util.is_frozen():
@@ -138,10 +138,10 @@ class AppManager:
 
         # Starting the process takes a bit, if we went straight into the next while block, the method would
         # finish immediately because "settings_ui" is not running.
-        while not util.process.check_process_running("settings_ui"):
+        while not process.check_process_running("settings_ui"):
             pass
 
-        while util.process.check_process_running("settings_ui"):
+        while process.check_process_running("settings_ui"):
             time.sleep(1.5)
 
     def _wait_for_discord(self):
@@ -152,7 +152,7 @@ class AppManager:
         self.tray_icon.ti.update_menu()
 
         while True:
-            if util.process.check_process_running("Discord", "DiscordCanary"):
+            if process.check_process_running("Discord", "DiscordCanary"):
                 try:
                     g.discord_rp.connect()
                     logger.info("Successfully connected to Discord")
