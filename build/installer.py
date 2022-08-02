@@ -9,7 +9,7 @@ from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import util
-from main import get_debug, get_version
+from globals import get_debug, get_version
 
 
 def make_windows_installer(version: str):

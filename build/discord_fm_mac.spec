@@ -1,5 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
-from main import __version
+from globals import __version
 
 block_cipher = None
 

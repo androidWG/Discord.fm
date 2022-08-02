@@ -5,8 +5,7 @@ import logging.handlers
 import os
 import re
 import datetime as dt
-from globals import local_settings
-from main import get_debug
+from globals import get_debug, local_settings
 
 
 class MillisecondFormatter(logging.Formatter):

@@ -1,6 +1,22 @@
 import enum
+import packaging.version
 from settings import Settings
 from wrappers.discord_rp import DiscordRP
+
+
+__version = "0.7.0"
+__debug = True
+
+
+def get_version(parsed=False):
+    if parsed:
+        return packaging.version.parse(__version)
+    else:
+        return __version
+
+
+def get_debug():
+    return __debug
 
 
 class Status(enum.Enum):

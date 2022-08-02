@@ -19,15 +19,14 @@ import os
 import shutil
 import subprocess
 import sys
-from platform import system
-
 import installer
+from platform import system
 from time import sleep
 from util import arg_exists, replace_instances
 from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from main import get_debug, get_version
+from globals import get_debug, get_version
 
 version = get_version()
 if get_debug():
