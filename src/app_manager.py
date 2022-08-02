@@ -4,7 +4,9 @@ import platform
 import struct
 import sys
 import time
+
 import pypresence
+
 import globals as g
 import loop_handler
 import util
@@ -26,7 +28,9 @@ class AppManager:
         if not util.is_frozen():
             logger.warning("Running in non-frozen mode")
 
-        if util.process.check_process_running("discord_fm") and not util.arg_exists("--ignore-open"):
+        if util.process.check_process_running("discord_fm") and not util.arg_exists(
+            "--ignore-open"
+        ):
             logger.error("Discord.fm is already running")
             self.close()
 
@@ -35,11 +39,17 @@ class AppManager:
 
             latest, latest_asset = util.updates.get_newest_release()
             current = get_version(True)
-            if latest is not None and latest > current or util.arg_exists("--force-update"):
+            if (
+                latest is not None
+                and latest > current
+                or util.arg_exists("--force-update")
+            ):
                 g.current = g.Status.UPDATING
                 self.tray_icon.ti.update_menu()
 
-                logger.info(f"Found newer version (current v{current} vs. latest v{latest})")
+                logger.info(
+                    f"Found newer version (current v{current} vs. latest v{latest})"
+                )
                 path = util.updates.download_asset(latest_asset)
 
                 util.install.windows.do_silent_install(path)
@@ -47,15 +57,19 @@ class AppManager:
                 self.close()
 
         if util.arg_exists("-o"):
-            logger.info("\"-o\" argument was found, opening settings")
+            logger.info('"-o" argument was found, opening settings')
             self.open_settings_and_wait()
 
         no_username = g.local_settings.get("username") == ""
         if no_username and not util.is_frozen():
-            logger.critical("No username found - please add a username to settings and restart the app")
+            logger.critical(
+                "No username found - please add a username to settings and restart the app"
+            )
             self.close()
         elif no_username and util.is_frozen():
-            logger.info("No username found, opening settings UI and waiting for it to be closed...")
+            logger.info(
+                "No username found, opening settings UI and waiting for it to be closed..."
+            )
             self.open_settings_and_wait()
 
     def start(self):
@@ -95,7 +109,13 @@ class AppManager:
         try:
             g.discord_rp.exit_rp()
             self.tray_icon.ti.stop()
-        except (RuntimeError, AttributeError, AssertionError, pypresence.InvalidID, NameError):
+        except (
+            RuntimeError,
+            AttributeError,
+            AssertionError,
+            pypresence.InvalidID,
+            NameError,
+        ):
             pass
 
         try:
@@ -103,7 +123,7 @@ class AppManager:
             if not sc.empty():
                 for event in sc.queue:
                     sc.cancel(event)
-                    logger.debug(f"Event \"{event.action}\" canceled")
+                    logger.debug(f'Event "{event.action}" canceled')
         except (AttributeError, NameError):
             pass
 
@@ -134,21 +154,27 @@ class AppManager:
                 try:
                     g.discord_rp.connect()
                     logger.info("Successfully connected to Discord")
-                except (FileNotFoundError,
-                        pypresence.InvalidPipe,
-                        pypresence.DiscordNotFound,
-                        pypresence.DiscordError,
-                        ValueError,
-                        struct.error) as e:
+                except (
+                    FileNotFoundError,
+                    pypresence.InvalidPipe,
+                    pypresence.DiscordNotFound,
+                    pypresence.DiscordError,
+                    ValueError,
+                    struct.error,
+                ) as e:
                     logger.debug(f"Received {e}")
                     continue
                 except PermissionError as e:
                     if not notification_called and platform.system() == "Windows":
-                        logger.critical("Another user has Discord open, notifying user", exc_info=e)
+                        logger.critical(
+                            "Another user has Discord open, notifying user", exc_info=e
+                        )
 
                         title = "Another user has Discord open"
-                        message = "Discord.fm will not update your Rich Presence or theirs. Please close the other " \
-                                  "instance before scrobbling with this user. "
+                        message = (
+                            "Discord.fm will not update your Rich Presence or theirs. Please close the other "
+                            "instance before scrobbling with this user. "
+                        )
 
                         util.basic_notification(title, message)
 

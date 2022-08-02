@@ -1,7 +1,9 @@
 import random
 import unittest
-import psutil
 from unittest.mock import MagicMock, patch
+
+import psutil
+
 from util import process
 
 

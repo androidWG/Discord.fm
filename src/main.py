@@ -1,10 +1,10 @@
 import logging
 import sys
+from os.path import isfile
+
 import globals
 import util.process
 from app_manager import AppManager
-from os.path import isfile
-
 from globals import get_debug, get_version
 from util.log_setup import setup_logging
 
@@ -17,7 +17,9 @@ if __name__ == "__main__":
         sys.exit()
 
     logger = logging.getLogger("discord_fm").getChild(__name__)
-    logger.info(f' -------- Discord.fm version {get_version()} {"(debug mode)" if get_debug() else ""} -------- ')
+    logger.info(
+        f' -------- Discord.fm version {get_version()} {"(debug mode)" if get_debug() else ""} -------- '
+    )
 
     sys.excepthook = util.process.handle_exception
 

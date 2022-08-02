@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import sys
 from time import sleep
+
 from util.process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -29,14 +30,14 @@ main_args = [
     "build/discord_fm_mac.spec",
     "--distpath=./dist",
     "--workpath=pyinstaller_temp",
-    "-y"
+    "-y",
 ]
 
 ui_args = [
     "build/settings_ui_mac.spec",
     "--distpath=./dist",
     "--workpath=pyinstaller_temp",
-    "-y"
+    "-y",
 ]
 
 # Run PyInstaller
@@ -45,17 +46,23 @@ if not arg_exists("--no-build", "-NB"):
 
     if not arg_exists("--ui-only"):
         print("\nRunning PyInstaller for main.py...")
-        process = subprocess.Popen(" ".join(run_command + main_args), shell=True,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT)
+        process = subprocess.Popen(
+            " ".join(run_command + main_args),
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
         while stream_process(process):
             sleep(0.1)
 
     if not arg_exists("--main-only"):
         print("\nRunning PyInstaller for ui.py...")
-        process = subprocess.Popen(" ".join(run_command + ui_args), shell=True,
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT)
+        process = subprocess.Popen(
+            " ".join(run_command + ui_args),
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
         while stream_process(process):
             sleep(0.1)
 

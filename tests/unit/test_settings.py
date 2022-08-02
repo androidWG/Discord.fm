@@ -4,14 +4,14 @@ import json
 import os
 import random
 import shutil
+from stat import S_IREAD, S_IWRITE
+from unittest import main, TestCase
+from unittest.mock import MagicMock, patch
+
+from filelock import FileLock
 
 import settings
 import settings.util
-import settings
-from stat import S_IREAD, S_IWRITE
-from filelock import FileLock
-from unittest import TestCase, main
-from unittest.mock import MagicMock, patch
 
 
 def remove_temp():

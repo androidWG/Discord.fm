@@ -1,13 +1,15 @@
-import os
-import sys
-import psutil
 import logging
+import os
 import subprocess
-import globals as g
-from typing import List
-from util import is_frozen
+import sys
 from platform import system
+from typing import List
+
+import psutil
+
+import globals as g
 from globals import local_settings
+from util import is_frozen
 from util.install import get_install_folder
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -42,20 +44,25 @@ class ExecutableInfo:
             raise NotImplementedError
 
         if os.path.isfile(path):
-            logger.debug(f"Path for \"{self.name}\": \"{path}\"")
+            logger.debug(f'Path for "{self.name}": "{path}"')
             return [path]
         elif os.path.isfile(install_path) and is_frozen():
-            logger.debug(f"Path for \"{self.name}\": \"{install_path}\"")
+            logger.debug(f'Path for "{self.name}": "{install_path}"')
             return [install_path]
         elif not is_frozen():
-            python_path = os.path.abspath("venv/Scripts/python.exe"
-                                          if current_platform == "Windows" else "venv/bin/python")
-            logger.debug(f"Path for \"{self.name}\": \"{[python_path, self.script_path]}\"")
+            python_path = os.path.abspath(
+                "venv/Scripts/python.exe"
+                if current_platform == "Windows"
+                else "venv/bin/python"
+            )
+            logger.debug(f'Path for "{self.name}": "{[python_path, self.script_path]}"')
             return [python_path, self.script_path]
 
 
 # noinspection PyUnreachableCode
-def get_external_process(*process_names: str, ignore_self: bool = True) -> List[psutil.Process]:
+def get_external_process(
+    *process_names: str, ignore_self: bool = True
+) -> List[psutil.Process]:
     """Returns a list of all the processes that match any of the names given as args, and ignores itself by default.
 
     :param process_names: Argument list of process names to look for. These strings will be made lowercase and have
@@ -107,7 +114,7 @@ def kill_process(process_name: str, ignore_self=True):
     :param process_name: Name of the process to kill, will be made lowercase and have ".exe" removed from it.
     :param ignore_self: Should the method ignore itself and all related processes.
     """
-    logger.debug(f"Attempting to kill process tree \"{process_name}\"...")
+    logger.debug(f'Attempting to kill process tree "{process_name}"...')
     proc = get_external_process(process_name, ignore_self=ignore_self)[0]
     proc_pid = proc.pid if proc.parent() is None else proc.parent().pid
 
@@ -117,7 +124,7 @@ def kill_process(process_name: str, ignore_self=True):
 
     for p in children:
         try:
-            logger.debug(f"Killing process \"{p.name()}\" ({p.pid})")
+            logger.debug(f'Killing process "{p.name()}" ({p.pid})')
             p.kill()
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
@@ -148,8 +155,12 @@ def start_stop_process(process: ExecutableInfo):
 def open_settings():
     """Opens the settings UI. Works even if the app is not frozen (is running as a script)."""
     logger.debug("Opening settings UI")
-    settings_proc = ExecutableInfo("settings_ui", "settings_ui.exe", "Discord.fm Settings.app",
-                                   os.path.join("ui", "ui.py"))
+    settings_proc = ExecutableInfo(
+        "settings_ui",
+        "settings_ui.exe",
+        "Discord.fm Settings.app",
+        os.path.join("ui", "ui.py"),
+    )
     subprocess.Popen(settings_proc.path, cwd=os.getcwd())
 
 
@@ -174,7 +185,9 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     logger.debug(f"Current status: {g.current}")
 
     if g.current != g.Status.KILL:
-        main_proc = ExecutableInfo("Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py")
+        main_proc = ExecutableInfo(
+            "Discord.fm", "discord_fm.exe", "Discord.fm.app", "main.py"
+        )
         subprocess.Popen(main_proc.path + ["--ignore-open"])
 
     g.manager.close()

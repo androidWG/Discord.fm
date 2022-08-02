@@ -1,6 +1,8 @@
 import unittest
-import requests.exceptions
 from unittest.mock import MagicMock, patch
+
+import requests.exceptions
+
 from util import request_handler
 
 test_phrase = "mock method finished"

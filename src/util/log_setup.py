@@ -1,15 +1,17 @@
 import copy
 import datetime
+import datetime as dt
 import logging.config
 import logging.handlers
 import os
 import re
-import datetime as dt
+
 from globals import get_debug, local_settings
 
 
 class MillisecondFormatter(logging.Formatter):
     """A formatter for standard library 'logging' that supports '%f' wildcard in format strings."""
+
     converter = dt.datetime.fromtimestamp
 
     def formatTime(self, record, datefmt=None):
@@ -38,11 +40,11 @@ def formatter_message(message, use_color=True):
 
 
 COLORS = {
-    'WARNING': YELLOW,
-    'INFO': WHITE,
-    'DEBUG': BLUE,
-    'CRITICAL': YELLOW,
-    'ERROR': RED
+    "WARNING": YELLOW,
+    "INFO": WHITE,
+    "DEBUG": BLUE,
+    "CRITICAL": YELLOW,
+    "ERROR": RED,
 }
 
 
@@ -52,7 +54,9 @@ class ColoredFormatter(logging.Formatter):
         levelname = new_record.levelname
 
         if levelname in COLORS:
-            levelname_color = COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
+            levelname_color = (
+                COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
+            )
             new_record.levelname = levelname_color
         return logging.Formatter.format(self, new_record)
 
@@ -72,7 +76,7 @@ def delete_old_logs(name: str):
             logs.append(file)
 
     logs.sort(reverse=True)
-    del logs[:local_settings.get("max_logs") - 1]
+    del logs[: local_settings.get("max_logs") - 1]
 
     for log in logs:
         try:
@@ -80,7 +84,9 @@ def delete_old_logs(name: str):
             print(f"Deleting file {path}")
             os.remove(path)
         except PermissionError as e:
-            logging.warning(f"PermissionError while trying to delete log file \"{log}\"", exc_info=e)
+            logging.warning(
+                f'PermissionError while trying to delete log file "{log}"', exc_info=e
+            )
 
 
 def setup_logging(name: str):
@@ -90,48 +96,52 @@ def setup_logging(name: str):
 
     delete_old_logs(name)
 
-    base_format = "[$BOLD%(levelname)-8s$RESET] ($BOLD%(filename)s:%(lineno)d$RESET) %(message)s"
+    base_format = (
+        "[$BOLD%(levelname)-8s$RESET] ($BOLD%(filename)s:%(lineno)d$RESET) %(message)s"
+    )
     colored_format = formatter_message(base_format, True)
 
-    config = {"version": 1,
-              "formatters": {
-                  "coloredFormatter": {
-                      "format": colored_format,
-                      "style": "%",
-                      "validate": False,
-                      "class": "util.log_setup.ColoredFormatter"
-                  },
-                  "millisecondFormatter": {
-                      "format": "%(asctime)s | %(levelname)-8s | %(message)s",
-                      "datefmt": "%H:%M:%S.%f",
-                      "style": "%",
-                      "class": "util.log_setup.MillisecondFormatter"
-                  }
-              },
-              "handlers": {
-                  "console": {
-                      "class": "logging.StreamHandler",
-                      "level": "DEBUG",
-                      "formatter": "coloredFormatter",
-                      "stream": "ext://sys.stdout"
-                  },
-                  "file": {
-                      "class": "logging.handlers.RotatingFileHandler",
-                      "filename": log_path,
-                      "level": "DEBUG" if get_debug() else "INFO",
-                      "formatter": "millisecondFormatter",
-                      "maxBytes": 512000,
-                      "backupCount": 2
-                  }
-              },
-              "loggers": {
-                  "discord_fm": {
-                      "handlers": ["console", "file"],
-                      "level": "DEBUG" if get_debug() else "INFO",
-                      "propagate": True
-                  }
-              },
-              "disable_existing_loggers": True}
+    config = {
+        "version": 1,
+        "formatters": {
+            "coloredFormatter": {
+                "format": colored_format,
+                "style": "%",
+                "validate": False,
+                "class": "util.log_setup.ColoredFormatter",
+            },
+            "millisecondFormatter": {
+                "format": "%(asctime)s | %(levelname)-8s | %(message)s",
+                "datefmt": "%H:%M:%S.%f",
+                "style": "%",
+                "class": "util.log_setup.MillisecondFormatter",
+            },
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "level": "DEBUG",
+                "formatter": "coloredFormatter",
+                "stream": "ext://sys.stdout",
+            },
+            "file": {
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": log_path,
+                "level": "DEBUG" if get_debug() else "INFO",
+                "formatter": "millisecondFormatter",
+                "maxBytes": 512000,
+                "backupCount": 2,
+            },
+        },
+        "loggers": {
+            "discord_fm": {
+                "handlers": ["console", "file"],
+                "level": "DEBUG" if get_debug() else "INFO",
+                "propagate": True,
+            }
+        },
+        "disable_existing_loggers": True,
+    }
 
     logging.config.dictConfig(config)
 

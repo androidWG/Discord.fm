@@ -2,8 +2,9 @@ import os.path
 import random
 import tempfile
 import unittest
-import util
 from unittest.mock import patch
+
+import util
 
 
 class LogSetupTests(unittest.TestCase):

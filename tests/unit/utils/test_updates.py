@@ -1,6 +1,8 @@
 import unittest
-from packaging import version
 from unittest.mock import MagicMock, patch
+
+from packaging import version
+
 from util import updates
 
 

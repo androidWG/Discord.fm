@@ -21,8 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import threading
 import _thread as thread
+import threading
 
 
 def quit_function(fn_name):
@@ -35,6 +35,7 @@ def exit_after(s: float):
     :param s: Time in seconds that we should wait for the function
     :type s: float
     """
+
     def outer(fn):
         def inner(*args, **kwargs):
             timer = threading.Timer(s, quit_function, args=[fn.__name__])

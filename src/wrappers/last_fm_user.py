@@ -1,9 +1,10 @@
-import pylast
-from util import request_handler
 from os import environ
 from typing import Callable, Tuple
+
+import pylast
 from dotenv import load_dotenv
-from util import resource_path
+
+from util import request_handler, resource_path
 from wrappers import track_info
 
 
@@ -25,7 +26,9 @@ class LastFMUser:
         self.user = network.get_user(username)
 
     def now_playing(self):
-        handler = request_handler.RequestHandler("user's Now Playing", self.inactive_func)
+        handler = request_handler.RequestHandler(
+            "user's Now Playing", self.inactive_func
+        )
         request = handler.attempt_request(self.user.get_now_playing)
 
         if request == self._last_request[0]:

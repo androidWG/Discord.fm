@@ -1,11 +1,13 @@
 import logging
 import time
-import util
-import globals as g
-import wrappers.last_fm_user
-from PIL import Image
 from sched import scheduler
+
+from PIL import Image
 from pypresence import InvalidID
+
+import globals as g
+import util
+import wrappers.last_fm_user
 from globals import local_settings
 from wrappers.system_tray_icon import SystemTrayIcon
 
@@ -62,15 +64,18 @@ class LoopHandler:
             return
 
         self.cooldown = local_settings.get("cooldown")
-        image_path = util.resource_path("resources",
-                                        "white" if util.check_dark_mode() else "black",
-                                        "icon.png")
+        image_path = util.resource_path(
+            "resources", "white" if util.check_dark_mode() else "black", "icon.png"
+        )
         icon = Image.open(image_path)
         self.tray.ti.icon = icon
 
         local_settings.load()
         # Reload if username has been changed
-        if self.user.user.name is not None and not local_settings.get("username") == self.user.user.name:
+        if (
+            self.user.user.name is not None
+            and not local_settings.get("username") == self.user.user.name
+        ):
             g.manager.reload()
 
         if not g.current == g.Status.KILL:
@@ -78,5 +83,5 @@ class LoopHandler:
 
     def reload_lastfm(self):
         username = local_settings.get("username")
-        logger.debug(f"Reloading LastFMUser with username \"{username}\"")
+        logger.debug(f'Reloading LastFMUser with username "{username}"')
         self.user = wrappers.last_fm_user.LastFMUser(username)

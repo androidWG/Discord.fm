@@ -1,7 +1,9 @@
+from unittest import main, TestCase
+from unittest.mock import MagicMock, patch
+
 import pylast
-from unittest import TestCase, main
-from unittest.mock import patch, MagicMock
-from wrappers import track_info, last_fm_user, discord_rp
+
+from wrappers import discord_rp, last_fm_user, track_info
 
 
 class TestLastFm(TestCase):

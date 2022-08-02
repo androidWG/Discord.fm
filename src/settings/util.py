@@ -10,7 +10,7 @@ def make_dir(path: str):
     """
     try:
         os.mkdir(path)
-        print(f"Created folder \"{path}\"")
+        print(f'Created folder "{path}"')
     except FileExistsError:
         pass
 
@@ -44,7 +44,9 @@ def setup_app_data_dir(folder_name: str) -> str:
         clear_executables(path)
         return path
     elif current_platform == "Darwin":
-        path = os.path.join(os.path.expanduser("~/Library/Application Support"), folder_name)
+        path = os.path.join(
+            os.path.expanduser("~/Library/Application Support"), folder_name
+        )
         make_dir(path)
         clear_executables(path)
         return path

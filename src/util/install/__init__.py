@@ -1,5 +1,6 @@
 import os
 import platform
+
 from util.install import macos, windows
 
 

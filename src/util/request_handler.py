@@ -1,11 +1,13 @@
+import logging
 import queue
 import threading
 import time
-import pylast
-import logging
-import globals as g
 from typing import Any, Callable
-from requests import get, exceptions
+
+import pylast
+from requests import exceptions, get
+
+import globals as g
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -32,12 +34,16 @@ class RequestHandler:
     _bucket = queue.Queue()
     _tries = 0
 
-    def __init__(self, message: str, inactive_func: Callable = None, limit_tries: int = 0):
+    def __init__(
+        self, message: str, inactive_func: Callable = None, limit_tries: int = 0
+    ):
         self.message = message
         self.inactive_func = inactive_func
         self._limit = limit_tries
 
-    def attempt_request(self, request_func: Callable, timeout: float = 60, *args, **kwargs) -> Any:
+    def attempt_request(
+        self, request_func: Callable, timeout: float = 60, *args, **kwargs
+    ) -> Any:
         """Tries to run ``request_func`` and catches common exception errors from methods that use
         ``requests.get``.
 
@@ -67,11 +73,15 @@ class RequestHandler:
                 g.manager.close()
 
             if 0 < self._limit <= self._tries:
-                logger.warning(f"Hit or exceeded maximum tries (over {self._limit} tries)")
+                logger.warning(
+                    f"Hit or exceeded maximum tries (over {self._limit} tries)"
+                )
                 self._cancel_timers()
                 return None
 
-            thread = threading.Thread(target=self._wrapper, args=(request_func, args, kwargs))
+            thread = threading.Thread(
+                target=self._wrapper, args=(request_func, args, kwargs)
+            )
             thread.start()
             self._current_thread = thread.ident
 
@@ -88,17 +98,28 @@ class RequestHandler:
             if not self._bucket.empty():
                 e = self._bucket.get(block=False)
                 if isinstance(e, (exceptions.ConnectionError, pylast.NetworkError)):
-                    logger.warning(f"A connection error occurred while getting {self.message}", exc_info=e)
+                    logger.warning(
+                        f"A connection error occurred while getting {self.message}",
+                        exc_info=e,
+                    )
                 elif isinstance(e, exceptions.Timeout):
                     logger.warning(f"Timed out while requesting {self.message}")
                 elif isinstance(e, exceptions.ChunkedEncodingError):
                     logger.warning(f"Connection error while downloading {self.message}")
                 elif isinstance(e, pylast.MalformedResponseError):
-                    logger.warning(f"Received a Last.fm internal server error while getting {self.message}", exc_info=e)
+                    logger.warning(
+                        f"Received a Last.fm internal server error while getting {self.message}",
+                        exc_info=e,
+                    )
                 elif isinstance(e, exceptions.RequestException):
-                    logger.error(f"Unexpected generic exception while getting {self.message}", exc_info=e)
+                    logger.error(
+                        f"Unexpected generic exception while getting {self.message}",
+                        exc_info=e,
+                    )
                 elif isinstance(e, pylast.WSError) and e.get_id() == 8:
-                    logger.warning(f"Error with WSError when getting {self.message}", exc_info=e)
+                    logger.warning(
+                        f"Error with WSError when getting {self.message}", exc_info=e
+                    )
                 else:
                     self._cancel_timers()
                     raise e
@@ -124,13 +145,15 @@ class RequestHandler:
         exc = None
         try:
             result = func(*args, **kwargs)
-            logger.debug(f"Finished running function \"{func.__name__}\"")
+            logger.debug(f'Finished running function "{func.__name__}"')
         except Exception as e:
             exc = e
         finally:
             if self._current_thread != thread_id:
-                logger.debug(f"current_thread is mismatched with this thread ({self._current_thread} "
-                             f"vs. {thread_id})")
+                logger.debug(
+                    f"current_thread is mismatched with this thread ({self._current_thread} "
+                    f"vs. {thread_id})"
+                )
                 return
 
         if exc is not None:

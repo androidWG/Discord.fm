@@ -1,4 +1,5 @@
 import pylast
+
 from util import request_handler
 
 
@@ -13,7 +14,7 @@ class TrackInfo:
         self.artist = lastfm_track.artist.name
         self.cover = lastfm_track.get_cover_image(pylast.SIZE_MEDIUM)
 
-        handler = request_handler.RequestHandler(f"album for track \"{self.name}\"")
+        handler = request_handler.RequestHandler(f'album for track "{self.name}"')
         duration_request = handler.attempt_request(lastfm_track.get_duration)
 
         self.duration = duration_request

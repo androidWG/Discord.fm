@@ -1,9 +1,10 @@
 import os
 import shutil
 import tempfile
-import util
 import unittest
 from unittest.mock import patch
+
+import util
 
 
 class UtilTests(unittest.TestCase):

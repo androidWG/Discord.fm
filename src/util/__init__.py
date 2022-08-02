@@ -1,8 +1,9 @@
-import os
-import sys
-import shutil
 import logging
+import os
+import shutil
+import sys
 from platform import system
+
 from plyer import notification
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -29,7 +30,9 @@ def resource_path(*paths: str, base_path: str = ".") -> str:
     return os.path.join(base_path, *paths)
 
 
-def replace_instances(file: str, tags: list, out_file: str = "temp_", encoding: str = "utf-8"):
+def replace_instances(
+    file: str, tags: list, out_file: str = "temp_", encoding: str = "utf-8"
+):
     """Takes a text file and replaces all instances of a tag with a string.
 
     :param encoding: Encoding to open and save to file with.
@@ -105,7 +108,9 @@ def basic_notification(title, message):
     if system() == "Windows":
         icon = resource_path("resources", "icon.ico")
     else:
-        icon = resource_path("resources", "white" if check_dark_mode() else "black", "icon.png")
+        icon = resource_path(
+            "resources", "white" if check_dark_mode() else "black", "icon.png"
+        )
 
     notification.notify(
         title=title,

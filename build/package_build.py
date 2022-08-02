@@ -69,12 +69,17 @@ def create_package(info: PackageInfo, files: list, temp_dir: str) -> str:
 
     pkgbuild_args = [
         "pkgbuild",
-        "--root", bundles_dir,
-        "--identifier", info.package,
-        "--version", info.version,
-        "--scripts", os.path.join(temp_dir, "darwin/scripts"),
-        "--install-location", info.install_location,
-        package_path
+        "--root",
+        bundles_dir,
+        "--identifier",
+        info.package,
+        "--version",
+        info.version,
+        "--scripts",
+        os.path.join(temp_dir, "darwin/scripts"),
+        "--install-location",
+        info.install_location,
+        package_path,
     ]
 
     print("Running command: ", end="")
@@ -88,7 +93,9 @@ def create_package(info: PackageInfo, files: list, temp_dir: str) -> str:
     return package_path
 
 
-def create_product_installer(info: PackageInfo, distribution: str, resources: str, packages: str, temp_dir: str) -> str:
+def create_product_installer(
+    info: PackageInfo, distribution: str, resources: str, packages: str, temp_dir: str
+) -> str:
     """Creates product installer using productbuild.
 
     :param info: PackageInfo object
@@ -108,10 +115,13 @@ def create_product_installer(info: PackageInfo, distribution: str, resources: st
 
     productbuild_args = [
         "productbuild",
-        "--distribution", distribution,
-        "--resources", resources,
-        "--package-path", packages,
-        product_path
+        "--distribution",
+        distribution,
+        "--resources",
+        resources,
+        "--package-path",
+        packages,
+        product_path,
     ]
 
     print("Running command: ", end="")
@@ -128,26 +138,28 @@ def create_product_installer(info: PackageInfo, distribution: str, resources: st
 def copy_darwin_directory(info: PackageInfo, temp_dir: str):
     """Prepares build directory, copying from [repo_root]/build/darwin to a temp folder.
 
-        :param info: PackageInfo object
-        :type info: PackageInfo
-        :param temp_dir: Temporary directory to be used
-        :type temp_dir: str
-        """
+    :param info: PackageInfo object
+    :type info: PackageInfo
+    :param temp_dir: Temporary directory to be used
+    :type temp_dir: str
+    """
     shutil.copytree("build/darwin", os.path.join(temp_dir, "darwin"))
 
     tags = [
         ("#NAME#", info.name),
         ("#VERSION#", info.version),
         ("#PACKAGE#", info.package),
-        ("#LOCATION#", info.install_location)
+        ("#LOCATION#", info.install_location),
     ]
 
     # TODO: Add a list to PackageInfo with filenames/file paths with tags to replace
-    print("Replacing tags") 
+    print("Replacing tags")
     replace_instances(os.path.join(temp_dir, "darwin/scripts/postinstall"), tags)
     replace_instances(os.path.join(temp_dir, "darwin/resources/uninstall.sh"), tags)
     replace_instances(os.path.join(temp_dir, "darwin/distribution.plist"), tags)
-    replace_instances(os.path.join(temp_dir, "darwin/resources/com.androidwg.corkscrew.plist"), tags)
+    replace_instances(
+        os.path.join(temp_dir, "darwin/resources/com.androidwg.corkscrew.plist"), tags
+    )
 
     print("Creating folder for package output")
     os.mkdir(os.path.join(temp_dir, "package"))

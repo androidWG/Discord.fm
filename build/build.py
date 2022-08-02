@@ -19,9 +19,10 @@ import os
 import shutil
 import subprocess
 import sys
-import installer
 from platform import system
 from time import sleep
+
+import installer
 from util import arg_exists, replace_instances
 from util.process import stream_process
 
@@ -41,18 +42,23 @@ temp_ver_main_file = "file_version_main.temp"
 temp_ver_ui_file = "file_version_ui.temp"
 temp_spec_file = "build.spec"
 
-
 main_tags = [
     ("#VERSION#", version),
-    ("#VERSION_TUPLE#", f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0"),
+    (
+        "#VERSION_TUPLE#",
+        f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0",
+    ),
     ("#DESCRIPTION#", "Discord.fm Service Executable"),
-    ("#FILENAME#", "discord_fm")
+    ("#FILENAME#", "discord_fm"),
 ]
 ui_tags = [
     ("#VERSION#", version),
-    ("#VERSION_TUPLE#", f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0"),
+    (
+        "#VERSION_TUPLE#",
+        f"{version_split[0]}, {version_split[1]}, {version_split[2]}, 0",
+    ),
     ("#DESCRIPTION#", "Discord.fm Settings UI"),
-    ("#FILENAME#", "settings_ui")
+    ("#FILENAME#", "settings_ui"),
 ]
 spec_tags = [
     ("#VER_MAIN#", temp_ver_main_file),
@@ -78,9 +84,12 @@ if not arg_exists("--no-build", "-NB"):
     run_command = [f"{os.path.abspath('venv/Scripts/python.exe')} -O -m PyInstaller"]
 
     print("\nRunning PyInstaller...")
-    process = subprocess.Popen(" ".join(run_command + main_args), shell=True,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT)
+    process = subprocess.Popen(
+        " ".join(run_command + main_args),
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
     while stream_process(process):
         sleep(0.2)
 

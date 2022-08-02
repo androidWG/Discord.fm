@@ -1,6 +1,7 @@
 import logging
-import subprocess
 import platform
+import subprocess
+
 import util.timeout
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -16,6 +17,7 @@ def get_install_folder_and_version() -> tuple:
     # Only Windows has the winreg package, so make sure the script doesn't go apeshit in other systems
     if platform.system() == "Windows":
         import winreg
+
         logger.debug("Attempting to find Windows install...")
 
         access_registry = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
@@ -44,8 +46,9 @@ def do_silent_install(installer_path: str):
     """
     logger.info("Installing for Windows...")
 
-    command = f"\"{installer_path}\" /VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /FORCECLOSEAPPLICATIONS " \
-              f"/CURRENTUSER "
+    command = (
+        f'"{installer_path}" /VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /FORCECLOSEAPPLICATIONS '
+        f"/CURRENTUSER "
+    )
     logger.debug(f"Running command: {command}")
     subprocess.Popen(command, shell=True)
-

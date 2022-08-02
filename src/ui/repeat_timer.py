@@ -1,4 +1,4 @@
-from threading import Timer, Thread
+from threading import Thread, Timer
 
 
 class RepeatTimer:
