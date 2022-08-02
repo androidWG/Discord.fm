@@ -17,7 +17,7 @@ def wait_for_internet():
     counter = 0
     while True:
         try:
-            get("http://gstatic.com/generate_204")
+            get("https://gstatic.com/generate_204")
             logger.info("Connected to the internet again")
             return
         except (exceptions.ConnectionError, exceptions.Timeout):

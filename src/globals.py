@@ -41,4 +41,5 @@ def change_status(value: Status):
     current = value
 
     if manager is not None:
+        # noinspection PyUnresolvedReferences
         manager.tray_icon.ti.update_icon()
