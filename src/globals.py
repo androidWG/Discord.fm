@@ -4,19 +4,19 @@ import packaging.version
 
 from settings import Settings
 
-__version = "0.7.1"
-__debug = True
+__VERSION = "0.7.1"
+__DEBUG = True
 
 
-def get_version(parsed=False):
+def get_version(parsed: bool = False) -> packaging.version.Version | str:
     if parsed:
-        return packaging.version.parse(__version)
+        return packaging.version.parse(__VERSION)
     else:
-        return __version
+        return __VERSION
 
 
-def get_debug():
-    return __debug
+def get_debug() -> bool:
+    return __DEBUG
 
 
 class Status(enum.Enum):
