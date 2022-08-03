@@ -1,10 +1,12 @@
+import logging
 import os
 from platform import system
 from typing import List
 
 from util import is_frozen
 from util.install import get_install_folder
-from process import logger
+
+logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 class ExecutableInfo:
