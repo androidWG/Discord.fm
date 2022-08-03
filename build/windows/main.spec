@@ -1,12 +1,12 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 ui_a = Analysis(
-    ['ui.py'],
+    ['src/ui.py'],
     hiddenimports=['wrappers.last_fm_user'],
     hookspath=['hooks'],
 )
 main_a = Analysis(
-    ['main.py'],
+    ['src/main.py'],
     hiddenimports=['plyer.platforms.win.notification'],
     datas=[
         ('resources/black/.', 'resources/black'),
