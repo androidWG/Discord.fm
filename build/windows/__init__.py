@@ -4,7 +4,6 @@ import time
 
 import util
 import src.process as process
-import globals as g
 from build.base import BuildTool
 
 
@@ -42,13 +41,13 @@ class WindowsBuildTool(BuildTool):
         ]
 
         util.replace_instances(
-            "build/file_version.txt", main_tags, self.temp_ver_ui_file
+            "build/windows/file_version.txt", main_tags, self.temp_ver_ui_file
         )
         util.replace_instances(
-            "build/file_version.txt", ui_tags, self.temp_ver_main_file
+            "build/windows/file_version.txt", ui_tags, self.temp_ver_main_file
         )
         util.replace_instances(
-            "build/windows/main.spec", spec_tags, self.temp_spec_file
+            "build/main.spec", spec_tags, self.temp_spec_file
         )
 
     def build(self):
