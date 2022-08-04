@@ -12,8 +12,9 @@ class BuildTool:
 
     temp_files = []
 
-    def __init__(self, version: Version):
+    def __init__(self, version: Version, debug: bool):
         self.version = version
+        self.debug = debug
         self.run_command = [f"{self.py_path} -O -m PyInstaller"]
 
     def prepare_files(self):
