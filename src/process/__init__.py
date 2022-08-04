@@ -9,7 +9,7 @@ import psutil
 
 import globals as g
 from globals import local_settings
-from executable_info import ExecutableInfo
+from .executable_info import ExecutableInfo
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -145,4 +145,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
         )
         subprocess.Popen(main_proc.path + ["--ignore-open"])
 
-    g.manager.close()
+    if g.manager is None:
+        sys.exit()
+    else:
+        g.manager.close()
