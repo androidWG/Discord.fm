@@ -2,14 +2,15 @@ import logging
 import sys
 from os.path import isfile
 
-import globals
 import app_manager
-import util
+import globals
+import util.log_setup
+import process
 from globals import get_debug, get_version
 
 if __name__ == "__main__":
     print("Application started")
-    setup_logging("main")
+    util.log_setup.setup_logging("main")
 
     if not isfile(util.resource_path(".env")):
         print(".env file not found, unable to get API keys and data")
@@ -20,7 +21,7 @@ if __name__ == "__main__":
         f' -------- Discord.fm version {get_version()} {"(debug mode)" if get_debug() else ""} -------- '
     )
 
-    sys.excepthook = wrappers.process.handle_exception
+    sys.excepthook = process.handle_exception
 
     globals.manager = app_manager.AppManager()
     try:
