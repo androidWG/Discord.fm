@@ -28,6 +28,9 @@ $(activate): requirements.txt
     ifeq ($(PLATFORM), macos)
         $(pip) install aquaui
     endif
+    ifeq ($(PLATFORM), linux)
+        $(pip) install PyYAML requirements-parser
+    endif
 
 $(pyinstaller): $(activate)
 # Build PyInstaller from source, install form pip if not on Windows
@@ -40,8 +43,11 @@ $(pyinstaller): $(activate)
         $(python) ./waf distclean all
         cd..
         .$(python) setup.py install
+    endif
+    ifeq ($(PLATFORM),linux)
+    	echo "Current platform is Linux, not installing PyInstaller"
     else
-        $(pip) install PyInstaller
+    	$(pip) install PyInstaller
     endif
 
 run: $(activate)
