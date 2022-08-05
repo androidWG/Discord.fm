@@ -21,7 +21,7 @@ SYSTEM_PACKAGES = [
     "pygments",
     "setuptools",
 ]
-FLATPACK_CMD = ["pip3"]
+FLATPAK_CMD = ["pip3"]
 
 output_package = "discord_fm"
 output_filename = output_package + ".yaml"
@@ -44,7 +44,7 @@ def make_yaml(requirements_path: str):
         use_hash = "--hash=" in req_file.read()
 
     with tempfile.TemporaryDirectory() as tempdir:
-        pip_download = FLATPACK_CMD + [
+        pip_download = FLATPAK_CMD + [
             "download",
             "--exists-action=i",
             "--dest",
@@ -191,7 +191,7 @@ def generate_dependencies(packages):
         with tempfile.TemporaryDirectory(
                 prefix="{}-{}".format(tempdir_prefix, package.name)
         ) as tempdir:
-            pip_download = FLATPACK_CMD + [
+            pip_download = FLATPAK_CMD + [
                 "download",
                 "--exists-action=i",
                 "--dest",
