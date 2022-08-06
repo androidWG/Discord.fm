@@ -1,10 +1,10 @@
 import os.path
-import subprocess
-import time
 
-import src.process as process
-import util
+import yaml
+
 from build.base import BuildTool
+from build.linux import flatpak
+from build.linux.ordered_dumper import OrderedDumper
 
 
 class LinuxBuildTool(BuildTool):
@@ -16,55 +16,46 @@ class LinuxBuildTool(BuildTool):
         super(LinuxBuildTool, self).__init__(version, debug)
 
     def prepare_files(self):
-        self.temp_spec_file = "build.spec"
+        if not os.path.isfile("build/linux/com.androidWG.Discordfm.yml"):
+            output = "build/linux/dependencies.yaml"
+            self.temp_files.append(output)
+            flatpak.make_yaml(
+                "/home/samuel/PycharmProjects/Discord.fm/requirements.txt",
+                "/home/samuel/PycharmProjects/Discord.fm/build/linux/linux_requirements.txt",
+                output,
+            )
 
-        main_tags = [
-            ("#VERSION#", self.version.base_version),
-            (
-                "#VERSION_TUPLE#",
-                f"{self.version.major}, {self.version.minor}, {self.version.micro}, 0",
-            ),
-            ("#DESCRIPTION#", "Discord.fm Service Executable"),
-            ("#FILENAME#", "discord_fm"),
-        ]
-        ui_tags = main_tags
-        ui_tags[2] = ("#DESCRIPTION#", "Discord.fm Settings UI")
-        ui_tags[3] = ("#FILENAME#", "settings_ui")
+            with open(output, "r") as file:
+                packages = yaml.load(file, yaml.Loader)
+            with open("build/linux/base.yml", "r") as file:
+                app = yaml.load(file, yaml.Loader)
 
-        spec_tags = [
-            ("#VER_MAIN#", ""),
-            ("#VER_UI#", ""),
-            ("#ICON_MAIN#", self.icon_main),
-            ("#ICON_UI#", self.icon_settings),
-        ]
+            app["modules"][0]["build-commands"] += packages["build-commands"]
+            app["modules"][0]["sources"] += packages["sources"]
 
-        util.replace_instances(
-            "build/main.spec", spec_tags, self.temp_spec_file
-        )
+            with open("build/linux/com.androidWG.Discordfm.yaml", "w") as file:
+                yaml.dump(app, file, OrderedDumper)
 
     def build(self):
-        main_args = [
-            self.temp_spec_file,
-            "--workpath=pyinstaller_temp",
-            "--upx-dir=upx/",
-            "-y",
-        ]
-
-        pyinstaller = subprocess.Popen(
-            " ".join(self.run_command + main_args),
-            shell=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-        while process.stream_process(pyinstaller):
-            time.sleep(0.2)
+        # main_args = [
+        #     self.temp_spec_file,
+        #     "--workpath=pyinstaller_temp",
+        #     "--upx-dir=upx/",
+        #     "-y",
+        # ]
+        #
+        # pyinstaller = subprocess.Popen(
+        #     " ".join(self.run_command + main_args),
+        #     shell=True,
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.STDOUT,
+        # )
+        # while process.stream_process(pyinstaller):
+        #     time.sleep(0.2)
+        pass
 
     def make_installer(self):
         pass
-
-    def cleanup(self):
-        super().cleanup()
-        os.remove(self.temp_spec_file)
 
 
 def instance():

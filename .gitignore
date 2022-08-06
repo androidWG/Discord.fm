@@ -204,3 +204,4 @@ build/discord_fm*/
 build/settings_ui*/
 
 .flatpak-builder/
+com.androidWG.Discordfm.*
