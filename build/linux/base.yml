@@ -2,23 +2,23 @@ app-id: com.androidWG.Discordfm
 runtime: org.freedesktop.Platform
 runtime-version: '21.08'
 sdk: org.freedesktop.Sdk
-command: ./discord_fm
-cleanup:
-  - '/pyinstaller_temp'
-  - '/venv'
+command: discord_fm.sh
 finish-args:
-  # X11 + XShm access
   - --share=ipc
   - --socket=x11
-  # Wayland access
   - --socket=wayland
-  # Needs to talk to the network:
   - --share=network
 modules:
+  - name: python_requirements
+    buildsystem: simple
+    build-commands:
+    sources:
   - name: discord_fm
     buildsystem: simple
     build-commands:
-      - python3 -m pip install --no-build-isolation --exists-action=i --no-index --find-links="file://${PWD}" "wheel"
+      - cp -r ./* /app/bin
     sources:
       - type: dir
         path: ../../src/
+      - type: file
+        path: discord_fm.sh
