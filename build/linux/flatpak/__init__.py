@@ -101,55 +101,53 @@ def download_packages(packages, tempdir):
         name = util.get_package_name(filename)
         files[name].append(filename)
 
-        # Delete redundant sources, for vcs sources
-        for name in files:
-            if len(files[name]) > 1:
-                zip_source = False
+    # Delete redundant sources, for vcs sources
+    for name in files:
+        if len(files[name]) > 1:
+            zip_source = False
+            for f in files[name]:
+                if f.endswith(".zip"):
+                    zip_source = True
+            if zip_source:
                 for f in files[name]:
-                    if f.endswith(".zip"):
-                        zip_source = True
-                if zip_source:
-                    for f in files[name]:
-                        if not f.endswith(".zip"):
-                            try:
-                                os.remove(os.path.join(tempdir, f))
-                            except FileNotFoundError:
-                                pass
+                    if not f.endswith(".zip"):
+                        try:
+                            os.remove(os.path.join(tempdir, f))
+                        except FileNotFoundError:
+                            pass
 
-        vcs_packages = {
-            x.name: {"vcs": x.vcs, "revision": x.revision, "uri": x.uri}
-            for x in packages
-            if x.vcs
-        }
+    vcs_packages = {
+        x.name: {"vcs": x.vcs, "revision": x.revision, "uri": x.uri}
+        for x in packages
+        if x.vcs
+    }
 
-        util.fprint("Obtaining hashes and urls")
-        for filename in os.listdir(tempdir):
-            name = util.get_package_name(filename)
-            sha256 = util.get_file_hash(os.path.join(tempdir, filename))
+    util.fprint("Obtaining hashes and urls")
+    for filename in os.listdir(tempdir):
+        name = util.get_package_name(filename)
+        sha256 = util.get_file_hash(os.path.join(tempdir, filename))
 
-            if name in vcs_packages:
-                uri = vcs_packages[name]["uri"]
-                revision = vcs_packages[name]["revision"]
-                vcs = vcs_packages[name]["vcs"]
-                url = "https://" + uri.split("://", 1)[1]
-                s = "commit"
-                if vcs == "svn":
-                    s = "revision"
-                source = OrderedDict(
-                    [
-                        ("type", vcs),
-                        ("url", url),
-                        (s, revision),
-                    ]
-                )
-                is_vcs = True
-            else:
-                url = pypi.get_pypi_url(name, filename)
-                source = OrderedDict(
-                    [("type", "file"), ("url", url), ("sha256", sha256)]
-                )
-                is_vcs = False
-            sources[name] = {"source": source, "vcs": is_vcs}
+        if name in vcs_packages:
+            uri = vcs_packages[name]["uri"]
+            revision = vcs_packages[name]["revision"]
+            vcs = vcs_packages[name]["vcs"]
+            url = "https://" + uri.split("://", 1)[1]
+            s = "commit"
+            if vcs == "svn":
+                s = "revision"
+            source = OrderedDict(
+                [
+                    ("type", vcs),
+                    ("url", url),
+                    (s, revision),
+                ]
+            )
+            is_vcs = True
+        else:
+            url = pypi.get_pypi_url(name, filename)
+            source = OrderedDict([("type", "file"), ("url", url), ("sha256", sha256)])
+            is_vcs = False
+        sources[name] = {"source": source, "vcs": is_vcs}
 
 
 def generate_dependencies(packages):
