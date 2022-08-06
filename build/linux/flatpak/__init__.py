@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -9,6 +10,7 @@ import yaml
 
 from . import pypi
 from . import util
+from ..ordered_dumper import OrderedDumper
 
 # Python3 packages that come as part of org.freedesktop.Sdk.
 SYSTEM_PACKAGES = [
@@ -19,67 +21,100 @@ SYSTEM_PACKAGES = [
     "meson",
     "pip",
     "pygments",
-    "setuptools",
 ]
 FLATPAK_CMD = ["pip3"]
 
-output_package = "discord_fm"
-output_filename = output_package + ".yaml"
+OUTPUT_PACKAGE = "discord_fm"
+OUTPUT_FILENAME = "discord_fm.yaml"
 
+pip_command = [
+    "python3",
+    "-m",
+    "pip",
+    "install",
+    "--verbose",
+    "--exists-action=i",
+    "--no-index",
+    '--find-links="file://${PWD}"',
+    "--prefix=${FLATPAK_DEST}",
+]
 pypi_module = {
-    "name": output_package,
+    "name": OUTPUT_PACKAGE,
     "buildsystem": "simple",
     "build-commands": [],
     "sources": [],
 }
 sources = {}
+pip_names = []
 
 
-def make_yaml(requirements_path: str):
-    requirements_file = os.path.expanduser(requirements_path)
-    with open(requirements_file, "r") as req_file:
+def make_yaml(
+    requirements_path: str, extra_requirements: str = None, output: str = None
+):
+    requirements_file = "temp_requirements.txt"
+    with open(requirements_file, "wb") as wfd:
+        for f in [
+            os.path.expanduser(extra_requirements),
+            os.path.expanduser(requirements_path),
+        ]:
+            with open(f, "rb") as fd:
+                shutil.copyfileobj(fd, wfd, 1024 * 1024 * 10)
+
+    with open(os.path.expanduser(requirements_file), "r") as req_file:
         reqs = util.parse_continuation_lines(req_file)
         reqs_as_str = "\n".join([r.split("--hash")[0] for r in reqs])
         packages = list(requirements.parse(reqs_as_str))
         use_hash = "--hash=" in req_file.read()
 
-    with tempfile.TemporaryDirectory() as tempdir:
-        pip_download = FLATPAK_CMD + [
-            "download",
-            "--exists-action=i",
-            "--dest",
-            tempdir,
-            "-r",
-            requirements_file,
-        ]
-        if use_hash:
-            pip_download.append("--require-hashes")
+    tempdir = "build/.cache"
+    pip_download = FLATPAK_CMD + [
+        "download",
+        "--exists-action=i",
+        "--dest",
+        tempdir,
+        "-r",
+        requirements_file,
+    ]
+    if use_hash:
+        pip_download.append("--require-hashes")
 
-        download_sources(pip_download, requirements_file)
+    _download_sources(pip_download, requirements_file)
 
-        download_packages(packages, tempdir)
+    _download_packages(packages, tempdir)
 
-        generate_dependencies(packages)
+    _generate_dependencies(packages)
 
-        write_output_file()
+    pip_command.append(" ".join(pip_names))
+    pypi_module["build-commands"].append(" ".join(pip_command))
+
+    if output is not None:
+        filename = output
+    else:
+        filename = OUTPUT_FILENAME
+
+    with open(filename, "w") as output:
+
+        def dict_representer(dumper, data):
+            return dumper.represent_dict(data.items())
+
+        OrderedDumper.add_representer(OrderedDict, dict_representer)
+
+        yaml.dump(pypi_module, output, Dumper=OrderedDumper)
+        print(f"Output saved to {filename}")
 
 
-def download_sources(pip_download, requirements_file):
+def _download_sources(pip_download, requirements_file):
     util.fprint("Downloading sources")
     cmd = " ".join(pip_download)
-    print('Running: "{}"'.format(cmd))
+    print(f'Running: "{cmd}"')
     try:
         subprocess.run(pip_download, check=True)
     except subprocess.CalledProcessError:
         print("Failed to download")
         print("Please fix the module manually in the generated file")
-    try:
-        os.remove(requirements_file)
-    except FileNotFoundError:
-        pass
 
 
-def download_packages(packages, tempdir):
+def _download_packages(packages, tempdir):
     util.fprint("Downloading arch independent packages")
     for filename in os.listdir(tempdir):
         if not filename.endswith(("bz2", "any.whl", "gz", "xz", "zip")):
@@ -150,7 +185,7 @@ def download_packages(packages, tempdir):
         sources[name] = {"source": source, "vcs": is_vcs}
 
 
-def generate_dependencies(packages):
+def _generate_dependencies(packages):
     util.fprint("Generating dependencies")
     for package in packages:
         if package.name is None:
@@ -187,7 +222,7 @@ def generate_dependencies(packages):
 
         tempdir_prefix = "pip-generator-{}".format(package.name)
         with tempfile.TemporaryDirectory(
-                prefix="{}-{}".format(tempdir_prefix, package.name)
+            prefix=f"{tempdir_prefix}-{package.name}"
         ) as tempdir:
             pip_download = FLATPAK_CMD + [
                 "download",
@@ -196,7 +231,7 @@ def generate_dependencies(packages):
                 tempdir,
             ]
             try:
-                print("Generating dependencies for {}".format(package.name))
+                print(f"Generating dependencies for {package.name}")
                 subprocess.run(
                     pip_download + [pkg], check=True, stdout=subprocess.DEVNULL
                 )
@@ -207,9 +242,8 @@ def generate_dependencies(packages):
                     dependencies.append(dep_name)
 
             except subprocess.CalledProcessError:
-                print("Failed to download {}".format(package.name))
+                print(f"Failed to download {package.name}")
 
-        is_vcs = True if package.vcs else False
         package_sources = []
         for dependency in dependencies:
             if dependency in sources:
@@ -219,7 +253,7 @@ def generate_dependencies(packages):
             else:
                 continue
 
-            if not (not source["vcs"] or is_vcs):
+            if not (not source["vcs"] or package.vcs):
                 continue
 
             package_sources.append(source["source"])
@@ -229,33 +263,5 @@ def generate_dependencies(packages):
         else:
             name_for_pip = pkg
 
-        pip_command = [
-            "venv/bin/python",
-            "-m",
-            "pip",
-            "install",
-            "--verbose",
-            "--exists-action=i",
-            "--no-index",
-            '--find-links="file://${PWD}"',
-            "--prefix=${FLATPAK_DEST}",
-            f'"{name_for_pip}"',
-        ]
-
-        pypi_module["build-commands"].append(" ".join(pip_command))
+        pip_names.append(name_for_pip)
         pypi_module["sources"] += package_sources
-
-
-def write_output_file():
-    with open(output_filename, "w") as output:
-        class OrderedDumper(yaml.Dumper):
-            def increase_indent(self, flow=False, indentless=False):
-                return super(OrderedDumper, self).increase_indent(flow, False)
-
-        def dict_representer(dumper, data):
-            return dumper.represent_dict(data.items())
-
-        OrderedDumper.add_representer(OrderedDict, dict_representer)
-
-        yaml.dump(pypi_module, output, Dumper=OrderedDumper)
-        print("Output saved to {}".format(output_filename))
