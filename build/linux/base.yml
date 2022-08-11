@@ -9,6 +9,12 @@ finish-args:
   - --socket=wayland
   - --share=network
 modules:
+  - name: libgirepository
+    buildsystem: meson
+    sources:
+      - type: git
+        tag: debian/1.68.0-1
+        url: https://salsa.debian.org/gnome-team/gobject-introspection.git
   - name: python_requirements
     buildsystem: simple
     build-commands:

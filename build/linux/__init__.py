@@ -30,8 +30,8 @@ class LinuxBuildTool(BuildTool):
             with open("build/linux/base.yml", "r") as file:
                 app = yaml.load(file, yaml.Loader)
 
-            app["modules"][0]["build-commands"] += packages["build-commands"]
-            app["modules"][0]["sources"] += packages["sources"]
+            app["modules"][1]["build-commands"] = packages["build-commands"]
+            app["modules"][1]["sources"] = packages["sources"]
 
             with open("build/linux/com.androidWG.Discordfm.yaml", "w") as file:
                 yaml.dump(app, file, OrderedDumper)
