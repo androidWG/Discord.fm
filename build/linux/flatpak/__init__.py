@@ -78,7 +78,7 @@ def make_yaml(
     if use_hash:
         pip_download.append("--require-hashes")
 
-    _download_sources(pip_download, requirements_file)
+    _download_sources(pip_download)
 
     _download_packages(packages, tempdir)
 
@@ -103,7 +103,7 @@ def make_yaml(
         print(f"Output saved to {filename}")
 
 
-def _download_sources(pip_download, requirements_file):
+def _download_sources(pip_download):
     util.fprint("Downloading sources")
     cmd = " ".join(pip_download)
     print(f'Running: "{cmd}"')
