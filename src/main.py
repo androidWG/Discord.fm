@@ -1,4 +1,5 @@
 import logging
+import platform
 import sys
 from os.path import isfile
 
@@ -20,6 +21,11 @@ if __name__ == "__main__":
     logger.info(
         f' -------- Discord.fm version {get_version()} {"(debug mode)" if get_debug() else ""} -------- '
     )
+
+    if platform.system() == "Darwin" and process.check_process_running("discord_fm"):
+        logger.info("Discord.fm is already running, opening settings...")
+        process.open_settings()
+        sys.exit(2)
 
     sys.excepthook = process.handle_exception
 
