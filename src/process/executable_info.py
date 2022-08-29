@@ -52,5 +52,6 @@ class ExecutableInfo:
                 if current_platform == "Windows"
                 else "../venv/bin/python"
             )
-            logger.debug(f'Path for "{self.name}": "{[python_path, self.script_path]}"')
-            return [python_path, self.script_path]
+            full_path = [python_path, self.script_path]
+            logger.debug(f'Path for "{self.name}": "{full_path}"')
+            return full_path
