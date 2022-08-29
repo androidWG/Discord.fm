@@ -4,6 +4,7 @@ import platform
 import struct
 import sys
 import time
+from threading import Thread
 
 import pypresence
 
@@ -85,7 +86,9 @@ class AppManager:
             self.tray_icon.ti.update_menu()
 
             try:
-                self.loop.handle_update()
+                t = Thread(target=self.loop.handle_update, daemon=True)
+                t.start()
+                self.tray_icon.ti.run()
             except (KeyboardInterrupt, SystemExit):
                 pass
 

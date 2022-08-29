@@ -19,8 +19,6 @@ class SystemTrayIcon:
         self._exit_func = exit_func
         self.ti = self.create_tray_icon()
 
-        Thread(target=self.ti.run).start()
-
     def create_tray_icon(self):
         logger.debug("Creating tray icon")
         image_path = resource_path(
