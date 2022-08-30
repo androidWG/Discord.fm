@@ -6,7 +6,8 @@ import globals
 
 if __name__ == "__main__":
     version = globals.get_version(parsed=True)
-    if util.arg_exists("-d", "--debug"):
+    debug = util.arg_exists("-d", "--debug")
+    if debug:
         print("\033[93m\033[1mWARNING: Building debug version\033[0m")
 
     if platform.system() == "Windows":
@@ -18,7 +19,7 @@ if __name__ == "__main__":
     else:
         raise NotImplementedError("System is not supported")
 
-    build_tool = module.instance()(version=version)
+    build_tool = module.instance()(version=version, debug=debug)
     build_tool.prepare_files()
     build_tool.build()
 

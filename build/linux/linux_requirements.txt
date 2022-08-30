@@ -1,0 +1,4 @@
+wheel~=0.37.1
+PyGObject~=3.42.2
+setuptools>=40.8.0
+pycairo~=1.21.0

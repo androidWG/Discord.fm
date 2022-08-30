@@ -1,0 +1,30 @@
+app-id: com.androidWG.Discordfm
+runtime: org.freedesktop.Platform
+runtime-version: '21.08'
+sdk: org.freedesktop.Sdk
+command: discord_fm.sh
+finish-args:
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --share=network
+modules:
+  - name: libgirepository
+    buildsystem: meson
+    sources:
+      - type: git
+        tag: debian/1.68.0-1
+        url: https://salsa.debian.org/gnome-team/gobject-introspection.git
+  - name: python_requirements
+    buildsystem: simple
+    build-commands:
+    sources:
+  - name: discord_fm
+    buildsystem: simple
+    build-commands:
+      - cp -r ./* /app/bin
+    sources:
+      - type: dir
+        path: ../../src/
+      - type: file
+        path: discord_fm.sh

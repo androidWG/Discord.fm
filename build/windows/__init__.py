@@ -4,17 +4,16 @@ import time
 
 import util
 import src.process as process
-import globals as g
 from build.base import BuildTool
 
 
-class WindowsBuildTools(BuildTool):
-    def __init__(self, version):
+class WindowsBuildTool(BuildTool):
+    def __init__(self, version, debug):
         self.py_path = os.path.abspath(r"venv\Scripts\python.exe")
 
         self.icon_main = "resources/icon.ico"
         self.icon_settings = "resources/settings.ico"
-        super(WindowsBuildTools, self).__init__(version)
+        super(WindowsBuildTool, self).__init__(version, debug)
 
     def prepare_files(self):
         self.temp_ver_main_file = "file_version_main.temp"
@@ -42,13 +41,13 @@ class WindowsBuildTools(BuildTool):
         ]
 
         util.replace_instances(
-            "build/file_version.txt", main_tags, self.temp_ver_ui_file
+            "build/windows/file_version.txt", main_tags, self.temp_ver_ui_file
         )
         util.replace_instances(
-            "build/file_version.txt", ui_tags, self.temp_ver_main_file
+            "build/windows/file_version.txt", ui_tags, self.temp_ver_main_file
         )
         util.replace_instances(
-            "build/windows/main.spec", spec_tags, self.temp_spec_file
+            "build/main.spec", spec_tags, self.temp_spec_file
         )
 
     def build(self):
@@ -77,7 +76,7 @@ class WindowsBuildTools(BuildTool):
         tags = [
             ("#VERSION#", self.version.base_version),
             ("#REPO#", os.getcwd()),
-            ("#SUFFIX#", "-debug" if g.get_debug() else ""),
+            ("#SUFFIX#", "-debug" if self.debug else ""),
         ]
         util.replace_instances(
             "build/windows/setup.iss", tags, out_file=temp_setup_script
@@ -103,4 +102,4 @@ class WindowsBuildTools(BuildTool):
 
 
 def instance():
-    return WindowsBuildTools
+    return WindowsBuildTool

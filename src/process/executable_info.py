@@ -48,9 +48,10 @@ class ExecutableInfo:
             return [install_path]
         elif not is_frozen():
             python_path = os.path.abspath(
-                "venv/Scripts/python.exe"
+                "../venv/Scripts/python.exe"
                 if current_platform == "Windows"
-                else "venv/bin/python"
+                else "../venv/bin/python"
             )
-            logger.debug(f'Path for "{self.name}": "{[python_path, self.script_path]}"')
-            return [python_path, self.script_path]
+            full_path = [python_path, self.script_path]
+            logger.debug(f'Path for "{self.name}": "{full_path}"')
+            return full_path
