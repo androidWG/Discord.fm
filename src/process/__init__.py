@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import sys
+import time
 from platform import system
 from typing import List
 
@@ -117,6 +118,7 @@ def open_settings():
         "ui.py",
     )
     subprocess.Popen(settings_proc.path, cwd=os.getcwd())
+    time.sleep(2)
 
 
 def open_logs_folder():
