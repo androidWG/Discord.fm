@@ -6,7 +6,7 @@ import packaging.version
 
 from settings import Settings
 
-__VERSION = "0.7.1"
+__VERSION = "0.8.0"
 __DEBUG = True
 
 
