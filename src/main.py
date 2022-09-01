@@ -13,6 +13,13 @@ if __name__ == "__main__":
     print("Application started")
     util.log_setup.setup_logging("main")
 
+    logger = logging.getLogger("discord_fm").getChild(__name__)
+    logger.info(
+        f' -------- Discord.fm version {get_version()} {"(debug mode)" if get_debug() else ""} -------- '
+    )
+
+    logger.info(f'Current working path: "{abspath(os.curdir)}"')
+
     if not isfile(util.resource_path(".env")):
         print(".env file not found, unable to get API keys and data")
         sys.exit()
