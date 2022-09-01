@@ -175,7 +175,7 @@ class SettingsWindow(Tk):
             if self.starting or self.stopping:
                 self._set_running_status()
 
-        if process.check_process_running("discord_fm"):
+        if process.check_process_running("discord_fm", "discord.fm"):
             self.stopping = True
             self.service_btn.text = "Stopping..."
 
@@ -204,7 +204,7 @@ class SettingsWindow(Tk):
             self.service_btn_text.set("Start service")
             return
 
-        is_running = process.check_process_running("discord_fm")
+        is_running = process.check_process_running("discord_fm", "discord.fm")
         if is_running and not self.stopping:
             self.service_btn["state"] = "enable"
             self.status_lbl_text.set("Running")

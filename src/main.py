@@ -17,12 +17,7 @@ if __name__ == "__main__":
         print(".env file not found, unable to get API keys and data")
         sys.exit()
 
-    logger = logging.getLogger("discord_fm").getChild(__name__)
-    logger.info(
-        f' -------- Discord.fm version {get_version()} {"(debug mode)" if get_debug() else ""} -------- '
-    )
-
-    if platform.system() == "Darwin" and process.check_process_running("discord_fm"):
+    if platform.system() == "Darwin" and process.check_process_running("discord_fm", "discord.fm"):
         logger.info("Discord.fm is already running, opening settings...")
         process.open_settings()
         sys.exit(2)
