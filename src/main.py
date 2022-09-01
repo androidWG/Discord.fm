@@ -1,7 +1,8 @@
 import logging
 import platform
 import sys
-from os.path import isfile
+import os
+from os.path import isfile, abspath
 
 import app_manager
 import globals
@@ -21,7 +22,7 @@ if __name__ == "__main__":
     logger.info(f'Current working path: "{abspath(os.curdir)}"')
 
     if not isfile(util.resource_path(".env")):
-        print(".env file not found, unable to get API keys and data")
+        logger.critical(".env file not found, unable to get API keys and data")
         sys.exit()
 
     if platform.system() == "Darwin" and process.check_process_running("discord_fm", "discord.fm"):
