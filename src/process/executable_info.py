@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from platform import system
 from typing import List
 
@@ -11,7 +12,7 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 class ExecutableInfo:
     def __init__(
-        self, name, windows_exe_name, macos_app_name, linux_executable_name, script_path
+            self, name, windows_exe_name, macos_app_name, linux_executable_name, script_path
     ):
         """Holds info about an executable and gives its path independent of platform or app state (frozen or not).
 
@@ -31,6 +32,11 @@ class ExecutableInfo:
         """Gets the full path of this executable for this instance of the app. If the app is not frozen, a path to the
         Python interpreter with the script as an argument will be passed."""
         install_path = get_install_folder(self.windows_exe_name, self.macos_app_name)
+        if getattr(sys, 'frozen', False):
+            app_path = sys._MEIPASS
+        else:
+            app_path = os.path.dirname(os.path.abspath(__file__))
+        local_path = os.path.join(app_path, self.name)
 
         current_platform = system()
         if current_platform == "Windows":
@@ -46,6 +52,9 @@ class ExecutableInfo:
         elif os.path.isfile(install_path) and is_frozen():
             logger.debug(f'Path for "{self.name}": "{install_path}"')
             return [install_path]
+        elif os.path.isfile(local_path) and is_frozen():
+            logger.debug(f'Path for "{self.name}": "{local_path}"')
+            return [local_path]
         elif not is_frozen():
             python_path = os.path.abspath(
                 "../venv/Scripts/python.exe"
@@ -55,3 +64,6 @@ class ExecutableInfo:
             full_path = [python_path, self.script_path]
             logger.debug(f'Path for "{self.name}": "{full_path}"')
             return full_path
+        else:
+            logger.error(f'Unable to find any path for "{self.name}"')
+            return []
