@@ -32,7 +32,7 @@ ui_exe = EXE(
     ui_pyz,
     ui_a.scripts,
     exclude_binaries=True,
-    name='ui',
+    name='settings_ui',
     console=False,
     disable_windowed_traceback=False,
 )
@@ -53,7 +53,7 @@ coll = COLLECT(
 
 app = BUNDLE(coll,
     name='Discord.fm.app',
-    icon='src/resources/icon.icns',
+    icon='src/resources/macos_icon.icns',
     info_plist={
         'CFBundleVersion': #VERSION#,
         'LSUIElement': True,
