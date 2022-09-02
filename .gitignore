@@ -202,3 +202,8 @@ eel/
 *.pid
 build/discord_fm*/
 build/settings_ui*/
+
+.flatpak-builder/
+com.androidWG.Discordfm.*
+temp_requirements.txt
+dependencies.yaml

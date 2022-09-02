@@ -1,9 +1,10 @@
 import os
 import shutil
 import tempfile
-import util
 import unittest
 from unittest.mock import patch
+
+import util
 
 
 class UtilTests(unittest.TestCase):
@@ -19,7 +20,7 @@ class UtilTests(unittest.TestCase):
                 ("#SHREK#", "Rick Astley"),
                 ("her", "lorem ipsum"),
                 ("私the私", "それです"),
-                ("#dragon#", "dinosaur")
+                ("#dragon#", "dinosaur"),
             ]
 
             f_data = open(p_data1, encoding="utf-8")
@@ -50,5 +51,5 @@ class UtilTests(unittest.TestCase):
         self.assertTrue(util.arg_exists("-lorem", "-IPSUM", "--test", "-t"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

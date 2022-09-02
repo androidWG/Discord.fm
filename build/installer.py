@@ -1,15 +1,16 @@
 import os
 import platform
 import subprocess
-import tempfile
-import package_build
 import sys
+import tempfile
 from time import sleep
-from util.process import stream_process
+
+import package_build
+from process import stream_process
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import util
-from settings import get_version, get_debug
+from globals import get_debug, get_version
 
 
 def make_windows_installer(version: str):
@@ -25,14 +26,11 @@ def make_windows_installer(version: str):
     tags = [
         ("#VERSION#", version),
         ("#REPO#", os.getcwd()),
-        ("#SUFFIX#", "-debug" if get_debug() else "")
+        ("#SUFFIX#", "-debug" if get_debug() else ""),
     ]
     util.replace_instances("build/setup.iss", tags, out_file=temp_setup_script)
 
-    args = [
-        r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
-        temp_setup_script
-    ]
+    args = [r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe", temp_setup_script]
 
     print("Running command: ", end="")
     for arg in args:
@@ -61,7 +59,7 @@ def make_macos_installer(version: str):
         name="Discord.fm",
         version=version,
         package="com.androidwg.Discord_fm",
-        install_location="/Library/Discord.fm"
+        install_location="/Library/Discord.fm",
     )
 
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -70,7 +68,7 @@ def make_macos_installer(version: str):
         files = [
             "dist/Corkscrew",
             os.path.join(temp_dir, "darwin/resources/com.androidwg.corkscrew.plist"),
-            os.path.join(temp_dir, "darwin/resources/uninstall.sh")
+            os.path.join(temp_dir, "darwin/resources/uninstall.sh"),
         ]
 
         distribution = os.path.join(temp_dir, "darwin/distribution.plist")
@@ -78,7 +76,9 @@ def make_macos_installer(version: str):
         packages_path = os.path.join(temp_dir, "package")
 
         package_build.create_package(info, files, temp_dir)
-        package_build.create_product_installer(info, distribution, resources_path, packages_path, temp_dir)
+        package_build.create_product_installer(
+            info, distribution, resources_path, packages_path
+        )
 
 
 if __name__ == "__main__":
