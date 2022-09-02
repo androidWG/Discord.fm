@@ -14,11 +14,11 @@ class DarwinBuildTool(BuildTool):
 
     def prepare_files(self):
         self.temp_spec_file = "temp_spec.spec"
-        tags = [
-            ("#VERSION#", f"'{self.version.base_version}'")
-        ]
+        tags = [("#VERSION#", f"'{self.version.base_version}'")]
 
-        util.replace_instances("build/macos/mac.spec", tags, out_file=self.temp_spec_file)
+        util.replace_instances(
+            "build/macos/mac.spec", tags, out_file=self.temp_spec_file
+        )
 
     def build(self):
         main_args = [
@@ -38,7 +38,7 @@ class DarwinBuildTool(BuildTool):
             time.sleep(0.2)
 
     def make_installer(
-            self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+        self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     ):
         pass
 

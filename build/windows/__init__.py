@@ -46,9 +46,7 @@ class WindowsBuildTool(BuildTool):
         util.replace_instances(
             "build/windows/file_version.txt", ui_tags, self.temp_ver_main_file
         )
-        util.replace_instances(
-            "build/main.spec", spec_tags, self.temp_spec_file
-        )
+        util.replace_instances("build/main.spec", spec_tags, self.temp_spec_file)
 
     def build(self):
         main_args = [

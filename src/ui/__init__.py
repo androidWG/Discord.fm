@@ -9,7 +9,7 @@ import process
 import process.executable_info as executable_info
 from globals import get_debug, get_version, local_settings
 from ui.repeat_timer import RepeatTimer
-from util import resource_path
+from util import is_frozen, resource_path
 
 SMALL_PAD = (4, 0, 4, 0)
 LABEL_PAD = (0, 0, 8, 0)
@@ -121,7 +121,10 @@ class SettingsWindow(Tk):
             command=process.open_logs_folder,
         )
         self.service_btn = ttk.Button(
-            btn_layout, textvariable=self.service_btn_text, command=self.call_start_stop
+            btn_layout,
+            textvariable=self.service_btn_text,
+            command=self.call_start_stop,
+            state=DISABLED if not is_frozen() else ACTIVE,
         )
         self.logs_btn.grid(column=0, row=0, sticky=(W, E), padx=4)
         self.service_btn.grid(column=1, row=0, sticky=(W, E), padx=4)

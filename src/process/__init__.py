@@ -10,7 +10,7 @@ import psutil
 
 import globals as g
 from globals import local_settings
-from .executable_info import ExecutableInfo
+from . import executable_info
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -94,17 +94,6 @@ def stream_process(process: subprocess.Popen):
     for line in process.stdout:
         print(line.decode("utf-8"), end="")
     return go
-
-
-def start_stop_process(process: ExecutableInfo):
-    """Checks if `process` is running, if it is, try to kill it. If it isn't, run it.
-
-    :param process: Executable to start or stop.
-    """
-    if check_process_running(process.name):
-        kill_process(process.name)
-    else:
-        subprocess.Popen(process.path)
 
 
 def open_settings():

@@ -25,7 +25,9 @@ if __name__ == "__main__":
         logger.critical(".env file not found, unable to get API keys and data")
         sys.exit()
 
-    if platform.system() == "Darwin" and process.check_process_running("discord_fm", "discord.fm"):
+    if platform.system() == "Darwin" and process.check_process_running(
+        "discord_fm", "discord.fm"
+    ):
         logger.info("Discord.fm is already running, opening settings...")
         process.open_settings()
         sys.exit(2)
