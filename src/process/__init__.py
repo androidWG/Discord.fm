@@ -110,14 +110,8 @@ def start_stop_process(process: ExecutableInfo):
 def open_settings():
     """Opens the settings UI. Works even if the app is not frozen (is running as a script)."""
     logger.debug("Opening settings UI")
-    settings_proc = ExecutableInfo(
-        "settings_ui",
-        "settings_ui.exe",
-        "Discord.fm Settings.app",
-        "discord_fm",
-        "ui.py",
-    )
-    subprocess.Popen(settings_proc.path, cwd=os.getcwd())
+    path = executable_info.get_local_executable("settings_ui")
+    subprocess.Popen(path, cwd=os.getcwd())
     time.sleep(2)
 
 
@@ -142,10 +136,8 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     logger.debug(f"Current status: {g.current}")
 
     if g.current != g.Status.KILL:
-        main_proc = ExecutableInfo(
-            "Discord.fm", "discord_fm.exe", "Discord.fm.app", "discord_fm", "main.py"
-        )
-        subprocess.Popen(main_proc.path + ["--ignore-open"])
+        path = executable_info.get_local_executable("discord_fm")
+        subprocess.Popen(path + ["--ignore-open"])
 
     if g.manager is None:
         sys.exit()
