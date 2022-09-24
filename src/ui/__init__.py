@@ -4,6 +4,7 @@ from threading import get_ident, Thread, Timer
 from tkinter import *
 from tkinter import messagebox, ttk
 
+import util.install
 import wrappers.last_fm_user
 import process
 import process.executable_info as executable_info
@@ -44,6 +45,15 @@ class SettingsWindow(Tk):
         self.service_btn_text = StringVar(value="Start service")
         self.logs_btn_text = StringVar(value="Open logs folder")
         self.status_lbl_text = StringVar(value="Waiting...")
+
+        self.start_with_system = BooleanVar(
+            value=local_settings.get("start_with_system")
+        )
+        self.start_with_system.set(util.install.get_start_with_system())
+        self.start_with_system.trace_add(
+            "write",
+            self._set_start_with_system,
+        )
 
         self.auto_update = BooleanVar(value=local_settings.get("auto_update"))
         self.auto_update.trace_add(
@@ -102,7 +112,10 @@ class SettingsWindow(Tk):
         cld_layout.grid(column=0, sticky=(W, E), pady=VERT_PAD)
         # endregion
 
-        # region Buttons
+        # region Check Buttons
+        start_check = ttk.Checkbutton(
+            self.root, text="Start with system", variable=self.start_with_system
+        )
         upd_check = ttk.Checkbutton(
             self.root,
             text="Automatically download and install updates",
@@ -111,9 +124,12 @@ class SettingsWindow(Tk):
         beta_check = ttk.Checkbutton(
             self.root, text="Include pre-release versions", variable=self.pre_releases
         )
+        start_check.grid(column=0, sticky=W, pady=VERT_PAD)
         upd_check.grid(column=0, sticky=W, pady=VERT_PAD)
         beta_check.grid(column=0, sticky=W, pady=VERT_PAD)
+        # endregion
 
+        # region Buttons
         btn_layout = ttk.Frame(self.root)
         self.logs_btn = ttk.Button(
             btn_layout,
@@ -158,6 +174,7 @@ class SettingsWindow(Tk):
         Thread(target=self._check_username).start()
 
     def on_close(self):
+        self.status_lbl_text.set("Checking username...")
         valid_username = self._check_username(ignore_debounce=True)
         if not valid_username:
             messagebox.showwarning(
@@ -171,6 +188,12 @@ class SettingsWindow(Tk):
 
             local_settings.define("username", self.username.get())
             self.destroy()
+
+    def _set_start_with_system(self, v1, v2, v3):
+        checked = self.start_with_system.get()
+        local_settings.define("start_with_system", checked)
+        result = util.install.set_start_with_system(checked, util.install.get_exe_path())
+        self.start_with_system.set(result)
 
     def call_start_stop(self):
         def _update():
