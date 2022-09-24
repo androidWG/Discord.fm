@@ -60,8 +60,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: "{#LocalPath}\dist\discord_fm\*"; DestDir: "{app}"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 [Registry]
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#Name}"; ValueData: "{app}\discord_fm.exe";
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "{#Name}"; Flags: uninsdeletevalue;
+Root: "HKCU"; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "#{Name}"; Flags: deletevalue
 
 [Run]
 Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: postinstall nowait
@@ -71,6 +70,7 @@ CompileLogFile={#LocalPath}\dist\#VERSION##SUFFIX#-installer.log
 
 [Icons]
 Name: "{userstartmenu}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; IconFilename: "{app}\discord_fm.exe"
+Name: "{userstartup}\Discord.fm"; Filename: "{app}\discord_fm.exe"; Tasks: StartWithWindows
 
 [InstallDelete]
 Type: filesandordirs; Name: "{app}"
@@ -81,3 +81,6 @@ Filename: "taskkill.exe"; Parameters: "/T /IM discord_fm.exe /F"; Flags: waitunt
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
 Type: filesandordirs; Name: "{localappdata}\Discord.fm"
+
+[Tasks]
+Name: "StartWithWindows"; Description: "Start Discord.fm with Windows"
