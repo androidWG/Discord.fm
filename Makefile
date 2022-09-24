@@ -25,6 +25,9 @@ $(activate): requirements.txt
     $(PY_EXEC) -m venv venv
     $(pip) install -r requirements.txt
 
+	ifeq ($(PLATFORM), windows)
+		$(pip) install pywin32
+		$(PY_EXEC) venv/Scripts/pywin32_postinstall.py -install
     ifeq ($(PLATFORM), macos)
         $(pip) install aquaui
     endif
@@ -38,7 +41,7 @@ $(pyinstaller): $(activate)
     ifeq ($(PLATFORM),win)
         git clone --branch master https://github.com/pyinstaller/pyinstaller.git
         cd pyinstaller
-        git checkout c7040cb6505bf36bc17aaab897f9224181aec1ec
+        git checkout fbf7948be85177dd44b41217e9f039e1d176de6b
         cd bootloader
         $(python) ./waf distclean all
         cd..
