@@ -53,6 +53,9 @@ $(pyinstaller): $(activate)
     	$(pip) install PyInstaller
     endif
 
+setup: $(activate)
+	echo "Set up Discord.fm"
+
 run: $(activate)
     $(python) main.py
 
