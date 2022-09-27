@@ -1,10 +1,20 @@
+pyinstaller_ver = 5.4.1
+
 ifeq ($(OS),Windows_NT)
 	PLATFORM = win
-	VENV_PATH := venv/Scripts
+	VENV_PATH := venv
 	PY_EXEC := python
+	PYTHON := .\$(VENV_PATH)\Scripts\$(PY_EXEC)
+	PYINSTALLER = $(VENV_PATH)\Lib\site-packages\pyinstaller-$(pyinstaller_ver)-py3.10.egg\PyInstaller\__main__.py
+
+	DEL_COMMAND := rmdir /s /q
 else
-	VENV_PATH := venv/bin
+	VENV_PATH := venv
 	PY_EXEC := python3
+	PYTHON := ./$(VENV_PATH)/bin/$(PY_EXEC)
+	PYINSTALLER = $(VENV_PATH)/Lib/site-packages/pyinstaller-$(pyinstaller_ver)-py3.10.egg/PyInstaller/__main__.py
+
+	DEL_COMMAND := rm -rf
 
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
@@ -15,11 +25,8 @@ else
 	endif
 endif
 
-python = ./$(VENV_PATH)/$(PY_EXEC)
-pip = $(python) -m pip
-activate = $(VENV_PATH)/activate
-
-pyinstaller = $(VENV_PATH)/Lib/site-packages/PyInstaller/__main__.py
+pip = $(PYTHON) -m pip
+activate = $(VENV_PATH)/Scripts/activate
 
 $(activate): requirements.txt
 	$(PY_EXEC) -m venv venv
@@ -27,7 +34,7 @@ $(activate): requirements.txt
 
 ifeq ($(PLATFORM), win)
 	$(pip) install pywin32
-	$(python) venv/Scripts/pywin32_postinstall.py -install
+	$(PYTHON) venv\Scripts\pywin32_postinstall.py -install
 endif
 ifeq ($(PLATFORM), macos)
 	$(pip) install aquaui
@@ -36,17 +43,22 @@ ifeq ($(PLATFORM), linux)
 	$(pip) install PyYAML requirements-parser
 endif
 
-$(pyinstaller): $(activate)
+$(PYINSTALLER): $(activate)
 # Build PyInstaller from source, install form pip if not on Windows
 # This prevents antiviruses from marking the app as a virus
 ifeq ($(PLATFORM),win)
-	git clone --branch master https://github.com/pyinstaller/pyinstaller.git
-	cd pyinstaller
-	git checkout fbf7948be85177dd44b41217e9f039e1d176de6b
-	cd bootloader
-	$(python) ./waf distclean all
-	cd..
-	.$(python) setup.py install
+	-$(DEL_COMMAND) pyinstaller
+
+	git clone https://github.com/pyinstaller/pyinstaller.git
+	cd pyinstaller && \
+		git checkout tags/v$(pyinstaller_ver)
+	cd pyinstaller\bootloader && \
+		..\.$(PYTHON) ./waf distclean all
+	$(pip) install wheel
+	cd pyinstaller && \
+		.$(PYTHON) setup.py install
+
+	$(DEL_COMMAND) pyinstaller
 endif
 ifeq ($(PLATFORM),linux)
 	@echo Current platform is Linux, not installing PyInstaller
@@ -58,11 +70,11 @@ setup: $(activate)
 	@echo Set up Discord.fm
 
 run: $(activate)
-	$(python) main.py
+	$(PYTHON) main.py
 
-build: $(activate) $(pyinstaller)
-	$(python) build/build.py
+build_discordfm: $(activate) $(PYINSTALLER)
+	$(PYTHON) build/run.py
 
 clean:
-	rm -rf __pycache__
-	rm -rf venv
+	$(DEL_COMMAND) __pycache__
+	$(DEL_COMMAND) venv
