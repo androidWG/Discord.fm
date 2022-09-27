@@ -26,7 +26,7 @@ OutputDir={#LocalPath}\dist
 OutputBaseFilename=discord.fm-setup-win64-#VERSION##SUFFIX#
 SetupIconFile={#LocalPath}\resources\icon.ico
 SolidCompression=yes
-UninstallDisplayName=Discord.fm
+UninstallDisplayName={#Name}
 UninstallDisplayIcon={app}\discord_fm.exe
 MinVersion=0,6.1
 WizardStyle=modern
@@ -34,7 +34,7 @@ WizardSizePercent=100
 RestartIfNeededByRun=False
 VersionInfoVersion={#Version}
 VersionInfoDescription=Show your Last.fm status on Discord
-VersionInfoProductName=Discord.fm
+VersionInfoProductName={#Name}
 VersionInfoProductVersion={#Version}
 ShowLanguageDialog=auto
 RestartApplications=True
@@ -44,8 +44,7 @@ UsePreviousLanguage=False
 AlwaysShowGroupOnReadyPage=True
 AlwaysUsePersonalGroup=True
 AppendDefaultGroupName=False
-UsePreviousGroup=False
-DefaultGroupName=Discord.fm
+DefaultGroupName={#Name}
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
 VersionInfoCompany=androidWG/Sam Rodrigues
@@ -70,8 +69,8 @@ Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: posti
 CompileLogFile={#LocalPath}\dist\#VERSION##SUFFIX#-installer.log
 
 [Icons]
-Name: "{userstartmenu}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; IconFilename: "{app}\discord_fm.exe"
-Name: "{userstartup}\Discord.fm"; Filename: "{app}\discord_fm.exe"; Tasks: StartWithWindows
+Name: "{userstartmenu}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; IconFilename: "{app}\settings_ui.exe"
+Name: "{userstartup}\{#Name}"; Filename: "{app}\discord_fm.exe"; Tasks: StartWithWindows
 
 [InstallDelete]
 Type: filesandordirs; Name: "{app}"
@@ -81,7 +80,9 @@ Filename: "taskkill.exe"; Parameters: "/T /IM discord_fm.exe /F"; Flags: waitunt
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
-Type: filesandordirs; Name: "{localappdata}\Discord.fm"
+Type: filesandordirs; Name: "{localappdata}\{#Name}"
+Type: filesandordirs; Name: "{userappdata}\{#Name}"
+Type: files; Name: "{userstartup}\{#Name}.lnk"
 
 [Tasks]
 Name: "StartWithWindows"; Description: "Start Discord.fm with Windows"
