@@ -1,6 +1,9 @@
+import sys
+import os
 import importlib
 import platform
 
+sys.path.append(os.path.abspath("src"))
 import util
 import globals
 
@@ -21,9 +24,13 @@ if __name__ == "__main__":
 
     build_tool = module.instance()(version=version, debug=debug)
     build_tool.prepare_files()
-    build_tool.build()
 
-    if not util.arg_exists("--no-installer"):
+    if not util.arg_exists("--installer-only", "-I"):
+        build_tool.build()
+        print("Skipping installer build")
+
+    if not util.arg_exists("--build-only", "-B"):
+        print("Skipping app build")
         build_tool.make_installer()
 
     build_tool.cleanup()
