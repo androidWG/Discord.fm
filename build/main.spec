@@ -28,8 +28,8 @@ ui_exe = EXE(
     name='settings_ui',
     upx=True,
     console=False,
-    version='#VER_UI#',
-    icon='#ICON_UI#',
+    version=r'#VER_UI#',
+    icon=r'#ICON_UI#',
 )
 main_exe = EXE(
     main_pyz,
@@ -37,8 +37,8 @@ main_exe = EXE(
     exclude_binaries=True,
     name='discord_fm',
     console=False,
-    version='#VER_MAIN#',
-    icon='#ICON_MAIN#',
+    version=r'#VER_MAIN#',
+    icon=r'#ICON_MAIN#',
 )
 
 coll = COLLECT(
