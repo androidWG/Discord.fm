@@ -52,15 +52,16 @@ def get_external_process(
     return matched
 
 
-def check_process_running(*process_names: str) -> bool:
+def check_process_running(*process_names: str, ignore_self: bool = True) -> bool:
     """Check if there is any running process that contains the given names process_name.
 
+    :param ignore_self: Should the method ignore itself and all related processes.
     :param process_names: Argument list of process names to look for. These strings will be made lowercase and have
     ".exe" removed from them.
     :return: Boolean indicating if the processes are running
     """
     logger.debug(f"Checking if {process_names} is running...")
-    return len(get_external_process(*process_names)) != 0
+    return len(get_external_process(*process_names, ignore_self=ignore_self)) != 0
 
 
 def kill_process(process_name: str, ignore_self=True):
