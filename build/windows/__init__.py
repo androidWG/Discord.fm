@@ -65,6 +65,9 @@ class WindowsBuildTool(base.BuildTool):
         while process.stream_process(pyinstaller):
             time.sleep(0.2)
 
+        if pyinstaller.returncode != 0:
+            raise RuntimeError("Failed to run Pyinstaller")
+
     def make_installer(
         self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     ):
@@ -90,7 +93,9 @@ class WindowsBuildTool(base.BuildTool):
         inno = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         while process.stream_process(inno):
             time.sleep(0.1)
-        print(f"\nISCC finished with return code {inno.returncode}")
+
+        if inno.returncode != 0:
+            raise RuntimeError("Failed to run Inno Setup")
 
     def cleanup(self):
         super().cleanup()
