@@ -1,7 +1,8 @@
 #define Name "Discord.fm"
 #define Version "#VERSION#"
 #define Publisher "androidWG"
-#define InfoURL "https://github.com/AndroidWG/Discord.fm"
+#define InfoURL "https://github.com/androidWG/Discord.fm"
+#define UpdatesURL "https://github.com/androidWG/Discord.fm/releases/latest"
 #define LocalPath "#REPO#"
 #define Suffix "#SUFFIX#"
 
@@ -12,11 +13,11 @@
 AppId={{5DD6EAF6-9E8F-4240-ADF1-29FD79B30E3F}
 AppName={#Name}
 AppVersion={#Version}
-;AppVerName={#Name} {#Version}
+AppVerName={#Name} v{#Version}
 AppPublisher={#Publisher}
 AppPublisherURL={#InfoURL}
 AppSupportURL={#InfoURL}
-AppUpdatesURL={#InfoURL}
+AppUpdatesURL={#UpdatesURL}
 DefaultDirName={localappdata}\Programs\{#Name}
 DisableProgramGroupPage=yes
 CloseApplications=force
@@ -47,7 +48,7 @@ UsePreviousGroup=False
 DefaultGroupName=Discord.fm
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
-VersionInfoCompany=androidWG/Samuel Rodrigues
+VersionInfoCompany=androidWG/Sam Rodrigues
 VersionInfoProductTextVersion={#Version}
 ArchitecturesInstallIn64BitMode=x64
 ArchitecturesAllowed=x64
