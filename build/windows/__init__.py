@@ -3,16 +3,16 @@ import subprocess
 import time
 
 import util
-import src.process as process
-from build.base import BuildTool
+import process
+import base
 
 
-class WindowsBuildTool(BuildTool):
+class WindowsBuildTool(base.BuildTool):
     def __init__(self, version, debug):
         self.py_path = os.path.abspath(r"venv\Scripts\python.exe")
 
-        self.icon_main = "resources/icon.ico"
-        self.icon_settings = "resources/settings.ico"
+        self.icon_main = r"src\resources\icon.ico"
+        self.icon_settings = r"src\resources\settings.ico"
         super(WindowsBuildTool, self).__init__(version, debug)
 
     def prepare_files(self):
