@@ -192,7 +192,9 @@ class SettingsWindow(Tk):
     def _set_start_with_system(self, v1, v2, v3):
         checked = self.start_with_system.get()
         local_settings.define("start_with_system", checked)
-        result = util.install.set_start_with_system(checked, util.install.get_exe_path())
+        result = util.install.set_start_with_system(
+            checked, util.install.get_exe_path()
+        )
         self.start_with_system.set(result)
 
     def call_start_stop(self):
