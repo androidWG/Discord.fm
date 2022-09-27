@@ -34,10 +34,10 @@ class WindowsBuildTool(base.BuildTool):
         ui_tags[3] = ("#FILENAME#", "settings_ui")
 
         spec_tags = [
-            ("#VER_MAIN#", self.temp_ver_main_file),
-            ("#VER_UI#", self.temp_ver_ui_file),
-            ("#ICON_MAIN#", self.icon_main),
-            ("#ICON_UI#", self.icon_settings),
+            ("#VER_MAIN#", os.path.abspath(self.temp_ver_main_file)),
+            ("#VER_UI#", os.path.abspath(self.temp_ver_ui_file)),
+            ("#ICON_MAIN#", os.path.abspath(self.icon_main)),
+            ("#ICON_UI#", os.path.abspath(self.icon_settings)),
         ]
 
         util.replace_instances(
@@ -80,7 +80,7 @@ class WindowsBuildTool(base.BuildTool):
             "build/windows/setup.iss", tags, out_file=temp_setup_script
         )
 
-        args = [inno_install, temp_setup_script]
+        args = [inno_install, os.path.abspath(temp_setup_script)]
 
         print("Running command: ", end="")
         for arg in args:
