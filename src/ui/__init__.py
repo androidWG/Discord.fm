@@ -18,8 +18,9 @@ VERT_PAD = 2
 
 
 class SettingsWindow(Tk):
-    stopping = False
-    starting = False
+    _stopping = False
+    _starting = False
+    _last_username = ""
 
     # noinspection PyTypeChecker
     def __init__(self):
@@ -171,23 +172,25 @@ class SettingsWindow(Tk):
         self.timer = RepeatTimer(1, self._set_running_status)
         self.timer.start()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
-        Thread(target=self._check_username).start()
+        Thread(target=self._check_username, daemon=True).start()
 
     def on_close(self):
-        self.status_lbl_text.set("Checking username...")
-        valid_username = self._check_username(ignore_debounce=True)
-        if not valid_username:
-            messagebox.showwarning(
-                "Warning",
-                "The username you set is not valid. Please change it to a "
-                "valid username.",
-            )
-        else:
-            self.timer.cancel()
-            self.debounce.cancel()
+        if self._last_username != self.username.get():
+            self.usr_status_text.set("Checking...")
+            valid_username = self._check_username(ignore_debounce=True)
+            if not valid_username:
+                messagebox.showwarning(
+                    "Warning",
+                    "The username you set is not valid. Please change it to a "
+                    "valid username.",
+                )
+                return
 
-            local_settings.define("username", self.username.get())
-            self.destroy()
+        self.timer.cancel()
+        self.debounce.cancel()
+
+        local_settings.define("username", self.username.get())
+        self.destroy()
 
     def _set_start_with_system(self, v1, v2, v3):
         checked = self.start_with_system.get()
@@ -198,30 +201,36 @@ class SettingsWindow(Tk):
         self.start_with_system.set(result)
 
     def call_start_stop(self):
-        def _update():
-            nonlocal self
-            if self.starting or self.stopping:
-                self._set_running_status()
-
         if process.check_process_running("discord_fm", "discord.fm"):
-            self.stopping = True
+            self._stopping = True
             self.service_btn.text = "Stopping..."
 
-            Thread(target=process.kill_process, args=["discord_fm"]).start()
+            thread = Thread(
+                target=process.kill_process, args=["discord_fm"], daemon=True
+            )
         else:
-            self.starting = True
+            self._starting = True
             self.service_btn.text = "Starting..."
 
-            path = executable_info.get_local_executable("discord_fm")
-            Thread(target=subprocess.Popen, args=path).start()
+            path = executable_info.get_local_executable("discord_fm", "main.py")
+            thread = Thread(target=subprocess.Popen, args=[path], daemon=True)
+
+        def _update():
+            nonlocal self
+            if not thread.is_alive():
+                self._starting = False
+                self._stopping = False
+                timer.cancel()
 
         self.service_btn["state"] = "disable"
-        Timer(12, _update)
+        self.status_lbl_text.set("Waiting for service...")
+        timer = RepeatTimer(1, _update)
+        timer.start()
+        thread.start()
 
     def call_debounce(self, value=""):
         self.debounce.cancel()
         self.debounce = Timer(0.5, self._check_username)
-        self.usr_status_text.set("Checking...")
         self.debounce.start()
 
     def _set_running_status(self):
@@ -231,16 +240,16 @@ class SettingsWindow(Tk):
             return
 
         is_running = process.check_process_running("discord_fm", "discord.fm")
-        if is_running and not self.stopping:
+        if is_running and not self._stopping:
             self.service_btn["state"] = "enable"
             self.status_lbl_text.set("Running")
             self.service_btn_text.set("Stop service")
-            self.starting = False
-        elif not is_running and not self.starting:
+            self._starting = False
+        elif not is_running and not self._starting:
             self.service_btn["state"] = "enable"
             self.status_lbl_text.set("Stopped")
             self.service_btn_text.set("Start service")
-            self.stopping = False
+            self._stopping = False
 
     def _check_username(self, value="", ignore_debounce=False):
         print("Running _check_username")
@@ -251,18 +260,18 @@ class SettingsWindow(Tk):
             print(f"ident is different ({self.debounce.ident} vs. {get_ident()})")
             return
 
+        username = self.username.get()
         try:
-            user = wrappers.last_fm_user.LastFMUser(self.username.get())
+            self.usr_status_text.set("Checking...")
+            user = wrappers.last_fm_user.LastFMUser(username)
             user_valid = user.check_username()
         except ValueError:
             user_valid = False
 
         if user_valid:
             self.usr_status_text.set("Username is valid")
+            self._last_username = username
             return True
-        elif not user_valid:
+        else:
             self.usr_status_text.set("Invalid username")
             return False
-        else:
-            self.usr_status_text.set("No internet connection")
-            return True
