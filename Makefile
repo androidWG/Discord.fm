@@ -77,7 +77,12 @@ setup: $(activate)
 	@echo Set up Discord.fm
 
 run: $(activate)
-	$(PYTHON) main.py
+	cd src && \
+		.$(PYTHON) main.py
+
+run_settings: $(activate)
+	cd src && \
+		.$(PYTHON) ui.py
 
 build: $(activate) $(PYINSTALLER) black
 	$(PYTHON) build/run.py
