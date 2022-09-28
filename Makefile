@@ -1,3 +1,5 @@
+PHONY: build
+
 pyinstaller_ver = 5.4.1
 
 ifeq ($(OS),Windows_NT)
@@ -31,6 +33,7 @@ activate = $(VENV_PATH)/Scripts/activate
 $(activate): requirements.txt
 	$(PY_EXEC) -m venv venv
 	$(pip) install -r requirements.txt
+	$(pip) install black
 
 ifeq ($(PLATFORM), win)
 	$(pip) install pywin32
@@ -66,13 +69,17 @@ else
 	$(pip) install PyInstaller
 endif
 
+black:
+	@echo Running black formatter
+	$(PYTHON) -m black src
+
 setup: $(activate)
 	@echo Set up Discord.fm
 
 run: $(activate)
 	$(PYTHON) main.py
 
-build_discordfm: $(activate) $(PYINSTALLER)
+build: $(activate) $(PYINSTALLER) black
 	$(PYTHON) build/run.py
 
 clean:
