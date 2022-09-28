@@ -100,7 +100,7 @@ def stream_process(process: subprocess.Popen):
 def open_settings():
     """Opens the settings UI. Works even if the app is not frozen (is running as a script)."""
     logger.debug("Opening settings UI")
-    path = executable_info.get_local_executable("settings_ui")
+    path = executable_info.get_local_executable("settings_ui", "ui.py")
     subprocess.Popen(path, cwd=os.getcwd())
     time.sleep(2)
 
@@ -126,7 +126,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
     logger.debug(f"Current status: {g.current}")
 
     if g.current != g.Status.KILL:
-        path = executable_info.get_local_executable("discord_fm")
+        path = executable_info.get_local_executable("discord_fm", "main.py")
         subprocess.Popen(path + ["--ignore-open"])
 
     if g.manager is None:
