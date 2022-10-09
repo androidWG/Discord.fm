@@ -14,18 +14,18 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.10"
-        cache: 'pip'
-    - name: Setup environment
-      run: make setup
-    - name: Build
-      run: make build
-    - name: Upload installer
-      uses: actions/upload-artifact@v3
-      with:
-        name: Windows Installer
-        path: dist/discordfm*setup*.exe
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: 'pip'
+      - name: Setup environment
+        run: python setup.py setup
+      - name: Build
+        run: python setup.py build
+      - name: Upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows Installer
+          path: dist/discordfm*setup*.exe
