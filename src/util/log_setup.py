@@ -6,7 +6,7 @@ import logging.handlers
 import os
 import re
 
-from globals import get_debug, local_settings
+import globals
 
 
 class MillisecondFormatter(logging.Formatter):
@@ -55,7 +55,7 @@ class ColoredFormatter(logging.Formatter):
 
         if levelname in COLORS:
             levelname_color = (
-                COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
+                    COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
             )
             new_record.levelname = levelname_color
         return logging.Formatter.format(self, new_record)
@@ -70,17 +70,17 @@ def delete_old_logs(name: str):
     logs = []
 
     print("Deleting old logs")
-    for file in os.listdir(local_settings.logs_path):
+    for file in os.listdir(globals.local_settings.logs_path):
         contains_ext = re.search(r"\.log\.?\d?$", file) is not None
         if contains_ext and file.__contains__(name):
             logs.append(file)
 
     logs.sort(reverse=True)
-    del logs[: local_settings.get("max_logs") - 1]
+    del logs[: globals.local_settings.get("max_logs") - 1]
 
     for log in logs:
         try:
-            path = os.path.join(local_settings.logs_path, log)
+            path = os.path.join(globals.local_settings.logs_path, log)
             print(f"Deleting file {path}")
             os.remove(path)
         except PermissionError as e:
@@ -90,9 +90,9 @@ def delete_old_logs(name: str):
 
 
 def setup_logging(name: str):
-    prefix = "debug" if get_debug() else ""
+    prefix = "debug" if globals.get_debug() else ""
     filename = f'{prefix}_{name}_{datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")}.log'
-    log_path = os.path.join(local_settings.logs_path, filename)
+    log_path = os.path.join(globals.local_settings.logs_path, filename)
 
     delete_old_logs(name)
 
@@ -127,7 +127,7 @@ def setup_logging(name: str):
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
                 "filename": log_path,
-                "level": "DEBUG" if get_debug() else "INFO",
+                "level": "DEBUG" if globals.get_debug() else "INFO",
                 "formatter": "millisecondFormatter",
                 "maxBytes": 512000,
                 "backupCount": 2,
@@ -136,7 +136,7 @@ def setup_logging(name: str):
         "loggers": {
             "discord_fm": {
                 "handlers": ["console", "file"],
-                "level": "DEBUG" if get_debug() else "INFO",
+                "level": "DEBUG" if globals.get_debug() else "INFO",
                 "propagate": True,
             }
         },

@@ -1,16 +1,18 @@
 import logging
+import os
 import platform
 import sys
-import os
-from os.path import isfile, abspath
+from os.path import abspath, isfile
 
 import app_manager
-import util.log_setup
-import process
 import globals as g
+import process
+import util.log_setup
 
 if __name__ == "__main__":
     print("Application started")
+    g.load_settings()
+
     util.log_setup.setup_logging("main")
 
     logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -25,7 +27,7 @@ if __name__ == "__main__":
         sys.exit()
 
     if platform.system() == "Darwin" and process.check_process_running(
-        "discord_fm", "discord.fm"
+            "discord_fm", "discord.fm"
     ):
         logger.info("Discord.fm is already running, opening settings...")
         process.open_settings()

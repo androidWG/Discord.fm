@@ -4,7 +4,7 @@ import enum
 
 import packaging.version
 
-from settings import Settings
+import settings
 
 __VERSION = "0.8.0"
 __DEBUG = True
@@ -30,10 +30,15 @@ class Status(enum.Enum):
     UPDATING = 5
 
 
-local_settings = Settings("Discord.fm")
+local_settings = None
 current = Status(Status.STARTUP)
 discord_rp = None
 manager = None
+
+
+def load_settings():
+    global local_settings
+    local_settings = settings.Settings("Discord.fm")
 
 
 def change_status(value: Status):
