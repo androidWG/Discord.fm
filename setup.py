@@ -60,7 +60,7 @@ def _run(
 
 
 def check_venv(force: bool):
-    print("Getting venv...\n")
+    print("\nGetting venv...")
     global python, env_path, pip
 
     env_name = "venv"
@@ -80,7 +80,7 @@ def check_venv(force: bool):
 
 
 def check_dependencies(force: bool):
-    print("Checking dependencies...\n")
+    print("\nChecking dependencies...")
     marker = p.join(env_path, MARKER_NAME)
     if not p.isfile(marker) or force:
         pip_install = pip + ["black", "wheel"]
@@ -113,8 +113,23 @@ def check_dependencies(force: bool):
         print("Dependencies already isntalled by setup.py")
 
 
+def __pyinstaller_installed() -> bool:
+    packages = p.join(env_path, "Lib", "site-packages")
+    for x in os.listdir(packages):
+        path = p.join(packages, x)
+        if p.isdir(p.abspath(path)) and x.__contains__("pyinstaller"):
+            return True
+
+    return False
+
+
 def check_pyinstaller():
-    print("Checking PyInstaller...\n")
+    print("\nChecking PyInstaller...")
+
+    if __pyinstaller_installed():
+        print("PyInstaller is already installed, skipping")
+        return
+
     if platform.system() == "Windows":
         if shutil.which("git") is None:
             print(
@@ -202,7 +217,7 @@ if __name__ == "__main__":
         check_dependencies(args.force)
         check_pyinstaller()
 
-        print("Building Discord.fm\n")
+        print("\nBuilding Discord.fm")
         bt = build.get_build_tool()
         bt.prepare_files()
         if args.executable:
@@ -217,7 +232,7 @@ if __name__ == "__main__":
         check_venv(args.force)
         check_dependencies(args.force)
 
-        print("Running main.py...\n")
+        print("\nRunning main.py...")
         subprocess.Popen([python, "main.py"], cwd=p.abspath("src"))
     elif args.command == "format":
         check_venv(args.force)
