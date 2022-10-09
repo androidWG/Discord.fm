@@ -6,6 +6,21 @@ from packaging.version import Version
 
 
 class BuildTool:
+    """
+    Base class for a standardized build system, divided in three steps: preparing files, building, making an
+    installer, and cleaning up temporary files and folders.
+
+    The `temp_paths` parameter holds the paths of any files or fodlers that should be deleted during cleanup. Using
+    the `_temp` method, you can easily set a variable to a string and at the same time append it to the `temp_paths`
+    parameter. Example::
+        temp_file = _temp("path/to/file.txt")
+        # Is equivalent to...
+        temp_file = "path/to/file.txt"
+        self.temp_paths.append("path/to/file.txt")
+
+    `py_path` needs to be set to a valid path before `super().__init__()` is called.
+    """
+
     py_path = ""
 
     icon_main = ""
@@ -15,7 +30,8 @@ class BuildTool:
 
     def __init__(self, version: Version):
         self.version = version
-        self.debug = debug
+        if self.py_path == "":
+            raise ValueError("py_path was not set to anything!")
         self.run_command = [f"{self.py_path} -O -m PyInstaller"]
 
     def _temp(self, value: str | os.PathLike[str]) -> str | os.PathLike[str]:
