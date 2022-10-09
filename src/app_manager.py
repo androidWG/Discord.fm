@@ -15,7 +15,6 @@ import util
 import util.install
 import util.updates
 import wrappers.discord_rp
-from globals import get_version
 from wrappers import system_tray_icon
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -42,7 +41,7 @@ class AppManager:
             logger.debug("Checking for updates")
 
             latest, latest_asset = util.updates.get_newest_release()
-            current = get_version(True)
+            current = g.get_version(True)
             if (
                 latest is not None
                 and latest > current
@@ -90,7 +89,7 @@ class AppManager:
                 t.start()
                 self.tray_icon.ti.run()
             except (KeyboardInterrupt, SystemExit):
-                pass
+                logger.info("Caught KeyboardInterrupt or SystemExit")
 
         self.close()
 
@@ -99,8 +98,8 @@ class AppManager:
 
         try:
             g.discord_rp.exit_rp()
-        except (RuntimeError, AttributeError, AssertionError, pypresence.InvalidID):
-            pass
+        except (RuntimeError, AttributeError, AssertionError, pypresence.InvalidID) as e:
+            logger.debug("Exception catched when attempting to exit from Rich Presence", exc_info=e)
         except NameError:
             return
 
@@ -121,8 +120,8 @@ class AppManager:
             AssertionError,
             pypresence.InvalidID,
             NameError,
-        ):
-            pass
+        ) as e:
+            logger.debug("Exception catched when attempting to close app", exc_info=e)
 
         try:
             sc = self.loop.sc
@@ -130,8 +129,8 @@ class AppManager:
                 for event in sc.queue:
                     sc.cancel(event)
                     logger.debug(f'Event "{event.action}" canceled')
-        except (AttributeError, NameError):
-            pass
+        except (AttributeError, NameError) as e:
+            logger.debug("Exception catched when attempting to flush global scheduler", exc_info=e)
 
         sys.exit()
 

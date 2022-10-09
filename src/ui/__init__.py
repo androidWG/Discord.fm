@@ -255,7 +255,6 @@ class SettingsWindow(Tk):
         print("Running _check_username")
         if self.debounce.ident is None:
             print("debounce is none")
-            pass
         elif self.debounce.ident != get_ident() and not ignore_debounce:
             print(f"ident is different ({self.debounce.ident} vs. {get_ident()})")
             return

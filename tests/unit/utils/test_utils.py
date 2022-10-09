@@ -23,23 +23,24 @@ class UtilTests(unittest.TestCase):
                 ("#dragon#", "dinosaur"),
             ]
 
-            f_data = open(p_data1, encoding="utf-8")
-            util.replace_instances(p_data1, tags)
-            f_result1 = open(p_data2, encoding="utf-8")
-            self.assertEqual(f_data.read(), f_result1.read())
+            try:
+                f_data = open(p_data1, encoding="utf-8")
+                util.replace_instances(p_data1, tags)
+                f_result1 = open(p_data2, encoding="utf-8")
+                self.assertEqual(f_data.read(), f_result1.read())
 
-            p_changed = os.path.join("../..", "fixtures", "script_changed.txt")
-            f_changed = open(p_changed, encoding="utf-8")
+                p_changed = os.path.join("../..", "fixtures", "script_changed.txt")
+                f_changed = open(p_changed, encoding="utf-8")
 
-            result2_path = os.path.join(temp_dir, "test.txt")
-            util.replace_instances(p_data1, tags, result2_path)
-            f_result2 = open(result2_path, encoding="utf-8")
-            self.assertEqual(f_changed.read(), f_result2.read())
-
-            f_data.close()
-            f_changed.close()
-            f_result1.close()
-            f_result2.close()
+                result2_path = os.path.join(temp_dir, "test.txt")
+                util.replace_instances(p_data1, tags, result2_path)
+                f_result2 = open(result2_path, encoding="utf-8")
+                self.assertEqual(f_changed.read(), f_result2.read())
+            finally:
+                f_data.close()
+                f_changed.close()
+                f_result1.close()
+                f_result2.close()
 
     @patch("sys.argv", ["-test", "-t", "--lorem", "--IPSUM"])
     def test_arg_exists(self):

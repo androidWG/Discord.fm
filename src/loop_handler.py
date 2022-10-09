@@ -8,7 +8,6 @@ from pypresence import InvalidID
 import globals as g
 import util
 import wrappers.last_fm_user
-from globals import local_settings
 from wrappers.system_tray_icon import SystemTrayIcon
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -18,10 +17,10 @@ class LoopHandler:
     def __init__(self, tray_icon: SystemTrayIcon):
         self._last_track = None
         self.tray = tray_icon
-        self.user = wrappers.last_fm_user.LastFMUser(local_settings.get("username"))
+        self.user = wrappers.last_fm_user.LastFMUser(g.local_settings.get("username"))
         self.sc = scheduler(time.time)
 
-        self.cooldown = local_settings.get("cooldown")
+        self.cooldown = g.local_settings.get("cooldown")
         self.misc_cooldown = 15
 
     def handle_update(self):
@@ -63,18 +62,18 @@ class LoopHandler:
         elif g.current == g.Status.KILL:
             return
 
-        self.cooldown = local_settings.get("cooldown")
+        self.cooldown = g.local_settings.get("cooldown")
         image_path = util.resource_path(
             "resources", "white" if util.check_dark_mode() else "black", "icon.png"
         )
         icon = Image.open(image_path)
         self.tray.ti.icon = icon
 
-        local_settings.load()
+        g.local_settings.load()
         # Reload if username has been changed
         if (
             self.user.user.name is not None
-            and not local_settings.get("username") == self.user.user.name
+            and not g.local_settings.get("username") == self.user.user.name
         ):
             g.manager.reload()
 
@@ -82,6 +81,6 @@ class LoopHandler:
             self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
 
     def reload_lastfm(self):
-        username = local_settings.get("username")
+        username = g.local_settings.get("username")
         logger.debug(f'Reloading LastFMUser with username "{username}"')
         self.user = wrappers.last_fm_user.LastFMUser(username)

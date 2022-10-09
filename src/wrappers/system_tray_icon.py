@@ -1,5 +1,4 @@
 import logging
-from threading import Thread
 from typing import Callable
 
 from PIL import Image
@@ -37,7 +36,7 @@ class SystemTrayIcon:
             ),
             MenuItem(
                 "Open Settings",
-                lambda: process.open_settings(),
+                process.open_settings,
                 visible=lambda i: g.current != g.Status.STARTUP
                 and g.current != g.Status.UPDATING,
             ),

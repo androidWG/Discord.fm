@@ -12,7 +12,7 @@ def make_dir(path: str):
         os.mkdir(path)
         print(f'Created folder "{path}"')
     except FileExistsError:
-        pass
+        print(f'Folder "{path}" already exists')
 
 
 def clear_executables(app_data_path: str):

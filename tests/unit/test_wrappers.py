@@ -114,8 +114,8 @@ class TestTrackInfo(TestCase):
         info2 = track_info.TrackInfo(self.data1)
         info3 = track_info.TrackInfo(self.data2)
 
-        self.assertTrue(info1 == info2)
-        self.assertFalse(info1 == info3)
+        self.assertEqual(info1 == info2, "Track info gathered is different!")
+        self.assertNotEqual(info1 == info3, "Track info gathered is not different!")
 
 
 if __name__ == "__main__":

@@ -31,10 +31,10 @@ class BuildTool:
         try:
             shutil.rmtree("pyinstaller_temp")
         except FileNotFoundError:
-            pass
+            print("Temp pyinstaller dir doesn't exist")
 
         for f in self.temp_files:
             try:
                 os.remove(f)
             except FileNotFoundError:
-                pass
+                print(f'Temp file set to be deleted named "{f}" not found!')

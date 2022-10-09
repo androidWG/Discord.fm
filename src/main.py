@@ -5,7 +5,6 @@ import os
 from os.path import isfile, abspath
 
 import app_manager
-import globals
 import util.log_setup
 import process
 from globals import get_debug, get_version

@@ -148,13 +148,13 @@ class RequestHandler:
             logger.debug(f'Finished running function "{func.__name__}"')
         except Exception as e:
             exc = e
-        finally:
-            if self._current_thread != thread_id:
-                logger.debug(
-                    f"current_thread is mismatched with this thread ({self._current_thread} "
-                    f"vs. {thread_id})"
-                )
-                return
+
+        if self._current_thread != thread_id:
+            logger.debug(
+                f"current_thread is mismatched with this thread ({self._current_thread} "
+                f"vs. {thread_id})"
+            )
+            return
 
         if exc is not None:
             self._bucket.put(exc)

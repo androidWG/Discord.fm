@@ -9,7 +9,6 @@ from typing import List
 import psutil
 
 import globals as g
-from globals import local_settings
 from . import executable_info
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -80,10 +79,10 @@ def kill_process(process_name: str, ignore_self=True):
 
     for p in children:
         try:
-            logger.debug(f'Killing process "{p.name()}" ({p.pid})')
+            logger.info(f'Killing process "{p.name()}" ({p.pid})')
             p.kill()
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
+        except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
+            logger.debug(f"Recieved exception when trying to kill process", exc_info=e)
 
 
 def stream_process(process: subprocess.Popen):
@@ -109,11 +108,11 @@ def open_logs_folder():
     """Opens the app's log folder on the system's file explorer"""
     logger.debug("Opening logs folder")
     if system() == "Windows":
-        os.startfile(local_settings.logs_path)
+        os.startfile(g.local_settings.logs_path)
     elif system() == "Darwin":
-        subprocess.Popen(["open", local_settings.logs_path])
+        subprocess.Popen(["open", g.local_settings.logs_path])
     else:
-        subprocess.Popen(["xdg-open", local_settings.logs_path])
+        subprocess.Popen(["xdg-open", g.local_settings.logs_path])
 
 
 # From https://stackoverflow.com/a/16993115/8286014
