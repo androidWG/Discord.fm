@@ -2,6 +2,7 @@ import argparse
 import os
 import platform
 import shutil
+import stat
 import subprocess
 import sys
 from os import path as p
@@ -21,18 +22,24 @@ pip = []
 
 
 def _delete(path: str | os.PathLike[str]):
-    if p.isdir(path):
-        try:
-            shutil.rmtree(path)
-        except FileNotFoundError:
-            print(f'Folder "{path}" was not found!')
-    elif p.isfile(path):
-        try:
-            os.remove(path)
-        except FileNotFoundError:
-            print(f'File "{path}" was not found!')
+    files = []
+    if p.isfile(path):
+        files.append(path)
+    elif p.isdir(path):
+        for root, d, f in os.walk(path):
+            files += [p.abspath(p.join(root, x)) for x in f]
     else:
-        raise ValueError("Not a valid path")
+        print(f'_delete: Ignoring invalid path "{path}"')
+        return
+
+    for file in files:
+        try:
+            os.chmod(file, stat.S_IWRITE)
+            os.remove(file)
+        except FileNotFoundError:
+            print(f'Unable to find file {file}', file=sys.stderr)
+
+    shutil.rmtree(p.abspath(path))
 
 
 def _run(
