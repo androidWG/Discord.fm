@@ -7,7 +7,8 @@ sys.path.append(os.path.abspath("src"))
 import util
 import globals
 
-if __name__ == "__main__":
+
+def main():
     version = globals.get_version(parsed=True)
     debug = util.arg_exists("-d", "--debug")
     if debug:
@@ -36,3 +37,7 @@ if __name__ == "__main__":
     build_tool.cleanup()
 
     print(f"Finished building version {version}")
+
+
+if __name__ == "__main__":
+    main()
