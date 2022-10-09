@@ -10,10 +10,10 @@ from build.base import BuildTool
 class DarwinBuildTool(BuildTool):
     def __init__(self, version):
         self.py_path = os.path.abspath(r"venv/bin/python")
+        self.temp_spec_file = self._temp("temp_spec.spec")
         super(DarwinBuildTool, self).__init__(version)
 
     def prepare_files(self):
-        self.temp_spec_file = "temp_spec.spec"
         tags = [("#VERSION#", f"'{self.version.base_version}'")]
 
         util.replace_instances(
@@ -36,10 +36,6 @@ class DarwinBuildTool(BuildTool):
         )
         while process.stream_process(pyinstaller):
             time.sleep(0.2)
-
-    def cleanup(self):
-        super().cleanup()
-        os.remove(self.temp_spec_file)
 
 
 def instance():

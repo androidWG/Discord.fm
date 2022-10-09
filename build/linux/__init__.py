@@ -17,8 +17,7 @@ class LinuxBuildTool(BuildTool):
 
     def prepare_files(self):
         if not os.path.isfile("build/linux/com.androidWG.Discordfm.yml"):
-            output = "build/linux/dependencies.yaml"
-            self.temp_files.append(output)
+            output = self._temp("build/linux/dependencies.yaml")
             flatpak.make_yaml(
                 "/home/samuel/PycharmProjects/Discord.fm/requirements.txt",
                 "/home/samuel/PycharmProjects/Discord.fm/build/linux/linux_requirements.txt",
