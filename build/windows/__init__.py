@@ -8,7 +8,7 @@ import base
 
 
 class WindowsBuildTool(base.BuildTool):
-    def __init__(self, version, debug):
+    def __init__(self, version):
         self.py_path = os.path.abspath(r"venv\Scripts\python.exe")
 
         self.icon_main = r"src\resources\icon.ico"
@@ -79,7 +79,7 @@ class WindowsBuildTool(base.BuildTool):
         tags = [
             ("#VERSION#", self.version.base_version),
             ("#REPO#", os.getcwd()),
-            ("#SUFFIX#", "-debug" if self.debug else ""),
+            ("#SUFFIX#", ""),
         ]
         util.replace_instances(
             "build/windows/setup.iss", tags, out_file=temp_setup_script

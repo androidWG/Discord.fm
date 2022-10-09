@@ -8,9 +8,9 @@ from build.base import BuildTool
 
 
 class DarwinBuildTool(BuildTool):
-    def __init__(self, version, debug):
+    def __init__(self, version):
         self.py_path = os.path.abspath(r"venv/bin/python")
-        super(DarwinBuildTool, self).__init__(version, debug)
+        super(DarwinBuildTool, self).__init__(version)
 
     def prepare_files(self):
         self.temp_spec_file = "temp_spec.spec"
@@ -36,11 +36,6 @@ class DarwinBuildTool(BuildTool):
         )
         while process.stream_process(pyinstaller):
             time.sleep(0.2)
-
-    def make_installer(
-        self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
-    ):
-        pass
 
     def cleanup(self):
         super().cleanup()

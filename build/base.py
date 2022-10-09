@@ -13,7 +13,7 @@ class BuildTool:
 
     temp_paths: List[str | os.PathLike[str]] = []
 
-    def __init__(self, version: Version, debug: bool):
+    def __init__(self, version: Version):
         self.version = version
         self.debug = debug
         self.run_command = [f"{self.py_path} -O -m PyInstaller"]
