@@ -2,12 +2,12 @@ import os.path
 import subprocess
 import time
 
-import util
+import build.base
 import src.process as process
-from build.base import BuildTool
+import util
 
 
-class DarwinBuildTool(BuildTool):
+class DarwinBuildTool(build.base.BuildTool):
     def __init__(self, version):
         self.py_path = os.path.abspath(r"venv/bin/python")
         self.temp_spec_file = self._temp("temp_spec.spec")

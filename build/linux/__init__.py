@@ -2,12 +2,12 @@ import os.path
 
 import yaml
 
-from build.base import BuildTool
+import build.base
 from build.linux import flatpak
 from build.linux.ordered_dumper import OrderedDumper
 
 
-class LinuxBuildTool(BuildTool):
+class LinuxBuildTool(build.base.BuildTool):
     def __init__(self, version):
         self.py_path = os.path.abspath("venv/bin/python")
 

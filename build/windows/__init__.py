@@ -2,12 +2,12 @@ import os.path
 import subprocess
 import time
 
-import util
+import build.base
 import process
-import base
+import util
 
 
-class WindowsBuildTool(base.BuildTool):
+class WindowsBuildTool(build.base.BuildTool):
     def __init__(self, version):
         self.py_path = os.path.abspath(r"venv\Scripts\python.exe")
 
@@ -43,10 +43,10 @@ class WindowsBuildTool(base.BuildTool):
         ]
 
         util.replace_instances(
-            "build/windows/file_version.txt", ui_tags, self.temp_ver_ui_file
+            "build/windows/file_version.txt", ui_tags, temp_ver_ui_file
         )
         util.replace_instances(
-            "build/windows/file_version.txt", main_tags, self.temp_ver_main_file
+            "build/windows/file_version.txt", main_tags, temp_ver_main_file
         )
         util.replace_instances("build/main.spec", spec_tags, self.temp_spec_file)
 
@@ -72,7 +72,7 @@ class WindowsBuildTool(base.BuildTool):
             raise RuntimeError("Failed to run Pyinstaller")
 
     def make_installer(
-        self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+            self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     ):
         temp_setup_script = self._temp("inno_setup.temp")
 

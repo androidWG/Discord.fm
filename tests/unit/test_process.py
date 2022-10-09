@@ -9,7 +9,15 @@ import process
 
 class TestProcess(unittest.TestCase):
     proc_with_pid_list = [MagicMock(pid=x) for x in range(0, 128)]
-    proc_list = ["test", "process", "program", "app", "testtest", "test.exe", "os.exe.test"]
+    proc_list = [
+        "test",
+        "process",
+        "program",
+        "app",
+        "testtest",
+        "test.exe",
+        "os.exe.test",
+    ]
 
     @patch("globals.manager")
     @patch("psutil.process_iter")
