@@ -13,12 +13,14 @@ class WindowsBuildTool(base.BuildTool):
 
         self.icon_main = r"src\resources\icon.ico"
         self.icon_settings = r"src\resources\settings.ico"
-        super(WindowsBuildTool, self).__init__(version, debug)
+
+        self.temp_spec_file = self._temp("build.spec")
+
+        super(WindowsBuildTool, self).__init__(version)
 
     def prepare_files(self):
-        self.temp_ver_main_file = "file_version_main.temp"
-        self.temp_ver_ui_file = "file_version_ui.temp"
-        self.temp_spec_file = "build.spec"
+        temp_ver_ui_file = self._temp("file_version_ui.temp")
+        temp_ver_main_file = self._temp("file_version_main.temp")
 
         main_tags = [
             ("#VERSION#", self.version.base_version),
@@ -34,24 +36,25 @@ class WindowsBuildTool(base.BuildTool):
         ui_tags[3] = ("#FILENAME#", "settings_ui")
 
         spec_tags = [
-            ("#VER_MAIN#", os.path.abspath(self.temp_ver_main_file)),
-            ("#VER_UI#", os.path.abspath(self.temp_ver_ui_file)),
+            ("#VER_MAIN#", os.path.abspath(temp_ver_main_file)),
+            ("#VER_UI#", os.path.abspath(temp_ver_ui_file)),
             ("#ICON_MAIN#", os.path.abspath(self.icon_main)),
             ("#ICON_UI#", os.path.abspath(self.icon_settings)),
         ]
 
         util.replace_instances(
-            "build/windows/file_version.txt", main_tags, self.temp_ver_ui_file
+            "build/windows/file_version.txt", ui_tags, self.temp_ver_ui_file
         )
         util.replace_instances(
-            "build/windows/file_version.txt", ui_tags, self.temp_ver_main_file
+            "build/windows/file_version.txt", main_tags, self.temp_ver_main_file
         )
         util.replace_instances("build/main.spec", spec_tags, self.temp_spec_file)
 
     def build(self):
+        pyinstaller_temp = self._temp("pyinstaller_temp")
         main_args = [
             self.temp_spec_file,
-            "--workpath=pyinstaller_temp",
+            f"--workpath={pyinstaller_temp}",
             "--upx-dir=upx/",
             "-y",
         ]
@@ -71,8 +74,7 @@ class WindowsBuildTool(base.BuildTool):
     def make_installer(
         self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     ):
-        temp_setup_script = "inno_setup.temp"
-        self.temp_files.append(temp_setup_script)
+        temp_setup_script = self._temp("inno_setup.temp")
 
         tags = [
             ("#VERSION#", self.version.base_version),
@@ -96,12 +98,6 @@ class WindowsBuildTool(base.BuildTool):
 
         if inno.returncode != 0:
             raise RuntimeError("Failed to run Inno Setup")
-
-    def cleanup(self):
-        super().cleanup()
-        os.remove(self.temp_spec_file)
-        os.remove(self.temp_ver_ui_file)
-        os.remove(self.temp_ver_main_file)
 
 
 def instance():
