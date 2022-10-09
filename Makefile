@@ -9,7 +9,11 @@ ifeq ($(OS),Windows_NT)
 	PYTHON := .\$(VENV_PATH)\Scripts\$(PY_EXEC)
 	PYINSTALLER = $(VENV_PATH)\Lib\site-packages\pyinstaller-$(pyinstaller_ver)-py3.10.egg\PyInstaller\__main__.py
 
-	DEL_COMMAND := rmdir /s /q
+	ifeq (grep -i Microsoft /proc/version 2>NUL,)
+		DEL_COMMAND := rm -rf
+	else
+		DEL_COMMAND := rmdir /s /q
+	endif
 else
 	VENV_PATH := venv
 	PY_EXEC := python3
@@ -32,8 +36,8 @@ activate = $(VENV_PATH)/Scripts/activate
 
 $(activate): requirements.txt
 	$(PY_EXEC) -m venv venv
+	$(pip) install black wheel
 	$(pip) install -r requirements.txt
-	$(pip) install black
 
 ifeq ($(PLATFORM), win)
 	$(pip) install pywin32
@@ -55,7 +59,7 @@ ifeq ($(PLATFORM),win)
 	git clone https://github.com/pyinstaller/pyinstaller.git
 	cd pyinstaller && \
 		git checkout tags/v$(pyinstaller_ver)
-	cd pyinstaller\bootloader && \
+	cd pyinstaller/bootloader && \
 		..\.$(PYTHON) ./waf distclean all
 	$(pip) install wheel
 	cd pyinstaller && \
@@ -85,6 +89,7 @@ run_settings: $(activate)
 		.$(PYTHON) ui.py
 
 build: $(activate) $(PYINSTALLER) black
+	@echo $(DEL_COMMAND)
 	$(PYTHON) build/run.py
 
 clean:
