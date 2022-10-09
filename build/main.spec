@@ -1,22 +1,23 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 ui_a = Analysis(
-    ['src/ui.py'],
-    hiddenimports=['wrappers.last_fm_user'],
-    hookspath=['hooks'],
+    ["src/ui.py"],
+    hiddenimports=["wrappers.last_fm_user"],
+    hookspath=["hooks"],
 )
 main_a = Analysis(
-    ['src/main.py'],
-    hiddenimports=['plyer.platforms.win.notification'],
+    ["src/main.py"],
+    hiddenimports=["plyer.platforms.win.notification"],
     datas=[
-        ('src/resources/black/.', 'resources/black'),
-        ('src/resources/white/.', 'resources/white'),
-        ('src/resources/settings.png', 'resources'),
-        ('src/.env', '.')],
-    hookspath=['hooks'],
+        ("src/resources/black/.", "resources/black"),
+        ("src/resources/white/.", "resources/white"),
+        ("src/resources/settings.png", "resources"),
+        ("src/.env", "."),
+    ],
+    hookspath=["hooks"],
 )
 
-MERGE((main_a, 'discord_fm', 'discord_fm'), (ui_a, 'settings_ui', 'settings_ui'))
+MERGE((main_a, "discord_fm", "discord_fm"), (ui_a, "settings_ui", "settings_ui"))
 
 ui_pyz = PYZ(ui_a.pure, ui_a.zipped_data)
 main_pyz = PYZ(main_a.pure, main_a.zipped_data)
@@ -25,20 +26,20 @@ ui_exe = EXE(
     ui_pyz,
     ui_a.scripts,
     exclude_binaries=True,
-    name='settings_ui',
+    name="settings_ui",
     upx=True,
     console=False,
-    version=r'#VER_UI#',
-    icon=r'#ICON_UI#',
+    version=r"#VER_UI#",
+    icon=r"#ICON_UI#",
 )
 main_exe = EXE(
     main_pyz,
     main_a.scripts,
     exclude_binaries=True,
-    name='discord_fm',
+    name="discord_fm",
     console=False,
-    version=r'#VER_MAIN#',
-    icon=r'#ICON_MAIN#',
+    version=r"#VER_MAIN#",
+    icon=r"#ICON_MAIN#",
 )
 
 coll = COLLECT(
@@ -51,5 +52,5 @@ coll = COLLECT(
     main_a.zipfiles,
     main_a.datas,
     upx=True,
-    name='discord_fm',
+    name="discord_fm",
 )

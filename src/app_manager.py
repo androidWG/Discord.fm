@@ -98,8 +98,16 @@ class AppManager:
 
         try:
             g.discord_rp.exit_rp()
-        except (RuntimeError, AttributeError, AssertionError, pypresence.InvalidID) as e:
-            logger.debug("Exception catched when attempting to exit from Rich Presence", exc_info=e)
+        except (
+            RuntimeError,
+            AttributeError,
+            AssertionError,
+            pypresence.InvalidID,
+        ) as e:
+            logger.debug(
+                "Exception catched when attempting to exit from Rich Presence",
+                exc_info=e,
+            )
         except NameError:
             return
 
@@ -130,7 +138,10 @@ class AppManager:
                     sc.cancel(event)
                     logger.debug(f'Event "{event.action}" canceled')
         except (AttributeError, NameError) as e:
-            logger.debug("Exception catched when attempting to flush global scheduler", exc_info=e)
+            logger.debug(
+                "Exception catched when attempting to flush global scheduler",
+                exc_info=e,
+            )
 
         sys.exit()
 
