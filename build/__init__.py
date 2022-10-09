@@ -3,13 +3,13 @@ import os
 import platform
 import sys
 
-import base
+import build.base
 
 sys.path.append(os.path.abspath("src"))
 import globals
 
 
-def get_build_tool() -> base.BuildTool:
+def get_build_tool() -> build.base.BuildTool:
     version = globals.get_version(parsed=True)
 
     if platform.system() == "Windows":
