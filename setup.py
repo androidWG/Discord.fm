@@ -59,12 +59,12 @@ def _run(
     return results
 
 
-def check_venv(force: bool):
+def check_venv(force: bool, no_venv: bool):
     print("\nGetting venv...")
     global python, env_path, pip
 
     env_name = "venv"
-    if not p.isdir(env_name) or force:
+    if (not p.isdir(env_name) or force) and not no_venv:
         print("Creating new venv...\n")
         _delete("venv")
         env = venv.EnvBuilder(with_pip=True)
@@ -75,7 +75,11 @@ def check_venv(force: bool):
     else:
         python = p.abspath(p.join(env_name, "bin", "python"))
 
-    env_path = p.abspath(env_name)
+    if no_venv:
+        python = "python"
+        env_path = os.path.dirname(sys.executable)
+    else:
+        env_path = p.abspath(env_name)
     pip = [python, "-m", "pip", "install"]
 
 
@@ -192,14 +196,20 @@ if __name__ == "__main__":
         dest="cleanup",
         help="Skips cleanup, leaving temporary files and folders",
     )
-
     parser.add_argument(
         "-f",
         action="store_true",
         dest="force",
-        help="Force setup from scratch. WARNING: Completely removed the venv folder!",
+        help="Force setup from scratch. WARNING: Completely removes the venv folder!",
+    )
+    parser.add_argument(
+        "--global",
+        action="store_true",
+        dest="no_venv",
+        help="Force script to use global Python instead of venv"
     )
     # endregion
+
     args = parser.parse_args()
     if args.command is None:
         parser.print_help()
@@ -209,11 +219,11 @@ if __name__ == "__main__":
         parser.exit(3, f'Platform "{current_platform}" is unsupported!')
 
     if args.command == "setup":
-        check_venv(args.force)
+        check_venv(args.force, args.no_venv)
         check_dependencies(args.force)
         print("\nSetup completed")
     elif args.command == "build":
-        check_venv(args.force)
+        check_venv(args.force, args.no_venv)
         check_dependencies(args.force)
         check_pyinstaller()
 
@@ -229,13 +239,13 @@ if __name__ == "__main__":
 
         print("\nBuild completed")
     elif args.command == "run":
-        check_venv(args.force)
+        check_venv(args.force, args.no_venv)
         check_dependencies(args.force)
 
         print("\nRunning main.py...")
         subprocess.Popen([python, "main.py"], cwd=p.abspath("src"))
     elif args.command == "format":
-        check_venv(args.force)
+        check_venv(args.force, args.no_venv)
         check_dependencies(args.force)
 
         paths = ["src", "build/*.py", "tests"]

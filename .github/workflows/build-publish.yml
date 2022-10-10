@@ -23,7 +23,7 @@ jobs:
       - name: Setup environment
         run: |
           python -m pip install packaging
-          python setup.py setup
+          python setup.py setup --global
       - name: Build
         run: python setup.py build
       - name: Upload installer
