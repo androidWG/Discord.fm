@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 import requests
 from packaging import version
 
-from globals import local_settings
+import globals as g
 from util import request_handler
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -17,7 +17,7 @@ def get_newest_release() -> Optional[Tuple[version.Version, dict]]:
 
     logger.debug("Requesting newest release from GitHub")
     handler = request_handler.RequestHandler("GitHub request")
-    if local_settings.get("pre_releases"):
+    if g.local_settings.get("pre_releases"):
         request = handler.attempt_request(
             requests.get,
             url="https://api.github.com/repos/AndroidWG/Discord.fm/releases",
@@ -62,7 +62,7 @@ def download_asset(asset: dict) -> str:
     response_size = int(request.headers["content-length"])
 
     logger.info(f"Starting writing {response_size} bytes")
-    downloaded_path = os.path.join(local_settings.app_data_path, asset["name"])
+    downloaded_path = os.path.join(g.local_settings.app_data_path, asset["name"])
     with open(downloaded_path, "wb") as file:
         bytes_read = 0
 

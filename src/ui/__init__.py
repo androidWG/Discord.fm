@@ -4,11 +4,11 @@ from threading import get_ident, Thread, Timer
 from tkinter import *
 from tkinter import messagebox, ttk
 
-import util.install
-import wrappers.last_fm_user
+import globals as g
 import process
 import process.executable_info as executable_info
-from globals import get_debug, get_version, local_settings
+import util.install
+import wrappers.last_fm_user
 from ui.repeat_timer import RepeatTimer
 from util import is_frozen, resource_path
 
@@ -33,9 +33,9 @@ class SettingsWindow(Tk):
         self.root = ttk.Frame(self, padding=(12, 8))
 
         # region Set up variables
-        self.username = StringVar(value=local_settings.get("username"))
+        self.username = StringVar(value=g.local_settings.get("username"))
 
-        self.cooldown = IntVar(value=local_settings.get("cooldown"))
+        self.cooldown = IntVar(value=g.local_settings.get("cooldown"))
         self.cld_timelbl_text = StringVar(value=str(self.cooldown.get()) + "s")
         self.cooldown.trace_add(
             "write",
@@ -48,7 +48,7 @@ class SettingsWindow(Tk):
         self.status_lbl_text = StringVar(value="Waiting...")
 
         self.start_with_system = BooleanVar(
-            value=local_settings.get("start_with_system")
+            value=g.local_settings.get("start_with_system")
         )
         self.start_with_system.set(util.install.get_start_with_system())
         self.start_with_system.trace_add(
@@ -56,16 +56,16 @@ class SettingsWindow(Tk):
             self._set_start_with_system,
         )
 
-        self.auto_update = BooleanVar(value=local_settings.get("auto_update"))
+        self.auto_update = BooleanVar(value=g.local_settings.get("auto_update"))
         self.auto_update.trace_add(
             "write",
-            lambda: local_settings.define("auto_update", self.auto_update.get()),
+            lambda: g.local_settings.define("auto_update", self.auto_update.get()),
         )
 
-        self.pre_releases = BooleanVar(value=local_settings.get("pre_releases"))
+        self.pre_releases = BooleanVar(value=g.local_settings.get("pre_releases"))
         self.pre_releases.trace_add(
             "write",
-            lambda: local_settings.define("pre_releases", self.pre_releases.get()),
+            lambda: g.local_settings.define("pre_releases", self.pre_releases.get()),
         )
         # endregion
 
@@ -104,7 +104,7 @@ class SettingsWindow(Tk):
 
         self.cld_scale.bind(
             "<ButtonRelease>",
-            lambda x: local_settings.define("cooldown", self.cooldown.get()),
+            lambda x: g.local_settings.define("cooldown", self.cooldown.get()),
         )
 
         cld_lbl.pack(side=LEFT)
@@ -159,7 +159,7 @@ class SettingsWindow(Tk):
         )
         ver_lbl = ttk.Label(
             self.bar,
-            text="v" + get_version() + " (debug)" if get_debug() else "",
+            text="v" + g.get_version() + " (debug)" if g.get_debug() else "",
             padding=SMALL_PAD,
         )
         self.status_lbl.grid(column=0, row=0, sticky=(W, E))
@@ -189,12 +189,12 @@ class SettingsWindow(Tk):
         self.timer.cancel()
         self.debounce.cancel()
 
-        local_settings.define("username", self.username.get())
+        g.local_settings.define("username", self.username.get())
         self.destroy()
 
     def _set_start_with_system(self, v1, v2, v3):
         checked = self.start_with_system.get()
-        local_settings.define("start_with_system", checked)
+        g.local_settings.define("start_with_system", checked)
         result = util.install.set_start_with_system(
             checked, util.install.get_exe_path()
         )
