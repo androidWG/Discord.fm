@@ -30,4 +30,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Windows Installer
-          path: dist/discordfm*setup*.exe
+          path: dist/discord.fm*setup*.exe
