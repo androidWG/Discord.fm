@@ -12,7 +12,6 @@ main_a = Analysis(
         ("src/resources/black/.", "resources/black"),
         ("src/resources/white/.", "resources/white"),
         ("src/resources/settings.png", "resources"),
-        ("src/.env", "."),
     ],
     hookspath=["hooks"],
 )

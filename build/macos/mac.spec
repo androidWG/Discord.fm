@@ -3,7 +3,6 @@
 main_a = Analysis(['src/main.py'],
              datas=[('src/resources/black/.', 'resources/black'),
              ('src/resources/white/.', 'resources/white'),
-             ('src/.env', '.')],
              hiddenimports=['wrappers.last_fm_user','aquaui.notification.native_notification'],
              hookspath=['hooks'],
              noarchive=False)
@@ -23,7 +22,6 @@ ui_a = Analysis(
     datas=[('src/resources/black/.', 'resources/black'),
         ('src/resources/white/.', 'resources/white'),
         ('src/resources/settings.png', 'resources'),
-        ('src/.env', '.')],
     hookspath=['hooks'],
 )
 ui_pyz = PYZ(ui_a.pure, ui_a.zipped_data)

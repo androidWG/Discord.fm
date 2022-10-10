@@ -1,10 +1,8 @@
-from os import environ
 from typing import Callable, Tuple
 
 import pylast
-from dotenv import load_dotenv
 
-from util import request_handler, resource_path
+import util
 from wrappers import track_info
 
 
@@ -15,18 +13,14 @@ class LastFMUser:
         if username == "":
             raise ValueError("Username is empty")
 
-        load_dotenv(resource_path(".env"))
-
-        api_key = environ.get("lastfm_key")
-        api_secret = environ.get("lastfm_secret")
-        network = pylast.LastFMNetwork(api_key=api_key, api_secret=api_secret)
+        network = pylast.LastFMNetwork(api_key="2cd4164de6a19995e9ff4b59bd17fc20")
 
         self.username = username
         self.inactive_func = inactive_func
         self.user = network.get_user(username)
 
     def now_playing(self):
-        handler = request_handler.RequestHandler(
+        handler = util.request_handler.RequestHandler(
             "user's Now Playing", self.inactive_func
         )
         request = handler.attempt_request(self.user.get_now_playing)
@@ -42,7 +36,7 @@ class LastFMUser:
 
     def check_username(self):
         try:
-            handler = request_handler.RequestHandler("username validity")
+            handler = util.request_handler.RequestHandler("username validity")
             handler.attempt_request(self.user.get_now_playing)
             return True
         except pylast.WSError as e:

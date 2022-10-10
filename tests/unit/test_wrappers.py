@@ -15,7 +15,6 @@ class TestLastFm(TestCase):
         with self.assertRaises(ValueError):
             last_fm_user.LastFMUser("")
 
-    @patch("dotenv.load_dotenv")
     @patch("os.environ.get")
     @patch("util.request_handler.RequestHandler.attempt_request")
     def test_check_username(self, mock_request_handler: MagicMock, *mock):
@@ -37,7 +36,7 @@ class TestLastFm(TestCase):
     @patch("util.request_handler.RequestHandler.attempt_request")
     @patch("wrappers.track_info.TrackInfo")
     def test_now_playing(
-        self, mock_track_info: MagicMock, mock_request_handler: MagicMock
+            self, mock_track_info: MagicMock, mock_request_handler: MagicMock
     ):
         """Test if now_playing properly handles None objects and"""
         mock = MagicMock(name="TestTitle", artist="TestArtist", duration=2852)

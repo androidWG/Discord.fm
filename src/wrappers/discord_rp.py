@@ -1,12 +1,9 @@
 import asyncio
 import datetime
 import logging
-from os import environ
 
-from dotenv import load_dotenv
 from pypresence import Presence
 
-from util import resource_path
 from wrappers import track_info
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -14,13 +11,11 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 class DiscordRP:
     def __init__(self):
-        load_dotenv(resource_path(".env"))
-
         self.presence = None
         self.last_track = None
 
     def start(self):
-        self.presence = Presence(environ.get("discord_app_id"))
+        self.presence = Presence("881950079240536135")
 
     def connect(self):
         if self.presence is None:
