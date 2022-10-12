@@ -5,19 +5,18 @@ import sys
 from os.path import abspath
 
 import app_manager
-import globals as g
 import process
 import util.log_setup
 
 if __name__ == "__main__":
     print("Application started")
-    g.load_settings()
-
+    manager = app_manager.AppManager()
     util.log_setup.setup_logging("main")
+    sys.excepthook = manager.handle_exception
 
     logger = logging.getLogger("discord_fm").getChild(__name__)
     logger.info(
-        f' -------- Discord.fm version {g.get_version()} {"(debug mode)" if g.get_debug() else ""} -------- '
+        f' -------- Discord.fm version {manager.get_version()} {"(debug mode)" if manager.get_debug() else ""} -------- '
     )
 
     logger.info(f'Current working path: "{abspath(os.curdir)}"')
@@ -29,11 +28,8 @@ if __name__ == "__main__":
         process.open_settings()
         sys.exit(2)
 
-    sys.excepthook = process.handle_exception
-
-    g.manager = app_manager.AppManager()
     try:
-        g.manager.start()
+        manager.start()
     except KeyboardInterrupt:
-        g.manager.close()
+        manager.close()
         sys.exit()

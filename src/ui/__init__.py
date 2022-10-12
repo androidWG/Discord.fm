@@ -135,7 +135,7 @@ class SettingsWindow(Tk):
         self.logs_btn = ttk.Button(
             btn_layout,
             textvariable=self.logs_btn_text,
-            command=process.open_logs_folder,
+            command=process.open_in_explorer,
         )
         self.service_btn = ttk.Button(
             btn_layout,

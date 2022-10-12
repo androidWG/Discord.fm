@@ -1,21 +1,19 @@
 import logging
 import os
 import subprocess
-import sys
 import time
 from platform import system
 from typing import List
 
 import psutil
 
-import globals as g
 from . import executable_info
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 def get_external_process(
-    *process_names: str, ignore_self: bool = True
+        *process_names: str, ignore_self: bool = True
 ) -> List[psutil.Process]:
     """Returns a list of all the processes that match any of the names given as args, and ignores itself by default.
 
@@ -35,7 +33,6 @@ def get_external_process(
     try:
         process_list = psutil.process_iter()
     except psutil.AccessDenied:
-        g.manager.close()  # Exit from here since the unexpected exception handler uses kill_process
         return []
 
     for process in process_list:
@@ -104,31 +101,12 @@ def open_settings():
     time.sleep(2)
 
 
-def open_logs_folder():
+def open_in_explorer(path: str):
     """Opens the app's log folder on the system's file explorer"""
-    logger.debug("Opening logs folder")
+    logger.debug(f'Opening "{path}" in system explorer')
     if system() == "Windows":
-        os.startfile(g.local_settings.logs_path)
+        os.startfile(path)
     elif system() == "Darwin":
-        subprocess.Popen(["open", g.local_settings.logs_path])
+        subprocess.Popen(["open", path])
     else:
-        subprocess.Popen(["xdg-open", g.local_settings.logs_path])
-
-
-# From https://stackoverflow.com/a/16993115/8286014
-def handle_exception(exc_type, exc_value, exc_traceback):
-    if issubclass(exc_type, KeyboardInterrupt) or issubclass(exc_type, SystemExit):
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-
-    logger.critical("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
-    logger.debug(f"Current status: {g.current}")
-
-    if g.current != g.Status.KILL:
-        path = executable_info.get_local_executable("discord_fm", "main.py")
-        subprocess.Popen(path + ["--ignore-open"])
-
-    if g.manager is None:
-        sys.exit()
-    else:
-        g.manager.close()
+        subprocess.Popen(["xdg-open", path])
