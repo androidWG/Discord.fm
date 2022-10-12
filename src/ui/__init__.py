@@ -4,7 +4,6 @@ from threading import get_ident, Thread, Timer
 from tkinter import *
 from tkinter import messagebox, ttk
 
-import globals as g
 import process
 import process.executable_info as executable_info
 import util.install
@@ -17,14 +16,18 @@ LABEL_PAD = (0, 0, 8, 0)
 VERT_PAD = 2
 
 
+# noinspection PyUnusedLocal
 class SettingsWindow(Tk):
     _stopping = False
     _starting = False
     _last_username = ""
 
     # noinspection PyTypeChecker
-    def __init__(self):
+    def __init__(self, manager):
         super().__init__()
+
+        self.m = manager
+
         self.resizable(False, False)
         self.wm_title("Discord.fm Settings")
         icon = Image("photo", file=resource_path("resources", "settings.png"))
@@ -33,9 +36,9 @@ class SettingsWindow(Tk):
         self.root = ttk.Frame(self, padding=(12, 8))
 
         # region Set up variables
-        self.username = StringVar(value=g.local_settings.get("username"))
+        self.username = StringVar(value=self.m.settings.get("username"))
 
-        self.cooldown = IntVar(value=g.local_settings.get("cooldown"))
+        self.cooldown = IntVar(value=self.m.settings.get("cooldown"))
         self.cld_timelbl_text = StringVar(value=str(self.cooldown.get()) + "s")
         self.cooldown.trace_add(
             "write",
@@ -48,7 +51,7 @@ class SettingsWindow(Tk):
         self.status_lbl_text = StringVar(value="Waiting...")
 
         self.start_with_system = BooleanVar(
-            value=g.local_settings.get("start_with_system")
+            value=self.m.settings.get("start_with_system")
         )
         self.start_with_system.set(util.install.get_start_with_system())
         self.start_with_system.trace_add(
@@ -56,16 +59,16 @@ class SettingsWindow(Tk):
             self._set_start_with_system,
         )
 
-        self.auto_update = BooleanVar(value=g.local_settings.get("auto_update"))
+        self.auto_update = BooleanVar(value=self.m.settings.get("auto_update"))
         self.auto_update.trace_add(
             "write",
-            lambda: g.local_settings.define("auto_update", self.auto_update.get()),
+            lambda: self.m.settings.define("auto_update", self.auto_update.get()),
         )
 
-        self.pre_releases = BooleanVar(value=g.local_settings.get("pre_releases"))
+        self.pre_releases = BooleanVar(value=self.m.settings.get("pre_releases"))
         self.pre_releases.trace_add(
             "write",
-            lambda: g.local_settings.define("pre_releases", self.pre_releases.get()),
+            lambda: self.m.settings.define("pre_releases", self.pre_releases.get()),
         )
         # endregion
 
@@ -104,7 +107,7 @@ class SettingsWindow(Tk):
 
         self.cld_scale.bind(
             "<ButtonRelease>",
-            lambda x: g.local_settings.define("cooldown", self.cooldown.get()),
+            lambda x: self.m.settings.define("cooldown", self.cooldown.get()),
         )
 
         cld_lbl.pack(side=LEFT)
@@ -159,7 +162,7 @@ class SettingsWindow(Tk):
         )
         ver_lbl = ttk.Label(
             self.bar,
-            text="v" + g.get_version() + " (debug)" if g.get_debug() else "",
+            text="v" + self.m.get_version() + " (debug)" if self.m.get_debug() else "",
             padding=SMALL_PAD,
         )
         self.status_lbl.grid(column=0, row=0, sticky=(W, E))
@@ -189,12 +192,12 @@ class SettingsWindow(Tk):
         self.timer.cancel()
         self.debounce.cancel()
 
-        g.local_settings.define("username", self.username.get())
+        self.m.settings.define("username", self.username.get())
         self.destroy()
 
     def _set_start_with_system(self, v1, v2, v3):
         checked = self.start_with_system.get()
-        g.local_settings.define("start_with_system", checked)
+        self.m.settings.define("start_with_system", checked)
         result = util.install.set_start_with_system(
             checked, util.install.get_exe_path()
         )
@@ -262,7 +265,7 @@ class SettingsWindow(Tk):
         username = self.username.get()
         try:
             self.usr_status_text.set("Checking...")
-            user = wrappers.last_fm_user.LastFMUser(username)
+            user = wrappers.last_fm_user.LastFMUser(self.m)
             user_valid = user.check_username()
         except ValueError:
             user_valid = False

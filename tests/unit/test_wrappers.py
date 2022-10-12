@@ -12,8 +12,11 @@ class TestLastFm(TestCase):
     usernames = {"test": True, "TEST01": False, "andodide": True, "androidWG": False}
 
     def test_invalid_username(self):
+        manager = MagicMock()
+        manager.settings.get.return_value = ""
+
         with self.assertRaises(ValueError):
-            last_fm_user.LastFMUser("")
+            last_fm_user.LastFMUser(manager)
 
     @patch("os.environ.get")
     @patch("util.request_handler.RequestHandler.attempt_request")
@@ -27,7 +30,9 @@ class TestLastFm(TestCase):
         ]
 
         for name in self.usernames.keys():
-            user = last_fm_user.LastFMUser(name)
+            manager = MagicMock()
+            manager.settings.get.return_value(name)
+            user = last_fm_user.LastFMUser(manager)
 
             result = user.check_username()
             print(result)
@@ -43,7 +48,10 @@ class TestLastFm(TestCase):
         mock_track_info.return_value = mock
         mock_request_handler.side_effect = [None, self.data, self.data]
 
-        user = last_fm_user.LastFMUser(list(self.usernames)[0])
+        manager = MagicMock()
+        manager.settings.get.return_value(list(self.usernames)[0])
+
+        user = last_fm_user.LastFMUser(manager)
 
         result1 = user.now_playing()
         result2 = user.now_playing()
@@ -93,12 +101,14 @@ class TestTrackInfo(TestCase):
     data1 = pylast.Track(artist, title, None, "TestUsername")
     data2 = pylast.Track(artist2, title, None, "TestUsername")
 
+    manager = MagicMock()
+
     @patch("pylast.Track.get_cover_image")
     @patch("util.request_handler.RequestHandler.attempt_request")
     def test_values(self, mock_request_handler: MagicMock, mock_cover: MagicMock):
         mock_request_handler.return_value = self.duration
 
-        result = track_info.TrackInfo(self.data1)
+        result = track_info.TrackInfo(self.manager, self.data1)
 
         self.assertEqual(result.name, self.title)
         self.assertEqual(result.artist, self.artist)
@@ -109,12 +119,12 @@ class TestTrackInfo(TestCase):
     def test_equal(self, mock_request_handler: MagicMock, mock_cover: MagicMock):
         mock_request_handler.return_value = self.duration
 
-        info1 = track_info.TrackInfo(self.data1)
-        info2 = track_info.TrackInfo(self.data1)
-        info3 = track_info.TrackInfo(self.data2)
+        info1 = track_info.TrackInfo(self.manager, self.data1)
+        info2 = track_info.TrackInfo(self.manager, self.data1)
+        info3 = track_info.TrackInfo(self.manager, self.data2)
 
-        self.assertEqual(info1 == info2, "Track info gathered is different!")
-        self.assertNotEqual(info1 == info3, "Track info gathered is not different!")
+        self.assertEqual(info1, info2, "Track info gathered is different!")
+        self.assertNotEqual(info1, info3, "Track info gathered is not different!")
 
 
 if __name__ == "__main__":

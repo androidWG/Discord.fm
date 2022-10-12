@@ -6,9 +6,6 @@ import logging.handlers
 import os
 import re
 
-import app_manager
-import globals
-
 
 class MillisecondFormatter(logging.Formatter):
     """A formatter for standard library 'logging' that supports '%f' wildcard in format strings."""
@@ -56,13 +53,13 @@ class ColoredFormatter(logging.Formatter):
 
         if levelname in COLORS:
             levelname_color = (
-                    COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
+                COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
             )
             new_record.levelname = levelname_color
         return logging.Formatter.format(self, new_record)
 
 
-def delete_old_logs(manager: app_manager.AppManager):
+def delete_old_logs(manager):
     """Keeps only last x logs, as specified in the settings file, from the logs folder based on the ``name`` argument.
 
     :param manager: AppManager object with the name and settings info
@@ -90,8 +87,8 @@ def delete_old_logs(manager: app_manager.AppManager):
             )
 
 
-def setup_logging(manager: app_manager.AppManager):
-    prefix = "debug" if globals.get_debug() else ""
+def setup_logging(manager):
+    prefix = "debug" if manager.get_debug() else ""
     filename = f'{prefix}_{manager.name}_{datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")}.log'
     log_path = os.path.join(manager.settings.logs_path, filename)
 
@@ -128,7 +125,7 @@ def setup_logging(manager: app_manager.AppManager):
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
                 "filename": log_path,
-                "level": "DEBUG" if globals.get_debug() else "INFO",
+                "level": "DEBUG" if manager.get_debug() else "INFO",
                 "formatter": "millisecondFormatter",
                 "maxBytes": 512000,
                 "backupCount": 2,
@@ -137,7 +134,7 @@ def setup_logging(manager: app_manager.AppManager):
         "loggers": {
             "discord_fm": {
                 "handlers": ["console", "file"],
-                "level": "DEBUG" if globals.get_debug() else "INFO",
+                "level": "DEBUG" if manager.get_debug() else "INFO",
                 "propagate": True,
             }
         },

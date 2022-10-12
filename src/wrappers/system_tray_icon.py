@@ -1,12 +1,11 @@
 import logging
-from typing import Callable
 
 from PIL import Image
 from pystray import Icon, Menu, MenuItem
 
-import globals as g
 import process
-from util import check_dark_mode, resource_path
+import util
+from util.status import Status
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -14,14 +13,16 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 class SystemTrayIcon:
     rpc_state = True
 
-    def __init__(self, exit_func: Callable):
-        self._exit_func = exit_func
+    def __init__(self, manager):
+        self.m = manager
+
+        self._exit_func = manager.close
         self.ti = self.create_tray_icon()
 
     def create_tray_icon(self):
         logger.debug("Creating tray icon")
-        image_path = resource_path(
-            "resources", "white" if check_dark_mode() else "black", "icon.png"
+        image_path = util.resource_path(
+            "resources", "white" if util.check_dark_mode() else "black", "icon.png"
         )
         icon = Image.open(image_path)
 
@@ -30,33 +31,33 @@ class SystemTrayIcon:
                 "Enable Rich Presence",
                 lambda ic, it: self.toggle_rpc(it),
                 checked=lambda i: self.rpc_state,
-                visible=lambda i: g.current != g.Status.STARTUP
-                and g.current != g.Status.UPDATING
-                and g.current != g.Status.WAITING_FOR_DISCORD,
+                visible=lambda i: self.m.status != Status.STARTUP
+                                  and self.m.status != Status.UPDATING
+                                  and self.m.status != Status.WAITING_FOR_DISCORD,
             ),
             MenuItem(
                 "Open Settings",
                 process.open_settings,
-                visible=lambda i: g.current != g.Status.STARTUP
-                and g.current != g.Status.UPDATING,
+                visible=lambda i: self.m.status != Status.STARTUP
+                                  and self.m.status != Status.UPDATING,
             ),
             MenuItem(
                 "Starting...",
                 None,
                 enabled=False,
-                visible=lambda i: g.current == g.Status.STARTUP,
+                visible=lambda i: self.m.status == Status.STARTUP,
             ),
             MenuItem(
                 "Downloading update...",
                 None,
                 enabled=False,
-                visible=lambda i: g.current == g.Status.UPDATING,
+                visible=lambda i: self.m.status == Status.UPDATING,
             ),
             MenuItem(
                 "Discord not open",
                 None,
                 enabled=False,
-                visible=lambda i: g.current == g.Status.WAITING_FOR_DISCORD,
+                visible=lambda i: self.m.status == Status.WAITING_FOR_DISCORD,
             ),
             Menu.SEPARATOR,
             MenuItem("Exit", lambda: self._exit_func()),
@@ -69,10 +70,10 @@ class SystemTrayIcon:
         self.rpc_state = not item.checked
 
         if self.rpc_state:
-            g.discord_rp.connect()
-            g.current = g.Status.ENABLED
+            self.m.discord_rp.connect()
+            self.m.status = Status.ENABLED
         else:
-            g.discord_rp.disconnect()
-            g.current = g.Status.DISABLED
+            self.m.discord_rp.disconnect()
+            self.m.status = Status.DISABLED
 
         logger.info(f"Changed state to {self.rpc_state}")

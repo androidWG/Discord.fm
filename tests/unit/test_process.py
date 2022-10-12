@@ -19,12 +19,10 @@ class TestProcess(unittest.TestCase):
         "os.exe.test",
     ]
 
-    @patch("globals.manager")
     @patch("psutil.process_iter")
-    def test_iter_exception(self, mock_iter: MagicMock, mock_manager: MagicMock):
+    def test_iter_exception(self, mock_iter: MagicMock):
         mock_iter.side_effect = psutil.AccessDenied(1234, "test", "testtest")
         process.get_external_process("x")
-        mock_manager.close.assert_called_once()
 
     @patch("process.get_external_process")
     def test_check_running(self, mock_proc: MagicMock):

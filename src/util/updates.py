@@ -5,19 +5,18 @@ from typing import Optional, Tuple
 import requests
 from packaging import version
 
-import globals as g
 from util import request_handler
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
-def get_newest_release() -> Optional[Tuple[version.Version, dict]]:
+def get_newest_release(manager) -> Optional[Tuple[version.Version, dict]]:
     """Gets the newest release from GitHub, returned as a tuple of the version and a GitHub asset object for Windows."""
     headers = {"Accept": "application/vnd.github.v3+json", "User-Agent": "Discord.fm"}
 
     logger.debug("Requesting newest release from GitHub")
-    handler = request_handler.RequestHandler("GitHub request")
-    if g.local_settings.get("pre_releases"):
+    handler = request_handler.RequestHandler(manager, "GitHub request")
+    if manager.settings.get("pre_releases"):
         request = handler.attempt_request(
             requests.get,
             url="https://api.github.com/repos/AndroidWG/Discord.fm/releases",
@@ -50,19 +49,19 @@ def get_newest_release() -> Optional[Tuple[version.Version, dict]]:
         return None
 
 
-def download_asset(asset: dict) -> str:
+def download_asset(manager, asset: dict) -> str:
     """Downloads a GitHub asset to the app's data folder and returns the full path of the file."""
     headers = {"Accept": "application/octet-stream", "User-Agent": "Discord.fm"}
 
     logger.debug(f'Requesting asset "{asset["name"]}" from GitHub')
-    handler = request_handler.RequestHandler("GitHub download")
+    handler = request_handler.RequestHandler(manager, "GitHub download")
     request = handler.attempt_request(
         requests.get, timeout=3600, url=asset["url"], headers=headers
     )
     response_size = int(request.headers["content-length"])
 
     logger.info(f"Starting writing {response_size} bytes")
-    downloaded_path = os.path.join(g.local_settings.app_data_path, asset["name"])
+    downloaded_path = os.path.join(manager.settings.app_data_path, asset["name"])
     with open(downloaded_path, "wb") as file:
         bytes_read = 0
 

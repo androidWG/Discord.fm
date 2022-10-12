@@ -7,7 +7,7 @@ from typing import Any, Callable
 import pylast
 from requests import exceptions, get
 
-import globals as g
+from util.status import Status
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -35,14 +35,19 @@ class RequestHandler:
     _tries = 0
 
     def __init__(
-        self, message: str, inactive_func: Callable = None, limit_tries: int = 0
+            self,
+            manager,
+            message: str,
+            inactive_func: Callable = None,
+            limit_tries: int = 0,
     ):
+        self.m = manager
         self.message = message
         self.inactive_func = inactive_func
         self._limit = limit_tries
 
     def attempt_request(
-        self, request_func: Callable, timeout: float = 60, *args, **kwargs
+            self, request_func: Callable, timeout: float = 60, *args, **kwargs
     ) -> Any:
         """Tries to run ``request_func`` and catches common exception errors from methods that use
         ``requests.get``.
@@ -68,9 +73,9 @@ class RequestHandler:
         self._bucket = queue.Queue()
 
         while True:
-            if g.current == g.Status.KILL:
+            if self.m.status == Status.KILL:
                 self._cancel_timers()
-                g.manager.close()
+                self.m.close()
 
             if 0 < self._limit <= self._tries:
                 logger.warning(
@@ -86,9 +91,9 @@ class RequestHandler:
             self._current_thread = thread.ident
 
             while thread.is_alive():
-                if g.current == g.Status.KILL:
+                if self.m.status == Status.KILL:
                     self._cancel_timers()
-                    g.manager.close()
+                    self.m.close()
 
                 if self._interrupt_request:
                     logger.info(f"Request for {self.message} timed out")

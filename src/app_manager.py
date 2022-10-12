@@ -29,11 +29,12 @@ class AppManager:
     _version = "0.8.0"
 
     def __init__(self):
-        self.tray_icon = system_tray_icon.SystemTrayIcon(self.close)
-        self.loop = loop_handler.LoopHandler(self.tray_icon)
-        self.discord_rp = wrappers.discord_rp.DiscordRP()
         self.settings = settings.Settings("Discord.fm")
         self.status = Status(Status.STARTUP)
+
+        self.tray_icon = system_tray_icon.SystemTrayIcon(self)
+        self.loop = loop_handler.LoopHandler(self)
+        self.discord_rp = wrappers.discord_rp.DiscordRP()
 
     def get_version(self, parsed: bool = False) -> packaging.version.Version | str:
         if parsed:
@@ -57,7 +58,7 @@ class AppManager:
         if self.settings.get("auto_update"):
             logger.debug("Checking for updates")
 
-            latest, latest_asset = util.updates.get_newest_release()
+            latest, latest_asset = util.updates.get_newest_release(self)
             current = self.get_version(True)
             if (
                     latest is not None
@@ -70,7 +71,7 @@ class AppManager:
                 logger.info(
                     f"Found newer version (current v{current} vs. latest v{latest})"
                 )
-                path = util.updates.download_asset(latest_asset)
+                path = util.updates.download_asset(self, latest_asset)
 
                 util.install.windows.do_silent_install(path)
                 logger.info("Quitting to allow installation of newer version")
@@ -92,55 +93,9 @@ class AppManager:
             )
             self.open_settings_and_wait()
 
-    def _wait_for_discord(self):
-        self.status = Status.WAITING_FOR_DISCORD
-        logger.info("Attempting to connect to Discord")
-
-        notification_called = False
-        self.tray_icon.ti.update_menu()
-
-        while True:
-            if process.check_process_running("Discord", "DiscordCanary"):
-                try:
-                    self.discord_rp.connect()
-                    logger.info("Successfully connected to Discord")
-                except (
-                        FileNotFoundError,
-                        pypresence.InvalidPipe,
-                        pypresence.DiscordNotFound,
-                        pypresence.DiscordError,
-                        ValueError,
-                        struct.error,
-                ) as e:
-                    logger.debug(f"Received {e}")
-                    continue
-                except PermissionError as e:
-                    if not notification_called and platform.system() == "Windows":
-                        logger.critical(
-                            "Another user has Discord open, notifying user", exc_info=e
-                        )
-
-                        title = "Another user has Discord open"
-                        message = (
-                            "Discord.fm will not update your Rich Presence or theirs. Please close the other "
-                            "instance before scrobbling with this user. "
-                        )
-
-                        util.basic_notification(title, message)
-
-                        notification_called = True
-                    continue
-
-                break
-            else:
-                time.sleep(10)
-
-        self.status = Status.ENABLED
-        self.tray_icon.ti.update_menu()
-
     def start(self):
         atexit.register(self.close)
-        self._wait_for_discord()
+        self.wait_for_discord()
         self._perform_checks()
 
         if self.status != Status.KILL:
@@ -207,6 +162,52 @@ class AppManager:
             )
 
         sys.exit()
+
+    def wait_for_discord(self):
+        self.status = Status.WAITING_FOR_DISCORD
+        logger.info("Attempting to connect to Discord")
+
+        notification_called = False
+        self.tray_icon.ti.update_menu()
+
+        while True:
+            if process.check_process_running("Discord", "DiscordCanary"):
+                try:
+                    self.discord_rp.connect()
+                    logger.info("Successfully connected to Discord")
+                except (
+                        FileNotFoundError,
+                        pypresence.InvalidPipe,
+                        pypresence.DiscordNotFound,
+                        pypresence.DiscordError,
+                        ValueError,
+                        struct.error,
+                ) as e:
+                    logger.debug(f"Received {e}")
+                    continue
+                except PermissionError as e:
+                    if not notification_called and platform.system() == "Windows":
+                        logger.critical(
+                            "Another user has Discord open, notifying user", exc_info=e
+                        )
+
+                        title = "Another user has Discord open"
+                        message = (
+                            "Discord.fm will not update your Rich Presence or theirs. Please close the other "
+                            "instance before scrobbling with this user. "
+                        )
+
+                        util.basic_notification(title, message)
+
+                        notification_called = True
+                    continue
+
+                break
+            else:
+                time.sleep(10)
+
+        self.status = Status.ENABLED
+        self.tray_icon.ti.update_menu()
 
     def open_settings_and_wait(self):
         process.open_settings()
