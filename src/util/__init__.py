@@ -1,8 +1,9 @@
-import os
-import sys
-import shutil
 import logging
+import os
+import shutil
+import sys
 from platform import system
+
 from plyer import notification as plyer_notif
 
 logger = logging.getLogger("discord_fm").getChild(__name__)

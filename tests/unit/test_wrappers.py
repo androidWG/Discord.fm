@@ -41,7 +41,7 @@ class TestLastFm(TestCase):
     @patch("util.request_handler.RequestHandler.attempt_request")
     @patch("wrappers.track_info.TrackInfo")
     def test_now_playing(
-            self, mock_track_info: MagicMock, mock_request_handler: MagicMock
+        self, mock_track_info: MagicMock, mock_request_handler: MagicMock
     ):
         """Test if now_playing properly handles None objects and"""
         mock = MagicMock(name="TestTitle", artist="TestArtist", duration=2852)

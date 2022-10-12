@@ -6,11 +6,10 @@ import sys
 import build.base
 
 sys.path.append(os.path.abspath("src"))
-import globals
 
 
 def get_build_tool() -> build.base.BuildTool:
-    version = globals.get_version(parsed=True)
+    # version = globals.get_version(parsed=True)
 
     if platform.system() == "Windows":
         module = importlib.import_module("build.windows")

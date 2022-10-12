@@ -31,14 +31,14 @@ class SystemTrayIcon:
                 lambda ic, it: self.toggle_rpc(it),
                 checked=lambda i: self.rpc_state,
                 visible=lambda i: self.m.status != Status.STARTUP
-                                  and self.m.status != Status.UPDATING
-                                  and self.m.status != Status.WAITING_FOR_DISCORD,
+                and self.m.status != Status.UPDATING
+                and self.m.status != Status.WAITING_FOR_DISCORD,
             ),
             MenuItem(
                 "Open Settings",
                 self.m.open_settings,
                 visible=lambda i: self.m.status != Status.STARTUP
-                                  and self.m.status != Status.UPDATING,
+                and self.m.status != Status.UPDATING,
             ),
             MenuItem(
                 "Starting...",

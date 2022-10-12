@@ -33,8 +33,8 @@ class LoopHandler:
     # noinspection PyUnboundLocalVariable,PyShadowingNames
     def _lastfm_update(self, scheduler):
         if (
-                self.m.status == Status.DISABLED
-                or self.m.status == Status.WAITING_FOR_DISCORD
+            self.m.status == Status.DISABLED
+            or self.m.status == Status.WAITING_FOR_DISCORD
         ):
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler,))
             return
@@ -77,8 +77,8 @@ class LoopHandler:
         self.m.settings.load()
         # Reload if username has been changed
         if (
-                self.user.user.name is not None
-                and not self.m.settings.get("username") == self.user.user.name
+            self.user.user.name is not None
+            and not self.m.settings.get("username") == self.user.user.name
         ):
             self.m.reload()
 

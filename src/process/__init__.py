@@ -12,7 +12,7 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 def get_external_process(
-        *process_names: str, ignore_self: bool = True
+    *process_names: str, ignore_self: bool = True
 ) -> List[psutil.Process]:
     """Returns a list of all the processes that match any of the names given as args, and ignores itself by default.
 

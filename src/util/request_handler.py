@@ -35,11 +35,11 @@ class RequestHandler:
     _tries = 0
 
     def __init__(
-            self,
-            manager,
-            message: str,
-            inactive_func: Callable = None,
-            limit_tries: int = 0,
+        self,
+        manager,
+        message: str,
+        inactive_func: Callable = None,
+        limit_tries: int = 0,
     ):
         self.m = manager
         self.message = message
@@ -47,7 +47,7 @@ class RequestHandler:
         self._limit = limit_tries
 
     def attempt_request(
-            self, request_func: Callable, timeout: float = 60, *args, **kwargs
+        self, request_func: Callable, timeout: float = 60, *args, **kwargs
     ) -> Any:
         """Tries to run ``request_func`` and catches common exception errors from methods that use
         ``requests.get``.
