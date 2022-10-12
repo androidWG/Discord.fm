@@ -3,15 +3,15 @@ import os
 import platform
 import sys
 
-import packaging.version
+from packaging.version import parse, Version
 
 sys.path.append(os.path.abspath("src"))
-import app_manager
+import version
 import build.base
 
 
 def get_build_tool() -> build.base.BuildTool:
-    version: packaging.version.Version = packaging.version.parse(app_manager.AppManager.version)
+    ver: Version = parse(version.get_version())
 
     if platform.system() == "Windows":
         module = importlib.import_module("build.windows")
@@ -22,5 +22,5 @@ def get_build_tool() -> build.base.BuildTool:
     else:
         raise NotImplementedError("System is not supported")
 
-    _build_tool = module.instance()(version=version)
+    _build_tool = module.instance()(version=ver)
     return _build_tool

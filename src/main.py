@@ -7,6 +7,7 @@ from os.path import abspath
 import app_manager
 import process
 import util.log_setup
+import version
 
 if __name__ == "__main__":
     print("Application started")
@@ -16,7 +17,7 @@ if __name__ == "__main__":
 
     logger = logging.getLogger("discord_fm").getChild(__name__)
     logger.info(
-        f' -------- Discord.fm version {manager.get_version()} {"(debug mode)" if manager.get_debug() else ""} -------- '
+        f' -------- Discord.fm version {version.get_version()} {"(debug mode)" if manager.get_debug() else ""} -------- '
     )
 
     logger.info(f'Current working path: "{abspath(os.curdir)}"')

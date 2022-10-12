@@ -9,7 +9,6 @@ import threading
 import time
 from threading import Thread
 
-import packaging.version
 import pypresence
 
 import loop_handler
@@ -19,6 +18,7 @@ import ui
 import util
 import util.install
 import util.updates
+import version
 import wrappers.discord_rp
 from process import executable_info
 from util.status import Status
@@ -29,7 +29,6 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 class AppManager:
     name = "discord.fm"
-    version = "0.8.0"
 
     def __init__(self):
         self.settings = settings.Settings("Discord.fm")
@@ -45,12 +44,6 @@ class AppManager:
         self.loop = loop_handler.LoopHandler(self)
         self.discord_rp = wrappers.discord_rp.DiscordRP()
 
-    def get_version(self, parsed: bool = False) -> packaging.version.Version | str:
-        if parsed:
-            return packaging.version.parse(self.version)
-        else:
-            return self.version
-
     def get_debug(self) -> bool:
         return self.settings.get("debug")
 
@@ -59,7 +52,7 @@ class AppManager:
             logger.warning("Running in non-frozen mode")
 
         if process.check_process_running(
-                "discord_fm", "discord.fm"
+            "discord_fm", "discord.fm"
         ) and not util.arg_exists("--ignore-open"):
             logger.error("Discord.fm is already running")
             self.close()
@@ -68,11 +61,11 @@ class AppManager:
             logger.debug("Checking for updates")
 
             latest, latest_asset = util.updates.get_newest_release(self)
-            current = self.get_version(True)
+            current = version.get_version(True)
             if (
-                    latest is not None
-                    and latest > current
-                    or util.arg_exists("--force-update")
+                latest is not None
+                and latest > current
+                or util.arg_exists("--force-update")
             ):
                 self.status = Status.UPDATING
                 self.tray_icon.ti.update_menu()
@@ -114,10 +107,10 @@ class AppManager:
         try:
             self.discord_rp.exit_rp()
         except (
-                RuntimeError,
-                AttributeError,
-                AssertionError,
-                pypresence.InvalidID,
+            RuntimeError,
+            AttributeError,
+            AssertionError,
+            pypresence.InvalidID,
         ) as e:
             logger.debug(
                 "Exception catched when attempting to exit from Rich Presence",
@@ -138,11 +131,11 @@ class AppManager:
             self.discord_rp.exit_rp()
             self.tray_icon.ti.stop()
         except (
-                RuntimeError,
-                AttributeError,
-                AssertionError,
-                pypresence.InvalidID,
-                NameError,
+            RuntimeError,
+            AttributeError,
+            AssertionError,
+            pypresence.InvalidID,
+            NameError,
         ) as e:
             logger.debug("Exception catched when attempting to close app", exc_info=e)
 
@@ -173,12 +166,12 @@ class AppManager:
                     self.discord_rp.connect()
                     logger.info("Successfully connected to Discord")
                 except (
-                        FileNotFoundError,
-                        pypresence.InvalidPipe,
-                        pypresence.DiscordNotFound,
-                        pypresence.DiscordError,
-                        ValueError,
-                        struct.error,
+                    FileNotFoundError,
+                    pypresence.InvalidPipe,
+                    pypresence.DiscordNotFound,
+                    pypresence.DiscordError,
+                    ValueError,
+                    struct.error,
                 ) as e:
                     logger.debug(f"Received {e}")
                     continue

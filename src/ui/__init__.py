@@ -4,6 +4,7 @@ from tkinter import messagebox, ttk
 
 import process
 import util.install
+import version
 import wrappers.last_fm_user
 from ui.repeat_timer import RepeatTimer
 from util import resource_path
@@ -36,7 +37,7 @@ class SettingsWindow(Tk):
         self.username = StringVar(value=self.m.settings.get("username"))
         self.username.trace_add(
             "write",
-            lambda x, y, z: self.m.settings.define("username", self.username.get())
+            lambda x, y, z: self.m.settings.define("username", self.username.get()),
         )
 
         self.cooldown = IntVar(value=self.m.settings.get("cooldown"))
@@ -148,7 +149,7 @@ class SettingsWindow(Tk):
         self.bar = ttk.Frame(self)
         ver_lbl = ttk.Label(
             self.bar,
-            text="v" + self.m.get_version() + " (debug)" if self.m.get_debug() else "",
+            text="v" + version.get_version() + " (debug)" if self.m.get_debug() else "",
             padding=SMALL_PAD,
         )
         ver_lbl.grid(column=1, row=0)
