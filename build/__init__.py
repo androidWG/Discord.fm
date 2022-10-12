@@ -3,13 +3,15 @@ import os
 import platform
 import sys
 
-import build.base
+import packaging.version
 
 sys.path.append(os.path.abspath("src"))
+import app_manager
+import build.base
 
 
 def get_build_tool() -> build.base.BuildTool:
-    # version = globals.get_version(parsed=True)
+    version: packaging.version.Version = packaging.version.parse(app_manager.AppManager.version)
 
     if platform.system() == "Windows":
         module = importlib.import_module("build.windows")

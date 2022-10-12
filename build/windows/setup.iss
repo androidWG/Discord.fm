@@ -69,7 +69,7 @@ Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: posti
 CompileLogFile={#LocalPath}\dist\#VERSION##SUFFIX#-installer.log
 
 [Icons]
-Name: "{userstartmenu}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; IconFilename: "{app}\settings_ui.exe"
+Name: "{userstartmenu}\Discord.fm"; Filename: "{app}\discord_fm.exe"; IconFilename: "{app}\discord_fm.exe"
 Name: "{userstartup}\{#Name}"; Filename: "{app}\discord_fm.exe"; Tasks: StartWithWindows
 
 [InstallDelete]

@@ -19,7 +19,6 @@ class WindowsBuildTool(build.base.BuildTool):
         super(WindowsBuildTool, self).__init__(version)
 
     def prepare_files(self):
-        temp_ver_ui_file = self._temp("file_version_ui.temp")
         temp_ver_main_file = self._temp("file_version_main.temp")
 
         main_tags = [
@@ -31,20 +30,12 @@ class WindowsBuildTool(build.base.BuildTool):
             ("#DESCRIPTION#", "Discord.fm Service Executable"),
             ("#FILENAME#", "discord_fm"),
         ]
-        ui_tags = main_tags
-        ui_tags[2] = ("#DESCRIPTION#", "Discord.fm Settings UI")
-        ui_tags[3] = ("#FILENAME#", "settings_ui")
 
         spec_tags = [
             ("#VER_MAIN#", os.path.abspath(temp_ver_main_file)),
-            ("#VER_UI#", os.path.abspath(temp_ver_ui_file)),
             ("#ICON_MAIN#", os.path.abspath(self.icon_main)),
-            ("#ICON_UI#", os.path.abspath(self.icon_settings)),
         ]
 
-        util.replace_instances(
-            "build/windows/file_version.txt", ui_tags, temp_ver_ui_file
-        )
         util.replace_instances(
             "build/windows/file_version.txt", main_tags, temp_ver_main_file
         )
