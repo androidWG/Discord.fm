@@ -5,6 +5,7 @@ import platform
 import struct
 import subprocess
 import sys
+import threading
 import time
 from threading import Thread
 
@@ -211,7 +212,16 @@ class AppManager:
         self.status = Status.ENABLED
         self.tray_icon.ti.update_menu()
 
-    def open_settings(self):
+    def open_settings(self, wait: bool = False):
+        thread = threading.Thread(target=self._create_settings_window)
+        thread.start()
+
+        if wait:
+            thread.join()
+
+    def _create_settings_window(self):
+        logger.debug("Opening settings")
+
         # Set app ID so Windows will show the correct icon on the taskbar
         if platform.system() == "Windows":
             app_id = "com.androidwg.discordfm.ui"

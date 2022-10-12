@@ -1,15 +1,12 @@
-import subprocess
-import sys
 from threading import get_ident, Thread, Timer
 from tkinter import *
 from tkinter import messagebox, ttk
 
 import process
-import process.executable_info as executable_info
 import util.install
 import wrappers.last_fm_user
 from ui.repeat_timer import RepeatTimer
-from util import is_frozen, resource_path
+from util import resource_path
 
 SMALL_PAD = (4, 0, 4, 0)
 LABEL_PAD = (0, 0, 8, 0)
@@ -48,7 +45,6 @@ class SettingsWindow(Tk):
         self.usr_status_text = StringVar(value="Checking...")
         self.service_btn_text = StringVar(value="Start service")
         self.logs_btn_text = StringVar(value="Open logs folder")
-        self.status_lbl_text = StringVar(value="Waiting...")
 
         self.start_with_system = BooleanVar(
             value=self.m.settings.get("start_with_system")
@@ -134,46 +130,29 @@ class SettingsWindow(Tk):
         # endregion
 
         # region Buttons
-        btn_layout = ttk.Frame(self.root)
-        self.logs_btn = ttk.Button(
-            btn_layout,
+        logs_btn = ttk.Button(
+            self.root,
             textvariable=self.logs_btn_text,
             command=process.open_in_explorer,
         )
-        self.service_btn = ttk.Button(
-            btn_layout,
-            textvariable=self.service_btn_text,
-            command=self.call_start_stop,
-            state=DISABLED if not is_frozen() else ACTIVE,
-        )
-        self.logs_btn.grid(column=0, row=0, sticky=(W, E), padx=4)
-        self.service_btn.grid(column=1, row=0, sticky=(W, E), padx=4)
-        btn_layout.columnconfigure(0, weight=1)
-        btn_layout.columnconfigure(1, weight=1)
-        btn_layout.grid(column=0, sticky=(W, E), pady=VERT_PAD)
+        logs_btn.grid(column=0, sticky=(W, E))
         # endregion
 
         self.root.pack()
 
         # region Status Bar
         self.bar = ttk.Frame(self)
-        self.status_lbl = ttk.Label(
-            self.bar, textvariable=self.status_lbl_text, padding=SMALL_PAD
-        )
         ver_lbl = ttk.Label(
             self.bar,
             text="v" + self.m.get_version() + " (debug)" if self.m.get_debug() else "",
             padding=SMALL_PAD,
         )
-        self.status_lbl.grid(column=0, row=0, sticky=(W, E))
         ver_lbl.grid(column=1, row=0)
 
         self.bar.columnconfigure(0, weight=5)
         self.bar.pack(fill=X)
         # endregion
 
-        self.timer = RepeatTimer(1, self._set_running_status)
-        self.timer.start()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         Thread(target=self._check_username, daemon=True).start()
 
@@ -189,7 +168,6 @@ class SettingsWindow(Tk):
                 )
                 return
 
-        self.timer.cancel()
         self.debounce.cancel()
 
         self.m.settings.define("username", self.username.get())
@@ -203,56 +181,10 @@ class SettingsWindow(Tk):
         )
         self.start_with_system.set(result)
 
-    def call_start_stop(self):
-        if process.check_process_running("discord_fm", "discord.fm"):
-            self._stopping = True
-            self.service_btn.text = "Stopping..."
-
-            thread = Thread(
-                target=process.kill_process, args=["discord_fm"], daemon=True
-            )
-        else:
-            self._starting = True
-            self.service_btn.text = "Starting..."
-
-            path = executable_info.get_local_executable("discord_fm", "main.py")
-            thread = Thread(target=subprocess.Popen, args=[path], daemon=True)
-
-        def _update():
-            nonlocal self
-            if not thread.is_alive():
-                self._starting = False
-                self._stopping = False
-                timer.cancel()
-
-        self.service_btn["state"] = "disable"
-        self.status_lbl_text.set("Waiting for service...")
-        timer = RepeatTimer(1, _update)
-        timer.start()
-        thread.start()
-
     def call_debounce(self, value=""):
         self.debounce.cancel()
         self.debounce = Timer(0.5, self._check_username)
         self.debounce.start()
-
-    def _set_running_status(self):
-        if not getattr(sys, "frozen", False):
-            self.status_lbl_text.set("Cannot check if service is running")
-            self.service_btn_text.set("Start service")
-            return
-
-        is_running = process.check_process_running("discord_fm", "discord.fm")
-        if is_running and not self._stopping:
-            self.service_btn["state"] = "enable"
-            self.status_lbl_text.set("Running")
-            self.service_btn_text.set("Stop service")
-            self._starting = False
-        elif not is_running and not self._starting:
-            self.service_btn["state"] = "enable"
-            self.status_lbl_text.set("Stopped")
-            self.service_btn_text.set("Start service")
-            self._stopping = False
 
     def _check_username(self, value="", ignore_debounce=False):
         print("Running _check_username")
