@@ -1,7 +1,6 @@
 import logging
 import os
 import subprocess
-import time
 from platform import system
 from typing import List
 
@@ -91,14 +90,6 @@ def stream_process(process: subprocess.Popen):
     for line in process.stdout:
         print(line.decode("utf-8"), end="")
     return go
-
-
-def open_settings():
-    """Opens the settings UI. Works even if the app is not frozen (is running as a script)."""
-    logger.debug("Opening settings UI")
-    path = executable_info.get_local_executable("settings_ui", "ui.py")
-    subprocess.Popen(path, cwd=os.getcwd())
-    time.sleep(2)
 
 
 def open_in_explorer(path: str):

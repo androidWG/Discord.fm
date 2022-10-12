@@ -3,7 +3,6 @@ import logging
 from PIL import Image
 from pystray import Icon, Menu, MenuItem
 
-import process
 import util
 from util.status import Status
 
@@ -37,7 +36,7 @@ class SystemTrayIcon:
             ),
             MenuItem(
                 "Open Settings",
-                process.open_settings,
+                self.m.open_settings,
                 visible=lambda i: self.m.status != Status.STARTUP
                                   and self.m.status != Status.UPDATING,
             ),

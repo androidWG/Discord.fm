@@ -1,4 +1,5 @@
 import atexit
+import ctypes
 import logging
 import platform
 import struct
@@ -13,6 +14,7 @@ import pypresence
 import loop_handler
 import process
 import settings
+import ui
 import util
 import util.install
 import util.updates
@@ -79,7 +81,7 @@ class AppManager:
 
         if util.arg_exists("-o"):
             logger.info('"-o" argument was found, opening settings')
-            self.open_settings_and_wait()
+            self.open_settings()
 
         no_username = self.settings.get("username") == ""
         if no_username and not util.is_frozen():
@@ -91,7 +93,7 @@ class AppManager:
             logger.info(
                 "No username found, opening settings UI and waiting for it to be closed..."
             )
-            self.open_settings_and_wait()
+            self.open_settings()
 
     def start(self):
         atexit.register(self.close)
@@ -209,20 +211,14 @@ class AppManager:
         self.status = Status.ENABLED
         self.tray_icon.ti.update_menu()
 
-    def open_settings_and_wait(self):
-        process.open_settings()
-        # Discord.fm can take a little while to start the settings UI, so wait before closing
-        time.sleep(1)
-        if not util.is_frozen():
-            self.close()
+    def open_settings(self):
+        # Set app ID so Windows will show the correct icon on the taskbar
+        if platform.system() == "Windows":
+            app_id = "com.androidwg.discordfm.ui"
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
 
-        # Starting the process takes a bit, if we went straight into the next while block, the method would
-        # finish immediately because "settings_ui" is not running.
-        while not process.check_process_running("settings_ui"):
-            pass
-
-        while process.check_process_running("settings_ui"):
-            time.sleep(1.5)
+        window = ui.SettingsWindow(self)
+        window.mainloop()
 
     def change_status(self, value: Status):
         self.status = value

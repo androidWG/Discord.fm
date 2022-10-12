@@ -25,7 +25,7 @@ if __name__ == "__main__":
             "discord_fm", "discord.fm"
     ):
         logger.info("Discord.fm is already running, opening settings...")
-        process.open_settings()
+        manager.open_settings()
         sys.exit(2)
 
     try:
