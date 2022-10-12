@@ -34,6 +34,10 @@ class SettingsWindow(Tk):
 
         # region Set up variables
         self.username = StringVar(value=self.m.settings.get("username"))
+        self.username.trace_add(
+            "write",
+            lambda x, y, z: self.m.settings.define("username", self.username.get())
+        )
 
         self.cooldown = IntVar(value=self.m.settings.get("cooldown"))
         self.cld_timelbl_text = StringVar(value=str(self.cooldown.get()) + "s")
@@ -133,7 +137,7 @@ class SettingsWindow(Tk):
         logs_btn = ttk.Button(
             self.root,
             textvariable=self.logs_btn_text,
-            command=process.open_in_explorer,
+            command=lambda: process.open_in_explorer(self.m.settings.logs_path),
         )
         logs_btn.grid(column=0, sticky=(W, E))
         # endregion
