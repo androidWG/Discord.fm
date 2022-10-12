@@ -11,7 +11,7 @@ import util.log_setup
 if __name__ == "__main__":
     print("Application started")
     manager = app_manager.AppManager()
-    util.log_setup.setup_logging("main")
+    util.log_setup.setup_logging(manager)
     sys.excepthook = manager.handle_exception
 
     logger = logging.getLogger("discord_fm").getChild(__name__)
