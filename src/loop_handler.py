@@ -5,23 +5,24 @@ from sched import scheduler
 from PIL import Image
 from pypresence import InvalidID
 
-import globals as g
 import util
 import wrappers.last_fm_user
-from globals import local_settings
+from util.status import Status
 from wrappers.system_tray_icon import SystemTrayIcon
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 class LoopHandler:
-    def __init__(self, tray_icon: SystemTrayIcon):
-        self._last_track = None
-        self.tray = tray_icon
-        self.user = wrappers.last_fm_user.LastFMUser(local_settings.get("username"))
+    def __init__(self, manager):
+        self.m = manager
+        self.tray: SystemTrayIcon = manager.tray_icon
+        self.user = wrappers.last_fm_user.LastFMUser(manager)
         self.sc = scheduler(time.time)
 
-        self.cooldown = local_settings.get("cooldown")
+        self._last_track = None
+
+        self.cooldown = manager.settings.get("cooldown")
         self.misc_cooldown = 15
 
     def handle_update(self):
@@ -31,10 +32,13 @@ class LoopHandler:
 
     # noinspection PyUnboundLocalVariable,PyShadowingNames
     def _lastfm_update(self, scheduler):
-        if g.current == g.Status.DISABLED or g.current == g.Status.WAITING_FOR_DISCORD:
+        if (
+            self.m.status == Status.DISABLED
+            or self.m.status == Status.WAITING_FOR_DISCORD
+        ):
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler,))
             return
-        elif g.current == g.Status.KILL:
+        elif self.m.status == Status.KILL:
             return
 
         try:
@@ -44,44 +48,42 @@ class LoopHandler:
 
         if track is not None:
             try:
-                g.discord_rp.update_status(track)
+                self.m.discord_rp.update_status(track)
                 self._last_track = track
             except (BrokenPipeError, InvalidID):
                 logger.info("Discord is being closed, will wait for it to open again")
-                g.manager.wait_for_discord()
+                self.m.wait_for_discord()
         else:
             logger.debug("Not playing anything")
 
-        if not g.current == g.Status.KILL:
+        if not self.m.status == Status.KILL:
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler,))
 
     def _misc_update(self, misc_scheduler):
         logger.debug("Running misc update")
-        if g.current == g.Status.DISABLED:
+        if self.m.status == Status.DISABLED:
             self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
             return
-        elif g.current == g.Status.KILL:
+        elif self.m.status == Status.KILL:
             return
 
-        self.cooldown = local_settings.get("cooldown")
+        self.cooldown = self.m.settings.get("cooldown")
         image_path = util.resource_path(
             "resources", "white" if util.check_dark_mode() else "black", "icon.png"
         )
         icon = Image.open(image_path)
         self.tray.ti.icon = icon
 
-        local_settings.load()
+        self.m.settings.load()
         # Reload if username has been changed
         if (
             self.user.user.name is not None
-            and not local_settings.get("username") == self.user.user.name
+            and not self.m.settings.get("username") == self.user.user.name
         ):
-            g.manager.reload()
+            self.m.reload()
 
-        if not g.current == g.Status.KILL:
+        if not self.m.status == Status.KILL:
             self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
 
     def reload_lastfm(self):
-        username = local_settings.get("username")
-        logger.debug(f'Reloading LastFMUser with username "{username}"')
-        self.user = wrappers.last_fm_user.LastFMUser(username)
+        self.user = wrappers.last_fm_user.LastFMUser(self.m)

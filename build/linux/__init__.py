@@ -2,23 +2,22 @@ import os.path
 
 import yaml
 
-from build.base import BuildTool
+import build.base
 from build.linux import flatpak
 from build.linux.ordered_dumper import OrderedDumper
 
 
-class LinuxBuildTool(BuildTool):
-    def __init__(self, version, debug):
+class LinuxBuildTool(build.base.BuildTool):
+    def __init__(self, version):
         self.py_path = os.path.abspath("venv/bin/python")
 
         self.icon_main = "resources/icon.png"
         self.icon_settings = "resources/settings.png"
-        super(LinuxBuildTool, self).__init__(version, debug)
+        super(LinuxBuildTool, self).__init__(version)
 
     def prepare_files(self):
         if not os.path.isfile("build/linux/com.androidWG.Discordfm.yml"):
-            output = "build/linux/dependencies.yaml"
-            self.temp_files.append(output)
+            output = self._temp("build/linux/dependencies.yaml")
             flatpak.make_yaml(
                 "/home/samuel/PycharmProjects/Discord.fm/requirements.txt",
                 "/home/samuel/PycharmProjects/Discord.fm/build/linux/linux_requirements.txt",
@@ -52,9 +51,6 @@ class LinuxBuildTool(BuildTool):
         # )
         # while process.stream_process(pyinstaller):
         #     time.sleep(0.2)
-        pass
-
-    def make_installer(self):
         pass
 
 

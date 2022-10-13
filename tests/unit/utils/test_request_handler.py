@@ -29,14 +29,16 @@ def bad_method():
 
 
 class TestRequestHandler(unittest.TestCase):
+    manager = MagicMock()
+
     def test_successful_request(self):
-        rh = request_handler.RequestHandler("test")
+        rh = request_handler.RequestHandler(self.manager, "test")
         self.assertEqual(rh.attempt_request(mock_method), test_phrase)
 
     @patch("util.request_handler.wait_for_internet")
     def test_limited_tries(self, mock_wait: MagicMock, mock_error: MagicMock):
         limit = 5
-        rh = request_handler.RequestHandler("test2", limit_tries=limit)
+        rh = request_handler.RequestHandler(self.manager, "test2", limit_tries=limit)
         rh.attempt_request(timeout_method, timeout=5)
 
         mock_wait.assert_called()
@@ -45,7 +47,7 @@ class TestRequestHandler(unittest.TestCase):
         )
 
     def test_exception_request(self):
-        rh = request_handler.RequestHandler("test3")
+        rh = request_handler.RequestHandler(self.manager, "test3")
         self.assertRaises(OSError, rh.attempt_request, bad_method)
 
 

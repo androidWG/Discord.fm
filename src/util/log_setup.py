@@ -6,8 +6,6 @@ import logging.handlers
 import os
 import re
 
-from globals import get_debug, local_settings
-
 
 class MillisecondFormatter(logging.Formatter):
     """A formatter for standard library 'logging' that supports '%f' wildcard in format strings."""
@@ -61,26 +59,26 @@ class ColoredFormatter(logging.Formatter):
         return logging.Formatter.format(self, new_record)
 
 
-def delete_old_logs(name: str):
+def delete_old_logs(manager):
     """Keeps only last x logs, as specified in the settings file, from the logs folder based on the ``name`` argument.
 
-    :param name:  Log name to use
-    :type name: str
+    :param manager: AppManager object with the name and settings info
+    :type manager: AppManager
     """
     logs = []
 
     print("Deleting old logs")
-    for file in os.listdir(local_settings.logs_path):
+    for file in os.listdir(manager.settings.logs_path):
         contains_ext = re.search(r"\.log\.?\d?$", file) is not None
-        if contains_ext and file.__contains__(name):
+        if contains_ext and file.__contains__(manager.name):
             logs.append(file)
 
     logs.sort(reverse=True)
-    del logs[: local_settings.get("max_logs") - 1]
+    del logs[: manager.settings.get("max_logs") - 1]
 
     for log in logs:
         try:
-            path = os.path.join(local_settings.logs_path, log)
+            path = os.path.join(manager.settings.logs_path, log)
             print(f"Deleting file {path}")
             os.remove(path)
         except PermissionError as e:
@@ -89,12 +87,12 @@ def delete_old_logs(name: str):
             )
 
 
-def setup_logging(name: str):
-    prefix = "debug" if get_debug() else ""
-    filename = f'{prefix}_{name}_{datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")}.log'
-    log_path = os.path.join(local_settings.logs_path, filename)
+def setup_logging(manager):
+    prefix = "debug" if manager.get_debug() else ""
+    filename = f'{prefix}_{manager.name}_{datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")}.log'
+    log_path = os.path.join(manager.settings.logs_path, filename)
 
-    delete_old_logs(name)
+    delete_old_logs(manager)
 
     base_format = (
         "[$BOLD%(levelname)-8s$RESET] ($BOLD%(filename)s:%(lineno)d$RESET) %(message)s"
@@ -127,7 +125,7 @@ def setup_logging(name: str):
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
                 "filename": log_path,
-                "level": "DEBUG" if get_debug() else "INFO",
+                "level": "DEBUG" if manager.get_debug() else "INFO",
                 "formatter": "millisecondFormatter",
                 "maxBytes": 512000,
                 "backupCount": 2,
@@ -136,7 +134,7 @@ def setup_logging(name: str):
         "loggers": {
             "discord_fm": {
                 "handlers": ["console", "file"],
-                "level": "DEBUG" if get_debug() else "INFO",
+                "level": "DEBUG" if manager.get_debug() else "INFO",
                 "propagate": True,
             }
         },

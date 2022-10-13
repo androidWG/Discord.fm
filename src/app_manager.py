@@ -1,32 +1,51 @@
 import atexit
+import ctypes
 import logging
 import platform
 import struct
+import subprocess
 import sys
+import threading
 import time
 from threading import Thread
 
 import pypresence
 
-import globals as g
 import loop_handler
 import process
+import settings
+import ui
 import util
 import util.install
 import util.updates
+import version
 import wrappers.discord_rp
-from globals import get_version
+from process import executable_info
+from util.status import Status
 from wrappers import system_tray_icon
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 class AppManager:
-    def __init__(self):
-        self.tray_icon = system_tray_icon.SystemTrayIcon(self.close)
-        self.loop = loop_handler.LoopHandler(self.tray_icon)
+    name = "discord.fm"
 
-        g.discord_rp = wrappers.discord_rp.DiscordRP()
+    def __init__(self):
+        self.settings = settings.Settings("Discord.fm")
+        self.status = Status(Status.STARTUP)
+
+        if self.settings.get("username") == "":
+            logger.critical(
+                "No username found - please add a username to settings and restart the app"
+            )
+            self.open_settings(wait=True)
+
+        self.tray_icon = system_tray_icon.SystemTrayIcon(self)
+        self.loop = loop_handler.LoopHandler(self)
+        self.discord_rp = wrappers.discord_rp.DiscordRP()
+
+    def get_debug(self) -> bool:
+        return self.settings.get("debug")
 
     def _perform_checks(self):
         if not util.is_frozen():
@@ -38,23 +57,23 @@ class AppManager:
             logger.error("Discord.fm is already running")
             self.close()
 
-        if g.local_settings.get("auto_update"):
+        if self.settings.get("auto_update"):
             logger.debug("Checking for updates")
 
-            latest, latest_asset = util.updates.get_newest_release()
-            current = get_version(True)
+            latest, latest_asset = util.updates.get_newest_release(self)
+            current = version.get_version(True)
             if (
                 latest is not None
                 and latest > current
                 or util.arg_exists("--force-update")
             ):
-                g.current = g.Status.UPDATING
+                self.status = Status.UPDATING
                 self.tray_icon.ti.update_menu()
 
                 logger.info(
                     f"Found newer version (current v{current} vs. latest v{latest})"
                 )
-                path = util.updates.download_asset(latest_asset)
+                path = util.updates.download_asset(self, latest_asset)
 
                 util.install.windows.do_silent_install(path)
                 logger.info("Quitting to allow installation of newer version")
@@ -62,27 +81,15 @@ class AppManager:
 
         if util.arg_exists("-o"):
             logger.info('"-o" argument was found, opening settings')
-            self.open_settings_and_wait()
-
-        no_username = g.local_settings.get("username") == ""
-        if no_username and not util.is_frozen():
-            logger.critical(
-                "No username found - please add a username to settings and restart the app"
-            )
-            self.close()
-        elif no_username and util.is_frozen():
-            logger.info(
-                "No username found, opening settings UI and waiting for it to be closed..."
-            )
-            self.open_settings_and_wait()
+            self.open_settings()
 
     def start(self):
         atexit.register(self.close)
-        self._wait_for_discord()
+        self.wait_for_discord()
         self._perform_checks()
 
-        if g.current != g.Status.KILL:
-            g.current = g.Status.ENABLED
+        if self.status != Status.KILL:
+            self.status = Status.ENABLED
             self.tray_icon.ti.update_menu()
 
             try:
@@ -90,7 +97,7 @@ class AppManager:
                 t.start()
                 self.tray_icon.ti.run()
             except (KeyboardInterrupt, SystemExit):
-                pass
+                logger.info("Caught KeyboardInterrupt or SystemExit")
 
         self.close()
 
@@ -98,22 +105,30 @@ class AppManager:
         logger.info("Reloading...")
 
         try:
-            g.discord_rp.exit_rp()
-        except (RuntimeError, AttributeError, AssertionError, pypresence.InvalidID):
-            pass
+            self.discord_rp.exit_rp()
+        except (
+            RuntimeError,
+            AttributeError,
+            AssertionError,
+            pypresence.InvalidID,
+        ) as e:
+            logger.debug(
+                "Exception catched when attempting to exit from Rich Presence",
+                exc_info=e,
+            )
         except NameError:
             return
 
-        g.current = g.Status.DISABLED
+        self.status = Status.DISABLED
         self.loop.reload_lastfm()
-        g.current = g.Status.ENABLED
+        self.status = Status.ENABLED
 
     def close(self):
-        g.current = g.Status.KILL
+        self.status = Status.KILL
         logger.info("Closing app...")
 
         try:
-            g.discord_rp.exit_rp()
+            self.discord_rp.exit_rp()
             self.tray_icon.ti.stop()
         except (
             RuntimeError,
@@ -121,8 +136,8 @@ class AppManager:
             AssertionError,
             pypresence.InvalidID,
             NameError,
-        ):
-            pass
+        ) as e:
+            logger.debug("Exception catched when attempting to close app", exc_info=e)
 
         try:
             sc = self.loop.sc
@@ -130,28 +145,16 @@ class AppManager:
                 for event in sc.queue:
                     sc.cancel(event)
                     logger.debug(f'Event "{event.action}" canceled')
-        except (AttributeError, NameError):
-            pass
+        except (AttributeError, NameError) as e:
+            logger.debug(
+                "Exception catched when attempting to flush global scheduler",
+                exc_info=e,
+            )
 
         sys.exit()
 
-    def open_settings_and_wait(self):
-        process.open_settings()
-        # Discord.fm can take a little while to start the settings UI, so wait before closing
-        time.sleep(1)
-        if not util.is_frozen():
-            self.close()
-
-        # Starting the process takes a bit, if we went straight into the next while block, the method would
-        # finish immediately because "settings_ui" is not running.
-        while not process.check_process_running("settings_ui"):
-            pass
-
-        while process.check_process_running("settings_ui"):
-            time.sleep(1.5)
-
-    def _wait_for_discord(self):
-        g.current = g.Status.WAITING_FOR_DISCORD
+    def wait_for_discord(self):
+        self.status = Status.WAITING_FOR_DISCORD
         logger.info("Attempting to connect to Discord")
 
         notification_called = False
@@ -160,7 +163,7 @@ class AppManager:
         while True:
             if process.check_process_running("Discord", "DiscordCanary"):
                 try:
-                    g.discord_rp.connect()
+                    self.discord_rp.connect()
                     logger.info("Successfully connected to Discord")
                 except (
                     FileNotFoundError,
@@ -193,5 +196,44 @@ class AppManager:
             else:
                 time.sleep(10)
 
-        g.current = g.Status.ENABLED
+        self.status = Status.ENABLED
         self.tray_icon.ti.update_menu()
+
+    def open_settings(self, wait: bool = False):
+        if wait:
+            self._create_settings_window()
+        else:
+            thread = threading.Thread(target=self._create_settings_window)
+            thread.start()
+
+    def _create_settings_window(self):
+        logger.debug("Opening settings")
+
+        # Set app ID so Windows will show the correct icon on the taskbar
+        if platform.system() == "Windows":
+            app_id = "com.androidwg.discordfm.ui"
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
+
+        window = ui.SettingsWindow(self)
+        window.mainloop()
+
+    def change_status(self, value: Status):
+        self.status = value
+        self.tray_icon.ti.update_icon()
+
+    # From https://stackoverflow.com/a/16993115/8286014
+    def handle_exception(self, exc_type, exc_value, exc_traceback):
+        if issubclass(exc_type, KeyboardInterrupt) or issubclass(exc_type, SystemExit):
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
+
+        logger.critical(
+            "Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback)
+        )
+        logger.debug(f"Current status: {self.status}")
+
+        if self.status != Status.KILL:
+            path = executable_info.get_local_executable("discord_fm", "main.py")
+            subprocess.Popen(path + ["--ignore-open"])
+
+        self.close()

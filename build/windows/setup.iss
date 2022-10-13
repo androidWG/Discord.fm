@@ -1,7 +1,8 @@
 #define Name "Discord.fm"
 #define Version "#VERSION#"
 #define Publisher "androidWG"
-#define InfoURL "https://github.com/AndroidWG/Discord.fm"
+#define InfoURL "https://github.com/androidWG/Discord.fm"
+#define UpdatesURL "https://github.com/androidWG/Discord.fm/releases/latest"
 #define LocalPath "#REPO#"
 #define Suffix "#SUFFIX#"
 
@@ -12,20 +13,20 @@
 AppId={{5DD6EAF6-9E8F-4240-ADF1-29FD79B30E3F}
 AppName={#Name}
 AppVersion={#Version}
-;AppVerName={#Name} {#Version}
+AppVerName={#Name} v{#Version}
 AppPublisher={#Publisher}
 AppPublisherURL={#InfoURL}
 AppSupportURL={#InfoURL}
-AppUpdatesURL={#InfoURL}
+AppUpdatesURL={#UpdatesURL}
 DefaultDirName={localappdata}\Programs\{#Name}
 DisableProgramGroupPage=yes
 CloseApplications=force
 AllowNoIcons=no
 OutputDir={#LocalPath}\dist
 OutputBaseFilename=discord.fm-setup-win64-#VERSION##SUFFIX#
-SetupIconFile={#LocalPath}\resources\icon.ico
+SetupIconFile={#LocalPath}\src\resources\settings.ico
 SolidCompression=yes
-UninstallDisplayName=Discord.fm
+UninstallDisplayName={#Name}
 UninstallDisplayIcon={app}\discord_fm.exe
 MinVersion=0,6.1
 WizardStyle=modern
@@ -33,7 +34,7 @@ WizardSizePercent=100
 RestartIfNeededByRun=False
 VersionInfoVersion={#Version}
 VersionInfoDescription=Show your Last.fm status on Discord
-VersionInfoProductName=Discord.fm
+VersionInfoProductName={#Name}
 VersionInfoProductVersion={#Version}
 ShowLanguageDialog=auto
 RestartApplications=True
@@ -43,11 +44,10 @@ UsePreviousLanguage=False
 AlwaysShowGroupOnReadyPage=True
 AlwaysUsePersonalGroup=True
 AppendDefaultGroupName=False
-UsePreviousGroup=False
-DefaultGroupName=Discord.fm
+DefaultGroupName={#Name}
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
-VersionInfoCompany=androidWG/Samuel Rodrigues
+VersionInfoCompany=androidWG/Sam Rodrigues
 VersionInfoProductTextVersion={#Version}
 ArchitecturesInstallIn64BitMode=x64
 ArchitecturesAllowed=x64
@@ -60,8 +60,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: "{#LocalPath}\dist\discord_fm\*"; DestDir: "{app}"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 [Registry]
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#Name}"; ValueData: "{app}\discord_fm.exe";
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "{#Name}"; Flags: uninsdeletevalue;
+Root: "HKCU"; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueName: "{#Name}"; Flags: deletevalue
 
 [Run]
 Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: postinstall nowait
@@ -70,7 +69,8 @@ Filename: "{app}\discord_fm.exe"; Description: "Launch Discord.fm"; Flags: posti
 CompileLogFile={#LocalPath}\dist\#VERSION##SUFFIX#-installer.log
 
 [Icons]
-Name: "{userstartmenu}\Discord.fm Settings"; Filename: "{app}\settings_ui.exe"; IconFilename: "{app}\discord_fm.exe"
+Name: "{userstartmenu}\Discord.fm"; Filename: "{app}\discord_fm.exe"; IconFilename: "{app}\discord_fm.exe"
+Name: "{userstartup}\{#Name}"; Filename: "{app}\discord_fm.exe"; Tasks: StartWithWindows
 
 [InstallDelete]
 Type: filesandordirs; Name: "{app}"
@@ -80,4 +80,9 @@ Filename: "taskkill.exe"; Parameters: "/T /IM discord_fm.exe /F"; Flags: waitunt
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}"
-Type: filesandordirs; Name: "{localappdata}\Discord.fm"
+Type: filesandordirs; Name: "{localappdata}\{#Name}"
+Type: filesandordirs; Name: "{userappdata}\{#Name}"
+Type: files; Name: "{userstartup}\{#Name}.lnk"
+
+[Tasks]
+Name: "StartWithWindows"; Description: "Start Discord.fm with Windows"

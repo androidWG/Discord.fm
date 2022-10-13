@@ -16,9 +16,11 @@ class Settings:
 
     def load(self):
         self.__settings_dict = {  # Put default setting values here
+            "debug": False,
             "cooldown": 4,
             "username": "",
             "max_logs": 5,
+            "start_with_system": True,
             "auto_update": True,
             "pre_releases": False,
         }

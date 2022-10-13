@@ -19,7 +19,7 @@ def remove_temp():
     try:
         shutil.rmtree("temp")
     except FileNotFoundError:
-        pass
+        print("temp folder doesn't exist, ignoring")
 
 
 def create_temp_dir():
@@ -146,10 +146,9 @@ class UtilsTest(TestCase):
 
 
 def get_md5(path) -> str:
-    file = open(path, "rb")
-    md5 = hashlib.md5(file.read()).hexdigest()
-    file.close()
-    return md5
+    with open(path, "rb") as file:
+        md5 = hashlib.md5(file.read()).hexdigest()
+        return md5
 
 
 if __name__ == "__main__":

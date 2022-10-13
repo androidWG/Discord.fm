@@ -2,18 +2,18 @@ import os.path
 import subprocess
 import time
 
-import util
+import build.base
 import src.process as process
-from build.base import BuildTool
+import util
 
 
-class DarwinBuildTool(BuildTool):
-    def __init__(self, version, debug):
+class DarwinBuildTool(build.base.BuildTool):
+    def __init__(self, version):
         self.py_path = os.path.abspath(r"venv/bin/python")
-        super(DarwinBuildTool, self).__init__(version, debug)
+        self.temp_spec_file = self._temp("temp_spec.spec")
+        super(DarwinBuildTool, self).__init__(version)
 
     def prepare_files(self):
-        self.temp_spec_file = "temp_spec.spec"
         tags = [("#VERSION#", f"'{self.version.base_version}'")]
 
         util.replace_instances(
@@ -36,15 +36,6 @@ class DarwinBuildTool(BuildTool):
         )
         while process.stream_process(pyinstaller):
             time.sleep(0.2)
-
-    def make_installer(
-        self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
-    ):
-        pass
-
-    def cleanup(self):
-        super().cleanup()
-        os.remove(self.temp_spec_file)
 
 
 def instance():
