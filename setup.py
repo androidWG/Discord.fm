@@ -172,7 +172,7 @@ if __name__ == "__main__":
         "command",
         type=str,
         nargs="?",
-        choices=["setup", "build", "run", "format"],
+        choices=["setup", "build", "run", "format", "test"],
         help="Command to be executed",
     )
     parser.add_argument(
@@ -218,37 +218,48 @@ if __name__ == "__main__":
     if current_platform not in ["Windows", "Linux", "Darwin"]:
         parser.exit(3, f'Platform "{current_platform}" is unsupported!')
 
-    if args.command == "setup":
-        check_venv(args.force, args.no_venv)
-        check_dependencies(args.force)
-        print("\nSetup completed")
-    elif args.command == "build":
-        check_venv(args.force, args.no_venv)
-        check_dependencies(args.force)
-        check_pyinstaller()
+    match args.command:
+        case "setup":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
+            print("\nSetup completed")
+        case "build":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
+            check_pyinstaller()
 
-        print("\nBuilding Discord.fm")
-        bt = build.get_build_tool()
-        bt.prepare_files()
-        if args.executable:
-            bt.build()
-        if args.installer:
-            bt.make_installer()
-        if args.cleanup:
-            bt.cleanup()
+            print("\nBuilding Discord.fm")
+            bt = build.get_build_tool()
+            bt.prepare_files()
+            if args.executable:
+                bt.build()
+            if args.installer:
+                bt.make_installer()
+            if args.cleanup:
+                bt.cleanup()
 
-        print("\nBuild completed")
-    elif args.command == "run":
-        check_venv(args.force, args.no_venv)
-        check_dependencies(args.force)
+            print("\nBuild completed")
+        case "run":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
 
-        print("\nRunning main.py...")
-        subprocess.Popen([python, "main.py"], cwd=p.abspath("src"))
-    elif args.command == "format":
-        check_venv(args.force, args.no_venv)
-        check_dependencies(args.force)
+            print("\nRunning main.py...")
+            subprocess.run([python, "main.py"], cwd=p.abspath("src"), check=True)
+        case "test":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
 
-        paths = ["src", "build/*.py", "tests"]
-        _run([python, "-m", "black"] + paths)
+            print("\n Running tests with unittest")
+            env = os.environ.copy()
+            env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
+            subprocess.run([python, "-m", "unittest", "discover"], env=env, cwd=p.abspath("tests/unit"), check=True)
 
-        print("\nFormatting completed")
+            print("\n Tests completed")
+        case "format":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
+
+            paths = ["src", "build/*.py", "tests"]
+            _run([python, "-m", "black"] + paths)
+
+            print("\nFormatting completed")
