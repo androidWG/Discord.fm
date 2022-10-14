@@ -13,21 +13,23 @@ from filelock import FileLock
 import settings
 import settings.util
 
+__TEMP = os.path.abspath("temp")
+
 
 def remove_temp():
     print("Removing temp folder...")
     try:
-        shutil.rmtree("temp")
+        shutil.rmtree(__TEMP)
     except FileNotFoundError:
         print("temp folder doesn't exist, ignoring")
 
 
 def create_temp_dir():
-    if os.path.exists("temp"):
-        shutil.rmtree("temp")
+    if os.path.exists(__TEMP):
+        shutil.rmtree(__TEMP)
 
-    os.mkdir("temp")
-    temp_dir = os.path.abspath("temp")
+    os.mkdir(__TEMP)
+    temp_dir = os.path.abspath(__TEMP)
     for resource in os.listdir("fixtures"):
         shutil.copy(os.path.join("fixtures", resource), temp_dir)
 
