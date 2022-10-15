@@ -59,7 +59,9 @@ class WindowsInstall(base.BaseInstall):
                 shortcut.save()
                 return True
             except pywintypes.com_error as e:
-                logging.error("Received error when trying to create shortcut", exc_info=e)
+                logging.error(
+                    "Received error when trying to create shortcut", exc_info=e
+                )
                 return False
 
     def install(self, installer_path: str):

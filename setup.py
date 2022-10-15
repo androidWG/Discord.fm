@@ -37,13 +37,13 @@ def _delete(path: str | os.PathLike[str]):
             os.chmod(file, stat.S_IWRITE)
             os.remove(file)
         except FileNotFoundError:
-            print(f'Unable to find file {file}', file=sys.stderr)
+            print(f"Unable to find file {file}", file=sys.stderr)
 
     shutil.rmtree(p.abspath(path))
 
 
 def _run(
-        cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
+    cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
 ) -> List[subprocess.CompletedProcess]:
     if type(cmd_list[0]) is str:
         commands = [cmd_list]
@@ -207,7 +207,7 @@ if __name__ == "__main__":
         "--global",
         action="store_true",
         dest="no_venv",
-        help="Force script to use global Python instead of venv"
+        help="Force script to use global Python instead of venv",
     )
     # endregion
 
@@ -253,7 +253,12 @@ if __name__ == "__main__":
             print("\n Running tests with unittest")
             env = os.environ.copy()
             env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
-            subprocess.run([python, "-m", "unittest", "discover"], env=env, cwd=p.abspath("tests/unit"), check=True)
+            subprocess.run(
+                [python, "-m", "unittest", "discover"],
+                env=env,
+                cwd=p.abspath("tests/unit"),
+                check=True,
+            )
 
             print("\n Tests completed")
         case "format":
