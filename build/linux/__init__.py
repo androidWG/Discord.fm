@@ -4,7 +4,7 @@ import yaml
 
 import build.base
 from build.linux import flatpak
-from build.linux.ordered_dumper import OrderedDumper
+from build.linux.flatpak.ordered_dumper import OrderedDumper
 
 
 class LinuxBuildTool(build.base.BuildTool):
@@ -29,8 +29,8 @@ class LinuxBuildTool(build.base.BuildTool):
             with open("build/linux/base.yml", "r") as file:
                 app = yaml.load(file, yaml.Loader)
 
-            app["modules"][1]["build-commands"] = packages["build-commands"]
-            app["modules"][1]["sources"] = packages["sources"]
+            app["modules"][6]["build-commands"] = packages["build-commands"]
+            app["modules"][6]["sources"] = packages["sources"]
 
             with open("build/linux/com.androidWG.Discordfm.yaml", "w") as file:
                 yaml.dump(app, file, OrderedDumper)
