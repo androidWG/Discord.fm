@@ -102,7 +102,8 @@ def check_dependencies(force: bool):
         elif platform.system() == "Darwin":
             pip_install.append("aquaui")
         elif platform.system() == "Linux":
-            pip_install.append("PyYAML requirements-parser")
+            pip_install.append("PyYAML")
+            pip_install.append("requirements-parser")
 
         commands.insert(1, pip_install)
         results = _run(commands)
