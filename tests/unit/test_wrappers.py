@@ -1,5 +1,5 @@
 from unittest import main, TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, DEFAULT
 
 import pylast
 
@@ -71,25 +71,32 @@ class TestDiscordRP(TestCase):
     data1 = MagicMock(name=title, artist=artist2, duration=5005)
     data2 = MagicMock(name=title, artist=artist, duration=2852)
 
-    rp = discord_rp.DiscordRP()
-
     @patch.object(discord_rp, "logger")
     @patch("pypresence.utils")
-    @patch("pypresence.Presence")
-    @patch("pypresence.Presence.update")
-    def test_update_status(self, mock_update: MagicMock, *mocks):
+    def test_update_status(self, *mocks):
         """Test if status updates function correctly with TrackInfo objects"""
-        mock_update.return_value = True
+        rp = discord_rp.DiscordRP()
 
-        self.rp.start()
+        rp.presence = MagicMock()
 
-        self.rp.update_status(self.data1)
-        self.rp.update_status(self.data2)
-        self.rp.update_status(self.data2)
+        rp.update_status(self.data1)
+        rp.update_status(self.data2)
+        rp.update_status(self.data2)
 
         with self.assertRaises(AttributeError):
-            # noinspection PyTypeChecker
-            self.rp.update_status(None)
+            rp.update_status(None)
+
+    @patch("asyncio.get_event_loop")
+    def test_connect_disconnect(self, *mocks):
+        rp = discord_rp.DiscordRP()
+        rp.presence = MagicMock()
+
+        rp.connect()
+        rp.disconnect()
+
+        rp.presence = None
+        rp.connect()
+        self.assertIsNotNone(rp.presence)
 
 
 class TestTrackInfo(TestCase):
