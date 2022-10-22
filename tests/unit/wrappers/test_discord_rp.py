@@ -46,5 +46,6 @@ class TestDiscordRP(TestCase):
         rp.presence.clear.assert_called()
         rp.presence.close.assert_called()
 
+
 if __name__ == "__main__":
     main()

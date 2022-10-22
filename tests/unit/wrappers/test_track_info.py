@@ -38,5 +38,6 @@ class TestTrackInfo(TestCase):
         self.assertEqual(info1, info2, "Track info gathered is different!")
         self.assertNotEqual(info1, info3, "Track info gathered is not different!")
 
+
 if __name__ == "__main__":
     main()

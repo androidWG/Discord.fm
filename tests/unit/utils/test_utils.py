@@ -29,7 +29,9 @@ class UtilTests(unittest.TestCase):
                 f_result1 = open(p_data2, encoding="utf-8")
                 self.assertEqual(f_data.read(), f_result1.read())
 
-                p_changed = os.path.join("../..", "tests/unit/fixtures", "script_changed.txt")
+                p_changed = os.path.join(
+                    "../..", "tests/unit/fixtures", "script_changed.txt"
+                )
                 f_changed = open(p_changed, encoding="utf-8")
 
                 result2_path = os.path.join(temp_dir, "test.txt")
