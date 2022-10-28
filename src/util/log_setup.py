@@ -74,7 +74,7 @@ def delete_old_logs(manager):
             logs.append(file)
 
     logs.sort(reverse=True)
-    del logs[: manager.settings.get("max_logs") - 1]
+    del logs[: manager.settings.get("max_logs")]
 
     for log in logs:
         try:

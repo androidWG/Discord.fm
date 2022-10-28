@@ -45,7 +45,7 @@ class TestProcess(unittest.TestCase):
         mock_processes.return_value = [MagicMock(pid=1234)]
         mock_proc.return_value.children.return_value = self.proc_with_pid_list
 
-        random_proc = random.randint(0, 128)
+        random_proc = random.randint(0, len(self.proc_with_pid_list) - 1)
         mock_proc.return_value.children.return_value[
             random_proc
         ].side_effect = psutil.NoSuchProcess
