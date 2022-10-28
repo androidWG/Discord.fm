@@ -8,9 +8,9 @@ from collections import OrderedDict
 import requirements
 import yaml
 
-from . import pypi
-from . import util
-from ..ordered_dumper import OrderedDumper
+import pypi
+import util
+import build.linux.flatpak.ordered_dumper
 
 # Python3 packages that come as part of org.freedesktop.Sdk.
 SYSTEM_PACKAGES = [
@@ -97,9 +97,9 @@ def make_yaml(
         def dict_representer(dumper, data):
             return dumper.represent_dict(data.items())
 
-        OrderedDumper.add_representer(OrderedDict, dict_representer)
+        build.linux.flatpak.ordered_dumper.OrderedDumper.add_representer(OrderedDict, dict_representer)
 
-        yaml.dump(pypi_module, output, Dumper=OrderedDumper)
+        yaml.dump(pypi_module, output, Dumper=build.linux.flatpak.ordered_dumper.OrderedDumper)
         print(f"Output saved to {filename}")
 
 
