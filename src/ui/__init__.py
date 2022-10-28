@@ -19,6 +19,7 @@ class SettingsWindow(Tk):
     _stopping = False
     _starting = False
     _last_username = ""
+    _installation = util.install.get_install()
 
     # noinspection PyTypeChecker
     def __init__(self, manager):
@@ -54,7 +55,7 @@ class SettingsWindow(Tk):
         self.start_with_system = BooleanVar(
             value=self.m.settings.get("start_with_system")
         )
-        self.start_with_system.set(util.install.get_start_with_system())
+        self.start_with_system.set(self._installation.get_startup())
         self.start_with_system.trace_add(
             "write",
             self._set_start_with_system,
@@ -181,7 +182,7 @@ class SettingsWindow(Tk):
     def _set_start_with_system(self, v1, v2, v3):
         checked = self.start_with_system.get()
         self.m.settings.define("start_with_system", checked)
-        result = util.install.set_start_with_system(
+        result = self._installation.set_startup(
             checked, util.install.get_exe_path()
         )
         self.start_with_system.set(result)

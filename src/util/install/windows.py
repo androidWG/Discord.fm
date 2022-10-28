@@ -80,5 +80,5 @@ class WindowsInstall(base.BaseInstall):
         subprocess.Popen(command, shell=True)
 
 
-def get_instance():
+def instance():
     return WindowsInstall

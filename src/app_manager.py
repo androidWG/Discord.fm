@@ -75,7 +75,8 @@ class AppManager:
                 )
                 path = util.updates.download_asset(self, latest_asset)
 
-                util.install.windows.do_silent_install(path)
+                installation = util.install.get_install()
+                installation.install(path)
                 logger.info("Quitting to allow installation of newer version")
                 self.close()
 
@@ -216,10 +217,6 @@ class AppManager:
 
         window = ui.SettingsWindow(self)
         window.mainloop()
-
-    def change_status(self, value: Status):
-        self.status = value
-        self.tray_icon.ti.update_icon()
 
     # From https://stackoverflow.com/a/16993115/8286014
     def handle_exception(self, exc_type, exc_value, exc_traceback):
