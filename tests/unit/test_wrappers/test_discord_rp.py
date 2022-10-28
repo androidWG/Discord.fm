@@ -1,6 +1,8 @@
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch
 
+from wrappers import discord_rp
+
 
 class TestDiscordRP(TestCase):
     title = "TestTitle"

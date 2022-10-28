@@ -9,7 +9,7 @@ import util
 
 class UtilTests(unittest.TestCase):
     def test_replace(self):
-        original = os.path.join("../..", "tests/unit/fixtures", "script.txt")
+        original = os.path.join("tests", "unit", "fixtures", "script.txt")
         with tempfile.TemporaryDirectory() as temp_dir:
             p_data1 = os.path.join(temp_dir, "script.txt")
             p_data2 = os.path.join(temp_dir, "script.txt")
@@ -30,7 +30,7 @@ class UtilTests(unittest.TestCase):
                 self.assertEqual(f_data.read(), f_result1.read())
 
                 p_changed = os.path.join(
-                    "../..", "tests/unit/fixtures", "script_changed.txt"
+                    "tests", "unit", "fixtures", "script_changed.txt"
                 )
                 f_changed = open(p_changed, encoding="utf-8")
 

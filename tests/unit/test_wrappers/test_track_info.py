@@ -3,6 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import pylast
 
+from wrappers import track_info
+
 
 class TestTrackInfo(TestCase):
     title = "TestTitle"

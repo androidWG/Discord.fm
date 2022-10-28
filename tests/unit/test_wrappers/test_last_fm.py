@@ -3,6 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import pylast
 
+from wrappers.last_fm_user import LastFMUser
+
 
 class TestLastFm(TestCase):
     data = pylast.Track("TestArtist", "TestTitle", None, "TestUsername")
@@ -14,7 +16,7 @@ class TestLastFm(TestCase):
         manager.settings.get.return_value = ""
 
         with self.assertRaises(ValueError):
-            last_fm_user.LastFMUser(manager)
+            LastFMUser(manager)
 
     @patch("os.environ.get")
     @patch("util.request_handler.RequestHandler.attempt_request")
@@ -30,7 +32,7 @@ class TestLastFm(TestCase):
         for name in self.usernames.keys():
             manager = MagicMock()
             manager.settings.get.return_value(name)
-            user = last_fm_user.LastFMUser(manager)
+            user = LastFMUser(manager)
 
             result = user.check_username()
             print(result)
@@ -49,7 +51,7 @@ class TestLastFm(TestCase):
         manager = MagicMock()
         manager.settings.get.return_value(list(self.usernames)[0])
 
-        user = last_fm_user.LastFMUser(manager)
+        user = LastFMUser(manager)
 
         result1 = user.now_playing()
         result2 = user.now_playing()

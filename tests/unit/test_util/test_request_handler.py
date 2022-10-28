@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import requests.exceptions
 
-from util import request_handler
+import util.request_handler
 
 test_phrase = "mock method finished"
 
@@ -32,22 +32,25 @@ class TestRequestHandler(unittest.TestCase):
     manager = MagicMock()
 
     def test_successful_request(self):
-        rh = request_handler.RequestHandler(self.manager, "test")
+        rh = util.request_handler.RequestHandler(self.manager, "test")
         self.assertEqual(rh.attempt_request(mock_method), test_phrase)
 
+    @patch("logging.Logger.warning")
     @patch("util.request_handler.wait_for_internet")
     def test_limited_tries(self, mock_wait: MagicMock, mock_error: MagicMock):
         limit = 5
-        rh = request_handler.RequestHandler(self.manager, "test2", limit_tries=limit)
+        rh = util.request_handler.RequestHandler(
+            self.manager, "test2", limit_tries=limit
+        )
         rh.attempt_request(timeout_method, timeout=5)
 
         mock_wait.assert_called()
-        mock_error.assert_called_once_with(
+        mock_error.assert_called_with(
             f"Hit or exceeded maximum tries (over {limit} tries)"
         )
 
     def test_exception_request(self):
-        rh = request_handler.RequestHandler(self.manager, "test3")
+        rh = util.request_handler.RequestHandler(self.manager, "test3")
         self.assertRaises(OSError, rh.attempt_request, bad_method)
 
 

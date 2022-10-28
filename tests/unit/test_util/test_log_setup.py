@@ -2,38 +2,43 @@ import os.path
 import random
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import util.log_setup
+
+MAX_LOGS = 10
 
 
 class LogSetupTests(unittest.TestCase):
     temp_dir = tempfile.TemporaryDirectory()
 
-    @patch("local_settings.logs_path", temp_dir.name)
-    @patch("settings.Settings.get")
-    def test_delete_old_logs(self, mock_get):
-        mock_get.return_value = 10
-
+    def test_delete_old_logs(self):
         rand_files = create_random_files(
             random.randint(2, 12), self.temp_dir.name, extension=".txt"
         )
 
-        log_files = create_random_files(10, self.temp_dir.name, "test-")
-        util.log_setup.delete_old_logs("test")
-        self.assertEqual(len(self._check_files_contains(log_files)), 10)
+        log_files = create_random_files(MAX_LOGS, self.temp_dir.name, "test-")
+        manager = MagicMock()
+        manager.name = "test"
+        manager.settings.logs_path = self.temp_dir.name
+        manager.settings.get.return_value = MAX_LOGS
+        util.log_setup.delete_old_logs(manager)
+
+        self.assertEqual(MAX_LOGS, len(self._check_files_contains(log_files)))
         self.assertTrue(self._check_files_remain(rand_files))
 
         self._delete_all_logs()
 
         log_files = create_random_files(25, self.temp_dir.name, "test-")
-        self.assertEqual(len(self._check_files_contains(log_files)), 10)
+        util.log_setup.delete_old_logs(manager)
+        self.assertEqual(MAX_LOGS, len(self._check_files_contains(log_files)))
         self.assertTrue(self._check_files_remain(rand_files))
 
         self._delete_all_logs()
 
         log_files = create_random_files(5, self.temp_dir.name, "test-")
-        self.assertEqual(len(self._check_files_contains(log_files)), 5)
+        util.log_setup.delete_old_logs(manager)
+        self.assertEqual(5, len(self._check_files_contains(log_files)))
         self.assertTrue(self._check_files_remain(rand_files))
 
     def _delete_all_logs(self):
@@ -57,9 +62,9 @@ class LogSetupTests(unittest.TestCase):
         ]
         for file in files:
             if file in temp_files:
-                return False
+                return True
 
-        return True
+        return False
 
 
 def create_random_files(
