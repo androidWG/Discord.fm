@@ -29,6 +29,7 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 class AppManager:
     name = "discord.fm"
+    rpc_state = True
 
     def __init__(self):
         self.settings = settings.Settings("Discord.fm")
@@ -138,7 +139,7 @@ class AppManager:
             pypresence.InvalidID,
             NameError,
         ) as e:
-            logger.debug("Exception catched when attempting to close app", exc_info=e)
+            logger.debug("Exception caught when attempting to close app", exc_info=e)
 
         try:
             sc = self.loop.sc
@@ -148,11 +149,23 @@ class AppManager:
                     logger.debug(f'Event "{event.action}" canceled')
         except (AttributeError, NameError) as e:
             logger.debug(
-                "Exception catched when attempting to flush global scheduler",
+                "Exception caught when attempting to flush global scheduler",
                 exc_info=e,
             )
 
         sys.exit()
+
+    def toggle_rpc(self, new_value: bool):
+        self.rpc_state = new_value
+
+        if self.rpc_state:
+            self.status = Status.ENABLED
+            self.discord_rp.connect()
+        else:
+            self.status = Status.DISABLED
+            self.discord_rp.disconnect()
+
+        logger.info(f"Changed state to {self.rpc_state}")
 
     def wait_for_discord(self):
         self.status = Status.WAITING_FOR_DISCORD
