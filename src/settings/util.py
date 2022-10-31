@@ -1,5 +1,9 @@
+import logging
 import os
 from platform import system
+
+
+logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 def make_dir(path: str):
@@ -10,9 +14,9 @@ def make_dir(path: str):
     """
     try:
         os.mkdir(path)
-        print(f'Created folder "{path}"')
+        logger.debug(f'Created folder "{path}"')
     except FileExistsError:
-        print(f'Folder "{path}" already exists')
+        logger.debug(f'Folder "{path}" already exists')
 
 
 def clear_executables(app_data_path: str):
@@ -23,7 +27,7 @@ def clear_executables(app_data_path: str):
     """
     for file in os.listdir(app_data_path):
         if file.endswith(".exe"):
-            print(f"Removing leftover update file {file}")
+            logger.debug(f"Removing leftover update file {file}")
             os.remove(os.path.join(app_data_path, file))
 
 
