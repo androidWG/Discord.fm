@@ -1,8 +1,12 @@
 import json
+import logging
 import os
 import urllib.parse
 
 from settings.util import setup_app_data_dir, setup_logs_dir
+
+
+logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 class Settings:
@@ -43,8 +47,8 @@ class Settings:
         try:
             with open(self.config_file_path, "w") as f:
                 f.write(json_string)
-        except PermissionError:
-            print("Permission denied while attempting to save settings file")
+        except PermissionError as e:
+            logger.error("Permission denied while attempting to save settings file", exc_info=e)
 
     def define(self, name: str, value: any):
         """Set a setting and save it to the settings file.
@@ -55,7 +59,7 @@ class Settings:
         :type value: any
         """
         if self.__settings_dict.keys().__contains__(name):
-            print(
+            logger.debug(
                 f'Setting value of "{name}" setting to "{urllib.parse.quote(str(value).encode("utf-8"))}"'
             )
             self.__settings_dict[name] = value
@@ -71,7 +75,7 @@ class Settings:
         :return: The value of the setting. Return type is the same as the one in the parsed JSON file.
         :rtype: any
         """
-        print(f"Getting {name} setting")
+        logger.debug(f"Getting {name} setting")
         return self.__settings_dict[name]
 
     @property

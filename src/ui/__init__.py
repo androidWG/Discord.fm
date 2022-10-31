@@ -1,3 +1,4 @@
+import logging
 from threading import get_ident, Thread, Timer
 from tkinter import *
 from tkinter import messagebox, ttk
@@ -8,6 +9,8 @@ import version
 import wrappers.last_fm_user
 from ui.repeat_timer import RepeatTimer
 from util import resource_path
+
+logger = logging.getLogger("discord_fm").getChild(__name__)
 
 SMALL_PAD = (4, 0, 4, 0)
 LABEL_PAD = (0, 0, 8, 0)
@@ -23,6 +26,7 @@ class SettingsWindow(Tk):
 
     # noinspection PyTypeChecker
     def __init__(self, manager):
+        logger.info("Initializing UI")
         super().__init__()
 
         self.m = manager
@@ -144,8 +148,6 @@ class SettingsWindow(Tk):
         logs_btn.grid(column=0, sticky=(W, E))
         # endregion
 
-        self.root.pack()
-
         # region Status Bar
         self.bar = ttk.Frame(self)
         ver_lbl = ttk.Label(
@@ -159,14 +161,19 @@ class SettingsWindow(Tk):
         self.bar.pack(fill=X)
         # endregion
 
+        self.root.pack()
+
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         Thread(target=self._check_username, daemon=True).start()
 
     def on_close(self):
+        logger.info("Closing UI")
+
         if self._last_username != self.username.get():
             self.usr_status_text.set("Checking...")
             valid_username = self._check_username(ignore_debounce=True)
             if not valid_username:
+                logger.info("Username is invalid, cancelling close")
                 messagebox.showwarning(
                     "Warning",
                     "The username you set is not valid. Please change it to a "
@@ -180,6 +187,8 @@ class SettingsWindow(Tk):
         self.destroy()
 
     def _set_start_with_system(self, v1, v2, v3):
+        logger.debug("Calling start with system")
+
         checked = self.start_with_system.get()
         self.m.settings.define("start_with_system", checked)
         result = self._installation.set_startup(
@@ -193,11 +202,11 @@ class SettingsWindow(Tk):
         self.debounce.start()
 
     def _check_username(self, value="", ignore_debounce=False):
-        print("Running _check_username")
+        logger.debug("Running _check_username")
         if self.debounce.ident is None:
-            print("debounce is none")
+            logger.debug("debounce is none")
         elif self.debounce.ident != get_ident() and not ignore_debounce:
-            print(f"ident is different ({self.debounce.ident} vs. {get_ident()})")
+            logger.debug(f"ident is different ({self.debounce.ident} vs. {get_ident()})")
             return
 
         username = self.username.get()
@@ -209,9 +218,11 @@ class SettingsWindow(Tk):
             user_valid = False
 
         if user_valid:
+            logger.debug("Username is valid")
             self.usr_status_text.set("Username is valid")
             self._last_username = username
             return True
         else:
+            logger.debug("Username is invalid")
             self.usr_status_text.set("Invalid username")
             return False
