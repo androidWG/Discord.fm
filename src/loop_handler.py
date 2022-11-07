@@ -9,6 +9,7 @@ import util
 import wrappers.last_fm_user
 from util.status import Status
 from wrappers.system_tray_icon import SystemTrayIcon
+from wrappers.track_info import TrackInfo
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -30,13 +31,12 @@ class LoopHandler:
         self.sc.enter(self.misc_cooldown, 2, self._misc_update, (self.sc,))
         self.sc.run()
 
-    # noinspection PyUnboundLocalVariable,PyShadowingNames
-    def _lastfm_update(self, scheduler):
+    def _lastfm_update(self, scheduler_ref):
         if (
             self.m.status == Status.DISABLED
             or self.m.status == Status.WAITING_FOR_DISCORD
         ):
-            self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler,))
+            self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler_ref,))
             return
         elif self.m.status == Status.KILL:
             return
@@ -57,7 +57,7 @@ class LoopHandler:
             logger.debug("Not playing anything")
 
         if not self.m.status == Status.KILL:
-            self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler,))
+            self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler_ref,))
 
     def _misc_update(self, misc_scheduler):
         logger.debug("Running misc update")
@@ -87,3 +87,6 @@ class LoopHandler:
 
     def reload_lastfm(self):
         self.user = wrappers.last_fm_user.LastFMUser(self.m)
+
+    def get_last_track(self) -> TrackInfo | None:
+        return self._last_track
