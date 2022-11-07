@@ -48,7 +48,9 @@ class Settings:
             with open(self.config_file_path, "w") as f:
                 f.write(json_string)
         except PermissionError as e:
-            logger.error("Permission denied while attempting to save settings file", exc_info=e)
+            logger.error(
+                "Permission denied while attempting to save settings file", exc_info=e
+            )
 
     def define(self, name: str, value: any):
         """Set a setting and save it to the settings file.

@@ -191,9 +191,7 @@ class SettingsWindow(Tk):
 
         checked = self.start_with_system.get()
         self.m.settings.define("start_with_system", checked)
-        result = self._installation.set_startup(
-            checked, util.install.get_exe_path()
-        )
+        result = self._installation.set_startup(checked, util.install.get_exe_path())
         self.start_with_system.set(result)
 
     def call_debounce(self, value=""):
@@ -206,7 +204,9 @@ class SettingsWindow(Tk):
         if self.debounce.ident is None:
             logger.debug("debounce is none")
         elif self.debounce.ident != get_ident() and not ignore_debounce:
-            logger.debug(f"ident is different ({self.debounce.ident} vs. {get_ident()})")
+            logger.debug(
+                f"ident is different ({self.debounce.ident} vs. {get_ident()})"
+            )
             return
 
         username = self.username.get()
