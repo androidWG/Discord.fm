@@ -3,7 +3,6 @@ import time
 from sched import scheduler
 
 from PIL import Image
-from pypresence import InvalidID
 
 import util
 import wrappers.last_fm_user
@@ -47,14 +46,12 @@ class LoopHandler:
             return
 
         if track is not None:
-            try:
-                self.m.discord_rp.update_status(track)
-                self._last_track = track
-            except (BrokenPipeError, InvalidID):
-                logger.info("Discord is being closed, will wait for it to open again")
-                self.m.wait_for_discord()
+            self.m.attempt_to_connect_rp()
+            self.m.discord_rp.update_status(track)
+            self._last_track = track
         else:
             logger.debug("Not playing anything")
+            self.m.disconnect_rp()
 
         if not self.m.status == Status.KILL:
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler_ref,))
