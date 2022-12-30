@@ -143,6 +143,7 @@ def setup_logging(manager):
             },
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
+                "encoding": "utf-8",
                 "filename": log_path,
                 "level": "DEBUG" if manager.get_debug() else "INFO",
                 "formatter": "millisecondFormatter",
