@@ -30,6 +30,7 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 class AppManager:
     name = "discord.fm"
     rpc_state = True
+    second_user_notification_called = False
 
     def __init__(self):
         self.settings = settings.Settings("Discord.fm")
@@ -87,7 +88,6 @@ class AppManager:
 
     def start(self):
         atexit.register(self.close)
-        self.wait_for_discord()
         self._perform_checks()
 
         if self.status != Status.KILL:
@@ -160,58 +160,56 @@ class AppManager:
 
         if self.rpc_state:
             self.status = Status.ENABLED
-            self.discord_rp.connect()
         else:
             self.status = Status.DISABLED
             self.discord_rp.disconnect()
 
         logger.info(f"Changed state to {self.rpc_state}")
 
-    def wait_for_discord(self):
-        self.status = Status.WAITING_FOR_DISCORD
+    def attempt_to_connect_rp(self):
+        if self.discord_rp.connected:
+            logger.debug("Already connected to Discord")
+            return
+
         logger.info("Attempting to connect to Discord")
+        if process.check_process_running("Discord", "DiscordCanary"):
+            try:
+                self.discord_rp.connect()
+                logger.info("Successfully connected to Discord")
+            except (
+                FileNotFoundError,
+                pypresence.InvalidPipe,
+                pypresence.DiscordNotFound,
+                pypresence.DiscordError,
+                ValueError,
+                struct.error,
+            ) as e:
+                logger.debug(f"Received {e} when connecting to Discord RP")
+            except PermissionError as e:
+                if (
+                    not self.second_user_notification_called
+                    and platform.system() == "Windows"
+                ):
+                    logger.critical(
+                        "Another user has Discord open, notifying user", exc_info=e
+                    )
 
-        notification_called = False
-        self.tray_icon.ti.update_menu()
+                    title = "Another user has Discord open"
+                    message = (
+                        "Discord.fm will not update your Rich Presence or theirs. Please close the other "
+                        "instance before scrobbling with this user. "
+                    )
 
-        while True:
-            if process.check_process_running("Discord", "DiscordCanary"):
-                try:
-                    self.discord_rp.connect()
-                    logger.info("Successfully connected to Discord")
-                except (
-                    FileNotFoundError,
-                    pypresence.InvalidPipe,
-                    pypresence.DiscordNotFound,
-                    pypresence.DiscordError,
-                    ValueError,
-                    struct.error,
-                ) as e:
-                    logger.debug(f"Received {e}")
-                    continue
-                except PermissionError as e:
-                    if not notification_called and platform.system() == "Windows":
-                        logger.critical(
-                            "Another user has Discord open, notifying user", exc_info=e
-                        )
+                    util.basic_notification(title, message)
+                    self.second_user_notification_called = True
+        else:
+            time.sleep(10)
 
-                        title = "Another user has Discord open"
-                        message = (
-                            "Discord.fm will not update your Rich Presence or theirs. Please close the other "
-                            "instance before scrobbling with this user. "
-                        )
-
-                        util.basic_notification(title, message)
-
-                        notification_called = True
-                    continue
-
-                break
-            else:
-                time.sleep(10)
-
-        self.status = Status.ENABLED
-        self.tray_icon.ti.update_menu()
+    def disconnect_rp(self):
+        if self.discord_rp.connected:
+            self.discord_rp.disconnect()
+        else:
+            logger.debug("Already disconnected from Discord")
 
     def open_settings(self, wait: bool = False):
         if wait:
