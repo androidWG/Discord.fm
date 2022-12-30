@@ -13,25 +13,30 @@ class DiscordRP:
     def __init__(self):
         self.presence = None
         self.last_track = None
+        self.connected = False
 
     def start(self):
+        asyncio.set_event_loop(asyncio.new_event_loop())
         self.presence = Presence("881950079240536135")
 
     def connect(self):
         if self.presence is None:
             self.start()
 
-        asyncio.set_event_loop(asyncio.new_event_loop())
         self.presence.connect()
+        self.connected = True
         logger.info("Connected to Discord")
 
     def disconnect(self):
-        self.presence.clear()
-        logger.info("Cleared Discord status")
+        self.exit_rp()
 
     def exit_rp(self):
+        if self.presence is None:
+            return
+
         self.presence.clear()
         self.presence.close()
+        self.connected = False
         logger.info("Closed Discord Rich Presence")
 
     def update_status(self, track: track_info.TrackInfo):

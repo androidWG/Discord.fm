@@ -1,4 +1,4 @@
-name: Build & upload new version
+name: Build, test & upload new version
 
 on:
   push:
@@ -24,8 +24,10 @@ jobs:
         run: |
           python -m pip install packaging
           python setup.py setup --global
+      - name: Run tests
+        run: python setup.py test --global
       - name: Build
-        run: python setup.py build
+        run: python setup.py build --global
       - name: Upload installer
         uses: actions/upload-artifact@v3
         with:

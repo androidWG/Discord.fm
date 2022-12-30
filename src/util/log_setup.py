@@ -22,25 +22,37 @@ class MillisecondFormatter(logging.Formatter):
         return s
 
 
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+BLACK, RED, GREEN, YELLOW, ORANGE, PURPLE, CYAN, GREY = range(8)
 
 RESET_SEQ = "\033[0m"
 COLOR_SEQ = "\033[1;%dm"
 BOLD_SEQ = "\033[1m"
+ITALIC_SEQ = "\033[3m"
+UNDERLINE_SEQ = "\033[4m"
 
 
 def formatter_message(message, use_color=True):
     if use_color:
-        message = message.replace("$RESET", RESET_SEQ).replace("$BOLD", BOLD_SEQ)
+        message = (
+            message.replace("$RESET", RESET_SEQ)
+            .replace("$BOLD", BOLD_SEQ)
+            .replace("$ITALIC", ITALIC_SEQ)
+            .replace("$UNDER", UNDERLINE_SEQ)
+        )
     else:
-        message = message.replace("$RESET", "").replace("$BOLD", "")
+        message = (
+            message.replace("$RESET", "")
+            .replace("$BOLD", "")
+            .replace("$ITALIC", "")
+            .replace("$UNDER", "")
+        )
     return message
 
 
 COLORS = {
     "WARNING": YELLOW,
-    "INFO": WHITE,
-    "DEBUG": BLUE,
+    "INFO": GREY,
+    "DEBUG": ORANGE,
     "CRITICAL": YELLOW,
     "ERROR": RED,
 }
@@ -74,7 +86,7 @@ def delete_old_logs(manager):
             logs.append(file)
 
     logs.sort(reverse=True)
-    del logs[: manager.settings.get("max_logs") - 1]
+    del logs[: manager.settings.get("max_logs")]
 
     for log in logs:
         try:
@@ -88,8 +100,8 @@ def delete_old_logs(manager):
 
 
 def setup_logging(manager):
-    prefix = "debug" if manager.get_debug() else ""
-    filename = f'{prefix}_{manager.name}_{datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")}.log'
+    prefix = "debug_" if manager.get_debug() else ""
+    filename = f'{prefix}{manager.name}_{datetime.datetime.utcnow().strftime("%Y-%m-%d_%H-%M-%S")}.log'
     log_path = os.path.join(manager.settings.logs_path, filename)
 
     delete_old_logs(manager)
@@ -97,7 +109,14 @@ def setup_logging(manager):
     base_format = (
         "[$BOLD%(levelname)-8s$RESET] ($BOLD%(filename)s:%(lineno)d$RESET) %(message)s"
     )
-    colored_format = formatter_message(base_format, True)
+    debug_base_format = (
+        "[$BOLD%(levelname)-8s$RESET] {$ITALIC%(threadName)-10s$RESET} (%(funcName)s @ "
+        "$BOLD%(filename)s:%(lineno)d$RESET) %(message)s "
+    )
+    chosen_format = debug_base_format if manager.get_debug() else base_format
+
+    colored_format = formatter_message(chosen_format)
+    file_format = formatter_message(chosen_format, False)
 
     config = {
         "version": 1,
@@ -109,7 +128,7 @@ def setup_logging(manager):
                 "class": "util.log_setup.ColoredFormatter",
             },
             "millisecondFormatter": {
-                "format": "%(asctime)s | %(levelname)-8s | %(message)s",
+                "format": file_format,
                 "datefmt": "%H:%M:%S.%f",
                 "style": "%",
                 "class": "util.log_setup.MillisecondFormatter",
@@ -124,6 +143,7 @@ def setup_logging(manager):
             },
             "file": {
                 "class": "logging.handlers.RotatingFileHandler",
+                "encoding": "utf-8",
                 "filename": log_path,
                 "level": "DEBUG" if manager.get_debug() else "INFO",
                 "formatter": "millisecondFormatter",

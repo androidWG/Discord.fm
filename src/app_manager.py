@@ -29,6 +29,8 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 class AppManager:
     name = "discord.fm"
+    rpc_state = True
+    second_user_notification_called = False
 
     def __init__(self):
         self.settings = settings.Settings("Discord.fm")
@@ -75,7 +77,8 @@ class AppManager:
                 )
                 path = util.updates.download_asset(self, latest_asset)
 
-                util.install.windows.do_silent_install(path)
+                installation = util.install.get_install()
+                installation.install(path)
                 logger.info("Quitting to allow installation of newer version")
                 self.close()
 
@@ -85,7 +88,6 @@ class AppManager:
 
     def start(self):
         atexit.register(self.close)
-        self.wait_for_discord()
         self._perform_checks()
 
         if self.status != Status.KILL:
@@ -137,7 +139,7 @@ class AppManager:
             pypresence.InvalidID,
             NameError,
         ) as e:
-            logger.debug("Exception catched when attempting to close app", exc_info=e)
+            logger.debug("Exception caught when attempting to close app", exc_info=e)
 
         try:
             sc = self.loop.sc
@@ -147,57 +149,67 @@ class AppManager:
                     logger.debug(f'Event "{event.action}" canceled')
         except (AttributeError, NameError) as e:
             logger.debug(
-                "Exception catched when attempting to flush global scheduler",
+                "Exception caught when attempting to flush global scheduler",
                 exc_info=e,
             )
 
         sys.exit()
 
-    def wait_for_discord(self):
-        self.status = Status.WAITING_FOR_DISCORD
+    def toggle_rpc(self, new_value: bool):
+        self.rpc_state = new_value
+
+        if self.rpc_state:
+            self.status = Status.ENABLED
+        else:
+            self.status = Status.DISABLED
+            self.discord_rp.disconnect()
+
+        logger.info(f"Changed state to {self.rpc_state}")
+
+    def attempt_to_connect_rp(self):
+        if self.discord_rp.connected:
+            logger.debug("Already connected to Discord")
+            return
+
         logger.info("Attempting to connect to Discord")
+        if process.check_process_running("Discord", "DiscordCanary"):
+            try:
+                self.discord_rp.connect()
+                logger.info("Successfully connected to Discord")
+            except (
+                FileNotFoundError,
+                pypresence.InvalidPipe,
+                pypresence.DiscordNotFound,
+                pypresence.DiscordError,
+                ValueError,
+                struct.error,
+            ) as e:
+                logger.debug(f"Received {e} when connecting to Discord RP")
+            except PermissionError as e:
+                if (
+                    not self.second_user_notification_called
+                    and platform.system() == "Windows"
+                ):
+                    logger.critical(
+                        "Another user has Discord open, notifying user", exc_info=e
+                    )
 
-        notification_called = False
-        self.tray_icon.ti.update_menu()
+                    title = "Another user has Discord open"
+                    message = (
+                        "Discord.fm will not update your Rich Presence or theirs. Please close the other "
+                        "instance before scrobbling with this user. "
+                    )
 
-        while True:
-            if process.check_process_running("Discord", "DiscordCanary"):
-                try:
-                    self.discord_rp.connect()
-                    logger.info("Successfully connected to Discord")
-                except (
-                    FileNotFoundError,
-                    pypresence.InvalidPipe,
-                    pypresence.DiscordNotFound,
-                    pypresence.DiscordError,
-                    ValueError,
-                    struct.error,
-                ) as e:
-                    logger.debug(f"Received {e}")
-                    continue
-                except PermissionError as e:
-                    if not notification_called and platform.system() == "Windows":
-                        logger.critical(
-                            "Another user has Discord open, notifying user", exc_info=e
-                        )
+                    util.basic_notification(title, message)
+                    self.second_user_notification_called = True
+        else:
+            time.sleep(10)
 
-                        title = "Another user has Discord open"
-                        message = (
-                            "Discord.fm will not update your Rich Presence or theirs. Please close the other "
-                            "instance before scrobbling with this user. "
-                        )
-
-                        util.basic_notification(title, message)
-
-                        notification_called = True
-                    continue
-
-                break
-            else:
-                time.sleep(10)
-
-        self.status = Status.ENABLED
-        self.tray_icon.ti.update_menu()
+    def disconnect_rp(self):
+        if self.discord_rp.connected:
+            self.discord_rp.disconnect()
+        else:
+            logger.debug("Already disconnected from Discord")
 
     def open_settings(self, wait: bool = False):
         if wait:
@@ -216,10 +228,6 @@ class AppManager:
 
         window = ui.SettingsWindow(self)
         window.mainloop()
-
-    def change_status(self, value: Status):
-        self.status = value
-        self.tray_icon.ti.update_icon()
 
     # From https://stackoverflow.com/a/16993115/8286014
     def handle_exception(self, exc_type, exc_value, exc_traceback):

@@ -34,7 +34,7 @@ def get_newest_release(manager) -> Optional[Tuple[version.Version, dict]]:
         latest = request.json()
 
     try:
-        logger.debug(
+        logger.info(
             f'Latest version is {latest["tag_name"]}, published at {latest["published_at"]} '
             f'{"(pre-release)" if latest["prerelease"] == True else ""}'
         )

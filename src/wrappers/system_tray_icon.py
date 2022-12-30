@@ -10,8 +10,6 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
 class SystemTrayIcon:
-    rpc_state = True
-
     def __init__(self, manager):
         self.m = manager
 
@@ -28,8 +26,8 @@ class SystemTrayIcon:
         menu = Menu(
             MenuItem(
                 "Enable Rich Presence",
-                lambda ic, it: self.toggle_rpc(it),
-                checked=lambda i: self.rpc_state,
+                lambda ic, it: self.m.toggle_rpc(not it.checked),
+                checked=lambda i: self.m.rpc_state,
                 visible=lambda i: self.m.status != Status.STARTUP
                 and self.m.status != Status.UPDATING
                 and self.m.status != Status.WAITING_FOR_DISCORD,
@@ -64,15 +62,3 @@ class SystemTrayIcon:
 
         icon = Icon("Discord.fm", icon=icon, title="Discord.fm", menu=menu)
         return icon
-
-    def toggle_rpc(self, item):
-        self.rpc_state = not item.checked
-
-        if self.rpc_state:
-            self.m.discord_rp.connect()
-            self.m.status = Status.ENABLED
-        else:
-            self.m.discord_rp.disconnect()
-            self.m.status = Status.DISABLED
-
-        logger.info(f"Changed state to {self.rpc_state}")

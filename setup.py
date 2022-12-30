@@ -37,13 +37,13 @@ def _delete(path: str | os.PathLike[str]):
             os.chmod(file, stat.S_IWRITE)
             os.remove(file)
         except FileNotFoundError:
-            print(f'Unable to find file {file}', file=sys.stderr)
+            print(f"Unable to find file {file}", file=sys.stderr)
 
     shutil.rmtree(p.abspath(path))
 
 
 def _run(
-        cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
+    cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
 ) -> List[subprocess.CompletedProcess]:
     if type(cmd_list[0]) is str:
         commands = [cmd_list]
@@ -102,7 +102,8 @@ def check_dependencies(force: bool):
         elif platform.system() == "Darwin":
             pip_install.append("aquaui")
         elif platform.system() == "Linux":
-            pip_install.append("PyYAML requirements-parser")
+            pip_install.append("PyYAML")
+            pip_install.append("requirements-parser")
 
         commands.insert(1, pip_install)
         results = _run(commands)
@@ -172,7 +173,7 @@ if __name__ == "__main__":
         "command",
         type=str,
         nargs="?",
-        choices=["setup", "build", "run", "format"],
+        choices=["setup", "build", "run", "format", "test"],
         help="Command to be executed",
     )
     parser.add_argument(
@@ -206,7 +207,7 @@ if __name__ == "__main__":
         "--global",
         action="store_true",
         dest="no_venv",
-        help="Force script to use global Python instead of venv"
+        help="Force script to use global Python instead of venv",
     )
     # endregion
 
@@ -218,37 +219,53 @@ if __name__ == "__main__":
     if current_platform not in ["Windows", "Linux", "Darwin"]:
         parser.exit(3, f'Platform "{current_platform}" is unsupported!')
 
-    if args.command == "setup":
-        check_venv(args.force, args.no_venv)
-        check_dependencies(args.force)
-        print("\nSetup completed")
-    elif args.command == "build":
-        check_venv(args.force, args.no_venv)
-        check_dependencies(args.force)
-        check_pyinstaller()
+    match args.command:
+        case "setup":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
+            print("\nSetup completed")
+        case "build":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
+            check_pyinstaller()
 
-        print("\nBuilding Discord.fm")
-        bt = build.get_build_tool()
-        bt.prepare_files()
-        if args.executable:
-            bt.build()
-        if args.installer:
-            bt.make_installer()
-        if args.cleanup:
-            bt.cleanup()
+            print("\nBuilding Discord.fm")
+            bt = build.get_build_tool()
+            bt.prepare_files()
+            if args.executable:
+                bt.build()
+            if args.installer:
+                bt.make_installer()
+            if args.cleanup:
+                bt.cleanup()
 
-        print("\nBuild completed")
-    elif args.command == "run":
-        check_venv(args.force, args.no_venv)
-        check_dependencies(args.force)
+            print("\nBuild completed")
+        case "run":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
 
-        print("\nRunning main.py...")
-        subprocess.Popen([python, "main.py"], cwd=p.abspath("src"))
-    elif args.command == "format":
-        check_venv(args.force, args.no_venv)
-        check_dependencies(args.force)
+            print("\nRunning main.py...")
+            subprocess.run([python, "main.py"], cwd=p.abspath("src"), check=True)
+        case "test":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
 
-        paths = ["src", "build/*.py", "tests"]
-        _run([python, "-m", "black"] + paths)
+            print("\n Running tests with unittest")
+            env = os.environ.copy()
+            env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
+            subprocess.run(
+                [python, "-m", "unittest", "discover"],
+                env=env,
+                cwd=p.abspath("tests/unit"),
+                check=True,
+            )
 
-        print("\nFormatting completed")
+            print("\n Tests completed")
+        case "format":
+            check_venv(args.force, args.no_venv)
+            check_dependencies(args.force)
+
+            paths = ["src", "build/*.py", "tests"]
+            _run([python, "-m", "black"] + paths)
+
+            print("\nFormatting completed")
