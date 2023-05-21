@@ -8,8 +8,6 @@ import sys
 from os import path as p
 from typing import List
 
-import venv
-
 import build
 
 PYINSTALLER_VER = "5.4.1"
@@ -43,7 +41,7 @@ def _delete(path: str | os.PathLike[str]):
 
 
 def _run(
-    cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
+        cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
 ) -> List[subprocess.CompletedProcess]:
     if type(cmd_list[0]) is str:
         commands = [cmd_list]
@@ -59,63 +57,29 @@ def _run(
     return results
 
 
+def _run_simple_result(cmd: str) -> str:
+    print(f'Running simple command "{cmd}"...\n')
+    result = subprocess.run(cmd, stdout=subprocess.PIPE)
+    return result.stdout.decode("utf-8").strip()
+
+
 def check_venv(force: bool, no_venv: bool):
     print("\nGetting venv...")
     global python, env_path, pip
 
-    env_name = "venv"
-    if (not p.isdir(env_name) or force) and not no_venv:
-        print("Creating new venv...\n")
-        _delete("venv")
-        env = venv.EnvBuilder(with_pip=True)
-        env.create(env_name)
+    env_name = _run_simple_result("pipenv --venv")
+    if (not p.isdir(env_name) or env_name == "" or force) and not no_venv:
+        print("Running pipenv...\n")
+        subprocess.run("pipenv --python=3.11 install --dev", stdout=sys.stdout, stderr=sys.stderr)
 
-    if platform.system() == "Windows":
-        python = p.abspath(p.join(env_name, "Scripts", "python.exe"))
-    else:
-        python = p.abspath(p.join(env_name, "bin", "python"))
+    python = _run_simple_result("pipenv --py")
 
     if no_venv:
         python = "python"
         env_path = os.path.dirname(sys.executable)
     else:
-        env_path = p.abspath(env_name)
+        env_path = env_name
     pip = [python, "-m", "pip", "install"]
-
-
-def check_dependencies(force: bool):
-    print("\nChecking dependencies...")
-    marker = p.join(env_path, MARKER_NAME)
-    if not p.isfile(marker) or force:
-        pip_install = pip + ["black", "wheel"]
-        commands = [pip + ["-r", "requirements.txt"]]
-
-        if platform.system() == "Windows":
-            pip_install.append("pywin32")
-            commands.append(
-                [
-                    python,
-                    p.join(env_path, "Scripts", "pywin32_postinstall.py"),
-                    "-install",
-                ]
-            )
-        elif platform.system() == "Darwin":
-            pip_install.append("aquaui")
-        elif platform.system() == "Linux":
-            pip_install.append("PyYAML")
-            pip_install.append("requirements-parser")
-
-        commands.insert(1, pip_install)
-        results = _run(commands)
-        for r in results:
-            if r.returncode != 0:
-                print("Error while checking dependencies!")
-                sys.exit(2)
-
-        with open(marker, "w"):
-            pass
-    else:
-        print("Dependencies already isntalled by setup.py")
 
 
 def __pyinstaller_installed() -> bool:
@@ -201,7 +165,7 @@ if __name__ == "__main__":
         "-f",
         action="store_true",
         dest="force",
-        help="Force setup from scratch. WARNING: Completely removes the venv folder!",
+        help="Force setup from scratch.",
     )
     parser.add_argument(
         "--global",
@@ -222,11 +186,9 @@ if __name__ == "__main__":
     match args.command:
         case "setup":
             check_venv(args.force, args.no_venv)
-            check_dependencies(args.force)
             print("\nSetup completed")
         case "build":
             check_venv(args.force, args.no_venv)
-            check_dependencies(args.force)
             check_pyinstaller()
 
             print("\nBuilding Discord.fm")
@@ -242,13 +204,11 @@ if __name__ == "__main__":
             print("\nBuild completed")
         case "run":
             check_venv(args.force, args.no_venv)
-            check_dependencies(args.force)
 
             print("\nRunning main.py...")
             subprocess.run([python, "main.py"], cwd=p.abspath("src"), check=True)
         case "test":
             check_venv(args.force, args.no_venv)
-            check_dependencies(args.force)
 
             print("\n Running tests with unittest")
             env = os.environ.copy()
@@ -263,7 +223,6 @@ if __name__ == "__main__":
             print("\n Tests completed")
         case "format":
             check_venv(args.force, args.no_venv)
-            check_dependencies(args.force)
 
             paths = ["src", "build/*.py", "tests"]
             _run([python, "-m", "black"] + paths)
