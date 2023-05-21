@@ -31,12 +31,14 @@ class LoopHandler:
         self.sc.run()
 
     def force_update(self):
+        logger.info("Clearing scheduler queue and forcing update")
         for event in self.sc.queue:
+            logger.debug(f"Cancelling event {event}")
             self.sc.cancel(event)
 
         self.sc.enter(0, 1, self._lastfm_update, (self.sc,))
         self.sc.enter(0, 2, self._misc_update, (self.sc,))
-        self.sc.run()
+        logger.info("Running updates immediately")
 
     def _lastfm_update(self, scheduler_ref):
         if (

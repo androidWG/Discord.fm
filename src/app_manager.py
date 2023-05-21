@@ -95,8 +95,7 @@ class AppManager:
             self.tray_icon.ti.update_menu()
 
             try:
-                t = Thread(target=self.loop.handle_update, daemon=True)
-                t.start()
+                Thread(target=self.loop.handle_update, daemon=True).start()
                 self.tray_icon.ti.run()
             except (KeyboardInterrupt, SystemExit):
                 logger.info("Caught KeyboardInterrupt or SystemExit")
@@ -156,6 +155,7 @@ class AppManager:
         sys.exit()
 
     def toggle_rpc(self, new_value: bool):
+        logger.debug(f"Attempting to change RPC status. Current value: {self.rpc_state} | New value: {new_value}")
         self.rpc_state = new_value
 
         if self.rpc_state:
@@ -210,6 +210,7 @@ class AppManager:
     def disconnect_rp(self):
         if self.discord_rp.connected:
             self.discord_rp.disconnect()
+            self.discord_rp.last_track = None
         else:
             logger.debug("Already disconnected from Discord")
 
