@@ -30,6 +30,14 @@ class LoopHandler:
         self.sc.enter(self.misc_cooldown, 2, self._misc_update, (self.sc,))
         self.sc.run()
 
+    def force_update(self):
+        for event in self.sc.queue:
+            self.sc.cancel(event)
+
+        self.sc.enter(0, 1, self._lastfm_update, (self.sc,))
+        self.sc.enter(0, 2, self._misc_update, (self.sc,))
+        self.sc.run()
+
     def _lastfm_update(self, scheduler_ref):
         if (
             self.m.status == Status.DISABLED
