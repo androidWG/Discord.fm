@@ -51,8 +51,8 @@ sandboxed). No releases are planned in the near future.
 
 ### Requirements
 
-- Python 3.10 or above
-- [packing](https://pypi.org/project/packaging/)
+- Python 3.11 or above
+- [packaging](https://pypi.org/project/packaging/)
 
 #### On Windows
 
