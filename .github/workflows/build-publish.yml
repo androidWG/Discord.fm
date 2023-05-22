@@ -15,14 +15,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - name: Setup Python and Packages
+        uses: palewire/install-python-pipenv-pipfile@v3
         with:
-          python-version: "3.10"
-          cache: 'pip'
+          python-version: 3.11
       - name: Setup environment
         run: |
-          python -m pip install packaging
           python setup.py setup --global
       - name: Run tests
         run: python setup.py test --global
