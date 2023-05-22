@@ -210,13 +210,12 @@ if __name__ == "__main__":
         case "test":
             check_venv(args.force, args.no_venv)
 
-            print("\n Running tests with unittest")
+            print("\n Running tests with pytest")
             env = os.environ.copy()
             env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
             subprocess.run(
-                [python, "-m", "unittest", "discover"],
+                [python, "-m", "pytest", "tests/"],
                 env=env,
-                cwd=p.abspath("tests/unit"),
                 check=True,
             )
 
