@@ -51,7 +51,9 @@ def _run(
     results = []
     for cmd in commands:
         print(f'Running command "{cmd}"...\n')
-        result = subprocess.run(cmd, cwd=cwd, stdout=sys.stdout, stderr=sys.stderr)
+        result = subprocess.run(
+            cmd, cwd=cwd, stdout=sys.stdout, stderr=sys.stderr, shell=True
+        )
         results.append(result)
 
     return results
@@ -59,7 +61,7 @@ def _run(
 
 def _run_simple_result(cmd: str) -> str:
     print(f'Running simple command "{cmd}"...\n')
-    result = subprocess.run(cmd, stdout=subprocess.PIPE)
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, shell=True)
     return result.stdout.decode("utf-8").strip()
 
 
@@ -85,10 +87,13 @@ def check_venv(force: bool, no_venv: bool):
 
 
 def __pyinstaller_installed() -> bool:
-    packages = p.join(env_path, "Lib", "site-packages")
+    if platform.system() == "Windows":
+        packages = p.join(env_path, "Lib", "site-packages")
+    else:
+        packages = p.join(env_path, "bin")
+
     for x in os.listdir(packages):
-        path = p.join(packages, x)
-        if p.isdir(p.abspath(path)) and x.__contains__("pyinstaller"):
+        if x.__contains__("pyinstaller"):
             return True
 
     return False
@@ -164,7 +169,8 @@ if __name__ == "__main__":
         help="Skips cleanup, leaving temporary files and folders",
     )
     parser.add_argument(
-        "-f", "--force",
+        "-f",
+        "--force",
         action="store_true",
         dest="force",
         help="Force setup from scratch.",
@@ -181,6 +187,10 @@ if __name__ == "__main__":
     if args.command is None:
         parser.print_help()
         parser.exit(1, "No command given")
+
+    if shutil.which("pipenv"):
+        print("Pipenv was not found, installing using pip")
+        _run(["python3 -m pip install pipenv"])
 
     if current_platform not in ["Windows", "Linux", "Darwin"]:
         parser.exit(3, f'Platform "{current_platform}" is unsupported!')
