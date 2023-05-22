@@ -4,7 +4,20 @@ import platform
 import sys
 
 import util
-from util.install.base import BaseInstall
+
+
+class BaseInstall:
+    def get_executable_path(self):
+        pass
+
+    def get_startup(self):
+        pass
+
+    def set_startup(self, new_value: bool, exe_path: str) -> bool:
+        pass
+
+    def install(self, installer_path: str):
+        pass
 
 
 def get_install() -> BaseInstall:
@@ -13,7 +26,7 @@ def get_install() -> BaseInstall:
     elif platform.system() == "Darwin":
         raise NotImplementedError("macOS is not implemented yet")
     elif platform.system() == "Linux":
-        raise NotImplementedError("Linux is not implemented yet")
+        module = importlib.import_module("util.install.linux")
     else:
         raise NotImplementedError("System is not supported")
 

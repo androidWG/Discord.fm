@@ -6,7 +6,8 @@ import winreg
 import pywintypes
 import win32com.client
 
-from util.install import base
+from util.install import BaseInstall
+
 
 REGISTRY_PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{5DD6EAF6-9E8F-4240-ADF1-29FD79B30E3F}_is1"
 LINK_PATH = [
@@ -22,7 +23,7 @@ LINK_ABS_PATH = os.path.join(os.path.expandvars("%appdata%"), *LINK_PATH)
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
-class WindowsInstall(base.BaseInstall):
+class WindowsInstall(BaseInstall):
     def get_executable_path(self) -> str | None:
         logger.debug("Attempting to find Windows install...")
 
