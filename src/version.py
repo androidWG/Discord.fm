@@ -1,6 +1,6 @@
 import packaging.version
 
-__VERSION = "0.8.1"
+__VERSION = "0.8.2"
 
 
 def get_version(parsed: bool = False) -> packaging.version.Version | str:
