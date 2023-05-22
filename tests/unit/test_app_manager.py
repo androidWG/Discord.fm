@@ -228,14 +228,14 @@ class TestAppManager(unittest.TestCase):
     @patch("ui.SettingsWindow")
     @patch("platform.system")
     @patch("ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID")
-    def test_create_settings_window(
+    def test_open_settings(
         self, mock_set_app_id, mock_system, mock_settings_window, *mocks
     ):
         manager = AppManager()
 
         mock_system.return_value = "Windows"
 
-        manager._create_settings_window()
+        manager.open_settings()
 
         mock_set_app_id.assert_called_once()
         mock_settings_window.assert_called_once()

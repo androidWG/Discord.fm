@@ -1,6 +1,7 @@
 import atexit
 import ctypes
 import logging
+import multiprocessing
 import platform
 import struct
 import subprocess
@@ -217,13 +218,6 @@ class AppManager:
             logger.debug("Already disconnected from Discord")
 
     def open_settings(self, wait: bool = False):
-        if wait:
-            self._create_settings_window()
-        else:
-            thread = threading.Thread(target=self._create_settings_window, daemon=True)
-            thread.start()
-
-    def _create_settings_window(self):
         logger.debug("Opening settings")
 
         # Set app ID so Windows will show the correct icon on the taskbar
