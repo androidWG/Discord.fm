@@ -10,6 +10,7 @@ import util.timeout
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
+# TODO: LEGACY CODE! Needs to be ported to BaseInstall subclass
 def get_app_folder_and_version(app_name: str) -> tuple:
     """Gets the version and install path of Discord.fm with the provided .app path.
 
