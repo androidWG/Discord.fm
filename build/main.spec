@@ -2,7 +2,7 @@
 
 main_a = Analysis(
     ["src/main.py"],
-    hiddenimports=["plyer.platforms.win.notification", "util.install.windows"],
+    hiddenimports=["plyer.platforms.win.notification", "util.install.windows", "util.install.linux"],
     datas=[
         ("src/resources/black/.", "resources/black"),
         ("src/resources/white/.", "resources/white"),

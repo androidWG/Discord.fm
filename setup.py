@@ -198,6 +198,7 @@ if __name__ == "__main__":
             bt.prepare_files()
             if args.executable:
                 bt.build()
+                bt.package()
             if args.installer:
                 bt.make_installer()
             if args.cleanup:
