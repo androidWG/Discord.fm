@@ -41,7 +41,7 @@ def _delete(path: str | os.PathLike[str]):
 
 
 def _run(
-        cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
+    cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
 ) -> List[subprocess.CompletedProcess]:
     if type(cmd_list[0]) is str:
         commands = [cmd_list]
@@ -70,7 +70,9 @@ def check_venv(force: bool, no_venv: bool):
     env_name = _run_simple_result("pipenv --venv")
     if (not p.isdir(env_name) or env_name == "" or force) and not no_venv:
         print("Running pipenv...\n")
-        subprocess.run("pipenv --python=3.11 install --dev", stdout=sys.stdout, stderr=sys.stderr)
+        subprocess.run(
+            "pipenv --python=3.11 install --dev", stdout=sys.stdout, stderr=sys.stderr
+        )
 
     python = _run_simple_result("pipenv --py")
 

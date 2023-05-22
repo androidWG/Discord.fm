@@ -155,7 +155,9 @@ class AppManager:
         sys.exit()
 
     def toggle_rpc(self, new_value: bool):
-        logger.debug(f"Attempting to change RPC status. Current value: {self.rpc_state} | New value: {new_value}")
+        logger.debug(
+            f"Attempting to change RPC status. Current value: {self.rpc_state} | New value: {new_value}"
+        )
         self.rpc_state = new_value
 
         if self.rpc_state:
@@ -218,7 +220,7 @@ class AppManager:
         if wait:
             self._create_settings_window()
         else:
-            thread = threading.Thread(target=self._create_settings_window)
+            thread = threading.Thread(target=self._create_settings_window, daemon=True)
             thread.start()
 
     def _create_settings_window(self):
