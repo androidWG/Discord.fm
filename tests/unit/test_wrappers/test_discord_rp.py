@@ -28,9 +28,9 @@ class TestDiscordRP(TestCase):
             rp.update_status(None)
 
     @patch("asyncio.get_event_loop")
+    @patch("wrappers.discord_rp.Presence")
     def test_connect_disconnect(self, *mocks):
         rp = discord_rp.DiscordRP()
-        rp.presence = MagicMock()
 
         rp.connect()
         rp.disconnect()
