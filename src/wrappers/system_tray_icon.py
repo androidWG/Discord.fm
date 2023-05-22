@@ -1,4 +1,6 @@
 import logging
+import os
+import platform
 
 from PIL import Image
 from pystray import Icon, Menu, MenuItem
@@ -15,6 +17,10 @@ class SystemTrayIcon:
 
         self._exit_func = manager.close
         self.ti = self.create_tray_icon()
+
+        if platform.system() == "Linux":
+            # Make sure appindicator is used on Linux. For some reason, pystray will always default to X11
+            os.environ["PYSTRAY_BACKEND"] = "appindicator"
 
     def create_tray_icon(self):
         logger.debug("Creating tray icon")
