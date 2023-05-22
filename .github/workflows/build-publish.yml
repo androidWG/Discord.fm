@@ -18,14 +18,15 @@ jobs:
       - name: Setup Python and Packages
         uses: palewire/install-python-pipenv-pipfile@v3
         with:
-          python-version: 3.11
+          python-version: 3.11.2
       - name: Setup environment
         run: |
-          python setup.py setup --global
+          pipenv shell
+          python setup.py setup
       - name: Run tests
-        run: python setup.py test --global
+        run: python setup.py test
       - name: Build
-        run: python setup.py build --global
+        run: python setup.py build
       - name: Upload installer
         uses: actions/upload-artifact@v3
         with:
