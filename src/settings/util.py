@@ -32,7 +32,7 @@ def clear_executables(app_data_path: str):
 
 
 def setup_app_data_dir(folder_name: str) -> str:
-    """Gets the folder where to store log files.
+    """Gets the folder where to store app configuration files.
 
     :param folder_name: Name of the folder to create inside the system's app data directory.
     :type folder_name: str
@@ -49,7 +49,7 @@ def setup_app_data_dir(folder_name: str) -> str:
             os.path.expanduser("~/Library/Application Support"), folder_name
         )
     else:
-        path = os.path.expanduser(f"~/.{folder_name.replace('.', '_').lower()}")
+        path = os.path.expanduser(f"~/.config/{folder_name.replace('.', '_').lower()}")
 
     make_dir(path)
     clear_executables(path)
@@ -73,7 +73,9 @@ def setup_logs_dir(folder_name: str) -> str:
     elif current_platform == "Darwin":
         path = os.path.join(os.path.expanduser("~/Library/Logs"), folder_name)
     else:
-        path = os.path.expanduser(f"~/.{folder_name.replace('.', '_').lower()}")
+        path = os.path.expanduser(
+            f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
+        )
 
     make_dir(path)
     return path
