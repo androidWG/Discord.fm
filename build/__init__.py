@@ -10,7 +10,7 @@ import version
 import build.base
 
 
-def get_build_tool() -> build.base.BuildTool:
+def get_build_tool(py_path: str) -> build.base.BuildTool:
     ver: Version = parse(version.get_version())
 
     if platform.system() == "Windows":
@@ -22,5 +22,5 @@ def get_build_tool() -> build.base.BuildTool:
     else:
         raise NotImplementedError("System is not supported")
 
-    _build_tool = module.instance()(version=ver)
+    _build_tool = module.instance()(py_path=py_path, version=ver)
     return _build_tool

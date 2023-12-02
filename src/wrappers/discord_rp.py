@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import logging
 
-from pypresence import Presence
+from pypresence import Presence, InvalidID
 
 from wrappers import track_info
 
@@ -27,15 +27,21 @@ class DiscordRP:
         self.connected = True
         logger.info("Connected to Discord")
 
-    def disconnect(self):
-        self.exit_rp()
+    def clear_presence(self):
+        self.presence.clear()
 
     def exit_rp(self):
         if self.presence is None:
             return
 
-        self.presence.clear()
-        self.presence.close()
+        try:
+            self.presence.clear()
+            self.presence.close()
+        except InvalidID as e:
+            logger.debug(
+                "Caught InvalidID exception while closing presence, Discord was likely closed"
+            )
+
         self.connected = False
         logger.info("Closed Discord Rich Presence")
 

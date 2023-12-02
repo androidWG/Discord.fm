@@ -13,7 +13,8 @@
 </p>
 
 <p align="center">
-   <img src="https://img.shields.io/lgtm/grade/python/g/AndroidWG/Discord.fm.svg?logo=lgtm&logoWidth=20&style=flat-square" alt="Language grade: Python">
+   <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/downloads/androidWG/Discord.fm/latest/total?label=downloads&style=flat-square">
+    <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/androidWG/Discord.fm/build-publish.yml?style=flat-square">
    <img src="https://img.shields.io/github/license/AndroidWG/Discord.fm?style=flat-square" alt="License: MIT">
    <img src="https://img.shields.io/badge/using-pypresence-00bb88.svg?style=flat-square&logo=discord&logoWidth=20&logoColor=white" alt="Using pypresence package">
 </p>

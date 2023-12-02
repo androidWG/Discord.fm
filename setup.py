@@ -10,7 +10,7 @@ from typing import List
 
 import build
 
-PYINSTALLER_VER = "5.4.1"
+PYINSTALLER_VER = "5.11.0"
 MARKER_NAME = ".setup_done"
 
 current_platform = platform.system()
@@ -41,7 +41,7 @@ def _delete(path: str | os.PathLike[str]):
 
 
 def _run(
-        cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
+    cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
 ) -> List[subprocess.CompletedProcess]:
     if type(cmd_list[0]) is str:
         commands = [cmd_list]
@@ -70,7 +70,9 @@ def check_venv(force: bool, no_venv: bool):
     env_name = _run_simple_result("pipenv --venv")
     if (not p.isdir(env_name) or env_name == "" or force) and not no_venv:
         print("Running pipenv...\n")
-        subprocess.run("pipenv --python=3.11 install --dev", stdout=sys.stdout, stderr=sys.stderr)
+        subprocess.run(
+            "pipenv --python=3.11 install --dev", stdout=sys.stdout, stderr=sys.stderr
+        )
 
     python = _run_simple_result("pipenv --py")
 
@@ -92,10 +94,10 @@ def __pyinstaller_installed() -> bool:
     return False
 
 
-def check_pyinstaller():
+def check_pyinstaller(force: bool):
     print("\nChecking PyInstaller...")
 
-    if __pyinstaller_installed():
+    if __pyinstaller_installed() and not force:
         print("PyInstaller is already installed, skipping")
         return
 
@@ -117,7 +119,7 @@ def check_pyinstaller():
         commands = [python, "./waf", "distclean", "all"]
         _run(commands, p.abspath(p.join("pyinstaller", "bootloader")))
 
-        commands = [python, "setup.py", "install"]
+        commands = pip + ["."]
         _run(commands, p.abspath("pyinstaller"))
 
         _delete("pyinstaller")
@@ -162,7 +164,7 @@ if __name__ == "__main__":
         help="Skips cleanup, leaving temporary files and folders",
     )
     parser.add_argument(
-        "-f",
+        "-f", "--force",
         action="store_true",
         dest="force",
         help="Force setup from scratch.",
@@ -189,10 +191,10 @@ if __name__ == "__main__":
             print("\nSetup completed")
         case "build":
             check_venv(args.force, args.no_venv)
-            check_pyinstaller()
+            check_pyinstaller(args.force)
 
             print("\nBuilding Discord.fm")
-            bt = build.get_build_tool()
+            bt = build.get_build_tool(python)
             bt.prepare_files()
             if args.executable:
                 bt.build()

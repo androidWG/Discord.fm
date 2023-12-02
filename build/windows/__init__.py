@@ -8,15 +8,13 @@ import util
 
 
 class WindowsBuildTool(build.base.BuildTool):
-    def __init__(self, version):
-        self.py_path = os.path.abspath(r"venv\Scripts\python.exe")
-
+    def __init__(self, py_path, version):
         self.icon_main = r"src\resources\icon.ico"
         self.icon_settings = r"src\resources\settings.ico"
 
         self.temp_spec_file = self._temp("build.spec")
 
-        super(WindowsBuildTool, self).__init__(version)
+        super(WindowsBuildTool, self).__init__(py_path, version)
 
     def prepare_files(self):
         temp_ver_main_file = self._temp("file_version_main.temp")

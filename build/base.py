@@ -21,17 +21,14 @@ class BuildTool:
     `py_path` needs to be set to a valid path before `super().__init__()` is called.
     """
 
-    py_path = ""
-
     icon_main = ""
     icon_settings = ""
 
     temp_paths: List[str | os.PathLike[str]] = []
 
-    def __init__(self, version: Version):
+    def __init__(self, py_path: str, version: Version):
         self.version = version
-        if self.py_path == "":
-            raise ValueError("py_path was not set to anything!")
+        self.py_path = py_path
         self.run_command = [f"{self.py_path} -O -m PyInstaller"]
 
     def _temp(self, value: str | os.PathLike[str]) -> str | os.PathLike[str]:
