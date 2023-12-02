@@ -52,20 +52,17 @@ class TestLastfmUpdate:
         handler.user = mock_user
 
         with mock.patch.object(
-            handler.m, "attempt_to_connect_rp"
-        ) as mock_connect_rp, mock.patch.object(
             handler.m.discord_rp, "update_status"
         ) as mock_update_status, mock.patch.object(
-            handler.m, "disconnect_rp"
-        ) as mock_disconnect_rp, mock.patch.object(
+            handler.m.discord_rp, "clear_presence"
+        ) as mock_clear, mock.patch.object(
             handler.sc, "enter"
         ) as mock_enter:
 
             handler._lastfm_update(mock.sentinel.scheduler_ref)
 
-        mock_connect_rp.assert_called_once()
         mock_update_status.assert_called_once_with("Track Name")
-        mock_disconnect_rp.assert_not_called()
+        mock_clear.assert_not_called()
         mock_enter.assert_called_once_with(
             handler.cooldown, 1, handler._lastfm_update, (mock.sentinel.scheduler_ref,)
         )
@@ -83,8 +80,8 @@ class TestLastfmUpdate:
         ) as mock_connect_rp, mock.patch.object(
             handler.m.discord_rp, "update_status"
         ) as mock_update_status, mock.patch.object(
-            handler.m, "disconnect_rp"
-        ) as mock_disconnect_rp, mock.patch.object(
+            handler.m.discord_rp, "clear_presence"
+        ) as mock_clear, mock.patch.object(
             handler.sc, "enter"
         ) as mock_enter:
 
@@ -92,7 +89,7 @@ class TestLastfmUpdate:
 
         mock_connect_rp.assert_not_called()
         mock_update_status.assert_not_called()
-        mock_disconnect_rp.assert_called_once()
+        mock_clear.assert_called_once()
         mock_enter.assert_called_once_with(
             handler.cooldown, 1, handler._lastfm_update, (mock.sentinel.scheduler_ref,)
         )

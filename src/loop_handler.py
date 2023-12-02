@@ -56,7 +56,6 @@ class LoopHandler:
             return
 
         if track is not None:
-
             self.m.discord_rp.update_status(track)
             self._last_track = track
         else:
