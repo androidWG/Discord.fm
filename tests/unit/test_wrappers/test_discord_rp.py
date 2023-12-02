@@ -33,7 +33,7 @@ class TestDiscordRP(TestCase):
         rp = discord_rp.DiscordRP()
 
         rp.connect()
-        rp.disconnect()
+        rp.exit_rp()
 
         rp.presence = None
         rp.connect()

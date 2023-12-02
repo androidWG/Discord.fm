@@ -160,7 +160,7 @@ class TestAppManager(unittest.TestCase):
 
         self.assertEqual(manager.rpc_state, False)
         self.assertEqual(manager.status, Status.DISABLED)
-        manager.discord_rp.disconnect.assert_called_once()
+        manager.discord_rp.exit_rp.assert_called_once()
         self.assertEqual(manager.discord_rp.last_track, None)
 
     @patch("process.check_process_running")
@@ -215,15 +215,6 @@ class TestAppManager(unittest.TestCase):
         mock_check_process_running.assert_not_called()
         mock_discord_rp.connect.assert_not_called()
         mock_sleep.assert_not_called()
-
-    @patch("wrappers.discord_rp.DiscordRP")
-    def test_disconnect_rp(self, mock_discord_rp, *mocks):
-        manager = AppManager()
-
-        manager.disconnect_rp()
-
-        mock_discord_rp.return_value.disconnect.assert_called_once()
-        self.assertEqual(manager.discord_rp.last_track, None)
 
     @patch("ui.SettingsWindow")
     @patch("platform.system")

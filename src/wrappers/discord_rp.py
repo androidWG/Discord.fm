@@ -27,8 +27,8 @@ class DiscordRP:
         self.connected = True
         logger.info("Connected to Discord")
 
-    def disconnect(self):
-        self.exit_rp()
+    def clear_presence(self):
+        self.presence.clear()
 
     def exit_rp(self):
         if self.presence is None:

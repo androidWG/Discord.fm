@@ -166,7 +166,7 @@ class AppManager:
             self.loop.force_update()
         else:
             self.status = Status.DISABLED
-            self.discord_rp.disconnect()
+            self.discord_rp.exit_rp()
             self.discord_rp.last_track = None
 
         logger.info(f"Changed state to {self.rpc_state}")
