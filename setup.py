@@ -57,9 +57,9 @@ def _run(
     return results
 
 
-def _run_simple_result(cmd: str) -> str:
+def _run_simple(cmd: str | list[str], **kwargs) -> str:
     print(f'Running simple command "{cmd}"...\n')
-    result = subprocess.run(cmd, stdout=subprocess.PIPE)
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, **kwargs)
     return result.stdout.decode("utf-8").strip()
 
 
@@ -67,14 +67,14 @@ def check_venv(force: bool, no_venv: bool):
     print("\nGetting venv...")
     global python, env_path, pip
 
-    env_name = _run_simple_result("pipenv --venv")
+    env_name = _run_simple("pipenv --venv")
     if (not p.isdir(env_name) or env_name == "" or force) and not no_venv:
         print("Running pipenv...\n")
         subprocess.run(
             "pipenv --python=3.11 install --dev", stdout=sys.stdout, stderr=sys.stderr
         )
 
-    python = _run_simple_result("pipenv --py")
+    python = _run_simple("pipenv --py")
 
     if no_venv:
         python = "python"
@@ -209,17 +209,17 @@ if __name__ == "__main__":
             check_venv(args.force, args.no_venv)
 
             print("\nRunning main.py...")
-            subprocess.run([python, "main.py"], cwd=p.abspath("src"), check=True)
+            _run_simple([python, "main.py"], cwd=p.abspath("src"), check=True)
         case "test":
             check_venv(args.force, args.no_venv)
 
             print("\n Running tests with pytest")
             env = os.environ.copy()
             env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
-            subprocess.run(
+
+            _run_simple(
                 [python, "-m", "pytest", "tests/", "--full-trace"],
                 env=env,
-                check=True,
             )
 
             print("\n Tests completed")
@@ -227,6 +227,6 @@ if __name__ == "__main__":
             check_venv(args.force, args.no_venv)
 
             paths = ["src", "build/*.py", "tests"]
-            _run([python, "-m", "black"] + paths)
+            _run_simple([python, "-m", "black"] + paths)
 
             print("\nFormatting completed")
