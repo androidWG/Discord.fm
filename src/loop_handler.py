@@ -3,7 +3,9 @@ import time
 from sched import scheduler
 
 from PIL import Image
+from pypresence import PipeClosed
 
+import process
 import util
 import wrappers.last_fm_user
 from util.status import Status
@@ -50,17 +52,28 @@ class LoopHandler:
         elif self.m.status == Status.KILL:
             return
 
+        self._check_discord_running()
+
         try:
             track = self.user.now_playing()
         except KeyboardInterrupt:
             return
 
-        if track is not None:
-            self.m.discord_rp.update_status(track)
-            self._last_track = track
-        else:
-            logger.debug("Not playing anything")
-            self.m.discord_rp.clear_presence()
+        try:
+            if track is not None:
+                self.m.discord_rp.update_status(track)
+                self._last_track = track
+            else:
+                logger.debug("Not playing anything")
+                self.m.discord_rp.clear_presence()
+        except (
+            BrokenPipeError,
+            PipeClosed,
+            RuntimeError,
+            AttributeError,
+            AssertionError,
+        ):
+            self._check_discord_running()
 
         if not self.m.status == Status.KILL:
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler_ref,))
@@ -90,6 +103,12 @@ class LoopHandler:
 
         if not self.m.status == Status.KILL:
             self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
+
+    def _check_discord_running(self):
+        if not process.check_process_running("Discord", "DiscordCanary"):
+            logger.info("Discord was closed, waiting for reopen")
+            self.m.wait_for_discord(Status.ENABLED)
+            self.m.discord_rp.clear_last_track()
 
     def reload_lastfm(self):
         self.user = wrappers.last_fm_user.LastFMUser(self.m)

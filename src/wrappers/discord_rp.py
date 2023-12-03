@@ -30,6 +30,9 @@ class DiscordRP:
     def clear_presence(self):
         self.presence.clear()
 
+    def clear_last_track(self):
+        self.last_track = None
+
     def exit_rp(self):
         if self.presence is None:
             return
