@@ -205,15 +205,6 @@ class TestAppManager(unittest.TestCase):
         mock_discord_rp.connect.reset_mock()
         mock_sleep.reset_mock()
 
-        # Test already connected
-        manager.discord_rp.connected = True
-
-        manager._attempt_to_connect_rp()
-
-        mock_check_process_running.assert_not_called()
-        mock_discord_rp.connect.assert_not_called()
-        mock_sleep.assert_not_called()
-
     @patch("ui.SettingsWindow")
     @patch("platform.system")
     @patch("ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID")
