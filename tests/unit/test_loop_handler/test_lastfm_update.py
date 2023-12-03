@@ -58,7 +58,6 @@ class TestLastfmUpdate:
         ) as mock_clear, mock.patch.object(
             handler.sc, "enter"
         ) as mock_enter:
-
             handler._lastfm_update(mock.sentinel.scheduler_ref)
 
         mock_update_status.assert_called_once_with("Track Name")
@@ -84,7 +83,6 @@ class TestLastfmUpdate:
         ) as mock_clear, mock.patch.object(
             handler.sc, "enter"
         ) as mock_enter:
-
             handler._lastfm_update(mock.sentinel.scheduler_ref)
 
         mock_connect_rp.assert_not_called()

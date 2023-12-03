@@ -35,6 +35,7 @@ class TestAppManager(unittest.TestCase):
         mock_check_process_running.assert_called_once_with("discord_fm", "discord.fm")
         mock_open_settings.assert_not_called()
 
+    @patch("app_manager.AppManager.wait_for_discord")
     @patch("atexit.register")
     @patch("app_manager.AppManager._perform_checks")
     @patch("app_manager.Thread.start")
