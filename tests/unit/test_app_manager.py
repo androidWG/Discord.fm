@@ -1,8 +1,6 @@
 import unittest
 from unittest.mock import patch
 
-import loop_handler
-import wrappers
 from app_manager import AppManager
 from util.status import Status
 
@@ -183,7 +181,7 @@ class TestAppManager(unittest.TestCase):
         mock_check_process_running.return_value = True
         manager.discord_rp.connected = False
 
-        manager.attempt_to_connect_rp()
+        manager._attempt_to_connect_rp()
 
         mock_check_process_running.assert_called_once_with("Discord", "DiscordCanary")
         manager.discord_rp.connect.assert_called_once()
@@ -196,7 +194,7 @@ class TestAppManager(unittest.TestCase):
         # Test not running
         mock_check_process_running.return_value = False
 
-        manager.attempt_to_connect_rp()
+        manager._attempt_to_connect_rp()
 
         mock_check_process_running.assert_called_once_with("Discord", "DiscordCanary")
         mock_discord_rp.connect.assert_not_called()
@@ -210,7 +208,7 @@ class TestAppManager(unittest.TestCase):
         # Test already connected
         manager.discord_rp.connected = True
 
-        manager.attempt_to_connect_rp()
+        manager._attempt_to_connect_rp()
 
         mock_check_process_running.assert_not_called()
         mock_discord_rp.connect.assert_not_called()
