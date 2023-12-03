@@ -125,6 +125,10 @@ class RequestHandler:
                     logger.warning(
                         f"Error with WSError when getting {self.message}", exc_info=e
                     )
+                elif isinstance(e, pylast.WSError) and e.status in (500, 502, 503, 504):
+                    logger.warning(
+                        f"Internal Last.fm error code {e.status} while getting {self.message}"
+                    )
                 else:
                     self._cancel_timers()
                     raise e
