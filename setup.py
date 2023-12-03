@@ -57,24 +57,29 @@ def _run(
     return results
 
 
-def _run_simple(cmd: str | list[str], **kwargs) -> str:
+def _run_simple(cmd: str | list[str], capture_output: bool = False, **kwargs) -> str | None:
     print(f'Running simple command "{cmd}"...\n')
-    result = subprocess.run(cmd, stdout=subprocess.PIPE, **kwargs)
-    return result.stdout.decode("utf-8").strip()
+
+    if not capture_output:
+        output = sys.stdout
+    else:
+        output = subprocess.PIPE
+
+    result = subprocess.run(cmd, stdout=output, stderr=sys.stderr, **kwargs)
+    return result.stdout.decode("utf-8").strip() if capture_output else None
 
 
 def check_venv(force: bool, no_venv: bool):
     print("\nGetting venv...")
     global python, env_path, pip
 
-    env_name = _run_simple("pipenv --venv")
+    env_name = _run_simple("pipenv --venv", capture_output=True)
     if (not p.isdir(env_name) or env_name == "" or force) and not no_venv:
         print("Running pipenv...\n")
-        subprocess.run(
-            "pipenv --python=3.11 install --dev", stdout=sys.stdout, stderr=sys.stderr
-        )
+        _run_simple("pipenv --python=3.11 install --dev")
+        env_name = _run_simple("pipenv --venv", capture_output=True)
 
-    python = _run_simple("pipenv --py")
+    python = _run_simple("pipenv --py", capture_output=True)
 
     if no_venv:
         python = "python"
@@ -82,6 +87,8 @@ def check_venv(force: bool, no_venv: bool):
     else:
         env_path = env_name
     pip = [python, "-m", "pip", "install"]
+
+    print(f"Python path: {python}\nEnv path: {env_path}\nPip path: {pip}")
 
 
 def __pyinstaller_installed() -> bool:
@@ -101,6 +108,7 @@ def check_pyinstaller(force: bool):
         print("PyInstaller is already installed, skipping")
         return
 
+    print("Installing PyInstaller")
     if platform.system() == "Windows":
         if shutil.which("git") is None:
             print(
