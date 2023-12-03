@@ -164,7 +164,8 @@ if __name__ == "__main__":
         help="Skips cleanup, leaving temporary files and folders",
     )
     parser.add_argument(
-        "-f", "--force",
+        "-f",
+        "--force",
         action="store_true",
         dest="force",
         help="Force setup from scratch.",
@@ -216,7 +217,7 @@ if __name__ == "__main__":
             env = os.environ.copy()
             env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
             subprocess.run(
-                [python, "-m", "pytest", "tests/"],
+                [python, "-m", "pytest", "tests/", "--full-trace"],
                 env=env,
                 check=True,
             )
