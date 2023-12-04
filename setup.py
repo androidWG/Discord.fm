@@ -57,7 +57,9 @@ def _run(
     return results
 
 
-def _run_simple(cmd: str | list[str], capture_output: bool = False, **kwargs) -> str | None:
+def _run_simple(
+    cmd: str | list[str], capture_output: bool = False, **kwargs
+) -> str | None:
     print(f'Running simple command "{cmd}"...\n')
 
     if not capture_output:
@@ -183,17 +185,18 @@ if __name__ == "__main__":
         help="Skips cleanup, leaving temporary files and folders",
     )
     parser.add_argument(
-        "-f",
-        "--force",
-        action="store_true",
-        dest="force",
-        help="Force setup from scratch.",
-    )
-    parser.add_argument(
         "--global",
         action="store_true",
         dest="no_venv",
         help="Force script to use global Python instead of venv",
+    )
+    parser.add_argument(
+        "-f", "--force", action="store_true", help="Force setup from scratch."
+    )
+    parser.add_argument(
+        "--flatpak",
+        action="store_true",
+        help="Skips some checks and make sure everything works when building from inside flatpak-builder.",
     )
     # endregion
 
@@ -214,19 +217,27 @@ if __name__ == "__main__":
             check_venv(args.force, args.no_venv)
             print("\nSetup completed")
         case "build":
-            check_venv(args.force, args.no_venv)
-            check_pyinstaller(args.force)
+            if not args.flatpak:
+                check_venv(args.force, args.no_venv)
+                check_pyinstaller(args.force)
 
-            print("\nBuilding Discord.fm")
-            bt = build.get_build_tool(python)
-            bt.prepare_files()
-            if args.executable:
+                print("\nBuilding Discord.fm")
+                bt = build.get_build_tool(python)
+                bt.prepare_files()
+                if args.executable:
+                    bt.build()
+                    bt.package()
+                if args.installer:
+                    bt.make_installer()
+                if args.cleanup:
+                    bt.cleanup()
+            else:
+                print("Building inside Flatpak")
+                python = "python3"
+
+                bt = build.get_build_tool(python, True)
+                bt.prepare_files()
                 bt.build()
-                bt.package()
-            if args.installer:
-                bt.make_installer()
-            if args.cleanup:
-                bt.cleanup()
 
             print("\nBuild completed")
         case "run":
