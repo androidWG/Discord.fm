@@ -1,32 +1,35 @@
-import os
-
-import yaml
+import json
+import subprocess
+import sys
 
 from build.base import BuildTool
 from build.flatpak import requirements
-from build.flatpak.ordered_dumper import OrderedDumper
 
 
 class FlatpakBuildTool(BuildTool):
     def prepare_files(self):
-        if not os.path.isfile("build/linux/com.androidWG.Discordfm.yml"):
-            output = self._temp("build/linux/dependencies.yaml")
-            requirements.make_yaml(
-                "/home/samuel/PycharmProjects/Discord.fm/requirements.txt",
-                "/home/samuel/PycharmProjects/Discord.fm/build/linux/linux_requirements.txt",
-                output,
-            )
+        output = self._temp("build/flatpak/dependencies.json")
+        requirements.make_yaml("build/flatpak/requirements.txt", output)
 
-            with open(output, "r") as file:
-                packages = yaml.load(file, yaml.Loader)
-            with open("build/linux/base.yml", "r") as file:
-                app = yaml.load(file, yaml.Loader)
+        with open(output, "r") as file:
+            packages = json.load(file)
+        with open("build/flatpak/base.json", "r") as file:
+            app = json.load(file)
 
-            app["modules"][6]["build-commands"] = packages["build-commands"]
-            app["modules"][6]["sources"] = packages["sources"]
+        app["modules"][0]["build-commands"] = packages["build-commands"]
+        app["modules"][0]["sources"] = packages["sources"]
 
-            with open("build/flatpak/base.yaml", "w") as file:
-                yaml.dump(app, file, OrderedDumper)
+        with open("build/flatpak/output.json", "w") as file:
+            json.dump(app, file, indent=2)
+
+    # def build(self):
+    #     commands = [
+    #         "flatpak-builder",
+    #         "dist/flatpak",
+    #         "build/flatpak/output.json",
+    #         "--force-clean",
+    #     ]
+    #     subprocess.run(commands, stdout=sys.stdout, stderr=sys.stderr)
 
 
 def instance():

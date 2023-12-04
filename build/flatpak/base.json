@@ -1,0 +1,52 @@
+{
+  "app-id": "net.androidWG.Discordfm",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "44",
+  "sdk": "org.gnome.Sdk",
+  "command": "discord_fm",
+  "finish-args": [
+    "--share=ipc",
+    "--socket=x11",
+    "--socket=wayland",
+    "--share=network",
+    "--talk-name=com.canonical.indicator.application",
+    "--talk-name=org.freedesktop.Notifications",
+    "--talk-name=org.kde.StatusNotifierWatcher"
+  ],
+  "cleanup": [
+    "/usr/lib/python3.10"
+  ],
+  "modules": [
+    {
+      "name": "python-requirements",
+      "buildsystem": "simple",
+      "build-commands": null,
+      "sources": null
+    },
+    {
+      "name": "libayatana-appindicator",
+      "buildsystem": "autotools",
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/AyatanaIndicators/libayatana-appindicator.git"
+        }
+      ]
+    },
+    {
+      "name": "discord.fm",
+      "buildsystem": "simple",
+      "build-commands": [
+        "python setup.py build --flatpak",
+        "mkdir -p /app/bin",
+        "cp -r dist/discord_fm/* /app/bin/"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "../../"
+        }
+      ]
+    }
+  ]
+}
