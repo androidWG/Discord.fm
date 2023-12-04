@@ -26,7 +26,7 @@ def get_external_process(
             related_processes.append(psutil.Process().pid)
             related_processes.append(psutil.Process(os.getppid()).pid)
         except psutil.NoSuchProcess as e:
-            logger.error("Unable to get related processes", exc_info=e)
+            pass
     matched = []
 
     try:
