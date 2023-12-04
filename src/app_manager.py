@@ -20,6 +20,7 @@ import util.updates
 import version
 import wrappers.discord_rp
 from process import executable_info
+from util.scrobble_status import ScrobbleStatus
 from util.status import Status
 from wrappers import system_tray_icon
 
@@ -34,6 +35,7 @@ class AppManager:
     def __init__(self):
         self.settings = settings.Settings("Discord.fm")
         self.status = Status(Status.STARTUP)
+        self.scrobble_status = ScrobbleStatus(ScrobbleStatus.FIRST_CHECK)
 
         if self.settings.get("username") == "":
             logger.critical(
@@ -172,6 +174,7 @@ class AppManager:
 
     def wait_for_discord(self, next_status: Status):
         self.status = Status.WAITING_FOR_DISCORD
+        self.tray_icon.ti.update_menu()
 
         while not self._attempt_to_connect_rp():
             pass
