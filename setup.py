@@ -88,6 +88,10 @@ def check_venv(force: bool, no_venv: bool):
         env_path = env_name
     pip = [python, "-m", "pip", "install"]
 
+    # Append site-packages from the virtual env. Needed when we're importing BuildTools and it imports stuff not
+    # installed globally
+    sys.path.append(p.join(env_path, "Lib", "site-packages"))
+
     print(f"Python path: {python}\nEnv path: {env_path}\nPip path: {pip}")
 
 
