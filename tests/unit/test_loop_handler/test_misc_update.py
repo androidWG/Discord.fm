@@ -44,7 +44,6 @@ class TestMiscUpdate:
         with mock.patch.object(handler.m, "reload") as mock_reload, mock.patch.object(
             handler.sc, "enter"
         ) as mock_enter:
-
             handler._misc_update(mock.sentinel.misc_scheduler)
 
         mock_reload.assert_called_once()
@@ -64,7 +63,6 @@ class TestMiscUpdate:
         with mock.patch.object(handler.m, "reload") as mock_reload, mock.patch.object(
             handler.sc, "enter"
         ) as mock_enter:
-
             handler._misc_update(mock.sentinel.misc_scheduler)
 
         mock_reload.assert_not_called()

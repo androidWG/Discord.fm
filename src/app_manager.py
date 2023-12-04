@@ -90,10 +90,7 @@ class AppManager:
         self._perform_checks()
 
         if self.status != Status.KILL:
-            while not self.attempt_to_connect_rp():
-                pass
-
-            self.status = Status.ENABLED
+            self.wait_for_discord(Status.ENABLED)
             self.tray_icon.ti.update_menu()
 
             try:
@@ -116,7 +113,7 @@ class AppManager:
             pypresence.InvalidID,
         ) as e:
             logger.debug(
-                "Exception catched when attempting to exit from Rich Presence",
+                "Exception caught when attempting to exit from Rich Presence",
                 exc_info=e,
             )
         except NameError:
@@ -172,12 +169,17 @@ class AppManager:
 
         logger.info(f"Changed state to {self.rpc_state}")
 
-    def attempt_to_connect_rp(self) -> bool:
-        if self.discord_rp.connected:
-            logger.debug("Already connected to Discord")
-            return True
+    def wait_for_discord(self, next_status: Status):
+        self.status = Status.WAITING_FOR_DISCORD
 
+        while not self._attempt_to_connect_rp():
+            pass
+
+        self.status = next_status
+
+    def _attempt_to_connect_rp(self) -> bool:
         logger.info("Attempting to connect to Discord")
+
         if process.check_process_running("Discord", "DiscordCanary"):
             try:
                 self.discord_rp.connect()

@@ -30,6 +30,9 @@ class DiscordRP:
     def clear_presence(self):
         self.presence.clear()
 
+    def clear_last_track(self):
+        self.last_track = None
+
     def exit_rp(self):
         if self.presence is None:
             return
@@ -65,15 +68,19 @@ class DiscordRP:
                         details=name,
                         state=artist,
                         end=int(time_remaining),
+                        buttons=[{"label": "See on Last.fm", "url": track.url}],
                         large_image=track.cover,
-                        large_text="Discord.fm",
+                        small_text="Powered by Discord.fm",
+                        small_image="lastfm",
                     )
                 else:
                     self.presence.update(
                         details=name,
                         state=artist,
+                        buttons=[{"label": "See on Last.fm", "url": track.url}],
                         large_image=track.cover,
-                        large_text="Discord.fm",
+                        small_text="Powered by Discord.fm",
+                        small_image="lastfm",
                     )
             except RuntimeError:
                 logger.warning("pypresence said update thread was already running")

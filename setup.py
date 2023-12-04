@@ -57,24 +57,29 @@ def _run(
     return results
 
 
-def _run_simple_result(cmd: str) -> str:
+def _run_simple(cmd: str | list[str], capture_output: bool = False, **kwargs) -> str | None:
     print(f'Running simple command "{cmd}"...\n')
-    result = subprocess.run(cmd, stdout=subprocess.PIPE)
-    return result.stdout.decode("utf-8").strip()
+
+    if not capture_output:
+        output = sys.stdout
+    else:
+        output = subprocess.PIPE
+
+    result = subprocess.run(cmd, stdout=output, stderr=sys.stderr, **kwargs)
+    return result.stdout.decode("utf-8").strip() if capture_output else None
 
 
 def check_venv(force: bool, no_venv: bool):
     print("\nGetting venv...")
     global python, env_path, pip
 
-    env_name = _run_simple_result("pipenv --venv")
+    env_name = _run_simple("pipenv --venv", capture_output=True)
     if (not p.isdir(env_name) or env_name == "" or force) and not no_venv:
         print("Running pipenv...\n")
-        subprocess.run(
-            "pipenv --python=3.11 install --dev", stdout=sys.stdout, stderr=sys.stderr
-        )
+        _run_simple("pipenv --python=3.11 install --dev")
+        env_name = _run_simple("pipenv --venv", capture_output=True)
 
-    python = _run_simple_result("pipenv --py")
+    python = _run_simple("pipenv --py", capture_output=True)
 
     if no_venv:
         python = "python"
@@ -82,6 +87,12 @@ def check_venv(force: bool, no_venv: bool):
     else:
         env_path = env_name
     pip = [python, "-m", "pip", "install"]
+
+    # Append site-packages from the virtual env. Needed when we're importing BuildTools and it imports stuff not
+    # installed globally
+    sys.path.append(p.join(env_path, "Lib", "site-packages"))
+
+    print(f"Python path: {python}\nEnv path: {env_path}\nPip path: {pip}")
 
 
 def __pyinstaller_installed() -> bool:
@@ -101,6 +112,7 @@ def check_pyinstaller(force: bool):
         print("PyInstaller is already installed, skipping")
         return
 
+    print("Installing PyInstaller")
     if platform.system() == "Windows":
         if shutil.which("git") is None:
             print(
@@ -164,7 +176,8 @@ if __name__ == "__main__":
         help="Skips cleanup, leaving temporary files and folders",
     )
     parser.add_argument(
-        "-f", "--force",
+        "-f",
+        "--force",
         action="store_true",
         dest="force",
         help="Force setup from scratch.",
@@ -208,17 +221,17 @@ if __name__ == "__main__":
             check_venv(args.force, args.no_venv)
 
             print("\nRunning main.py...")
-            subprocess.run([python, "main.py"], cwd=p.abspath("src"), check=True)
+            _run_simple([python, "main.py"], cwd=p.abspath("src"), check=True)
         case "test":
             check_venv(args.force, args.no_venv)
 
             print("\n Running tests with pytest")
             env = os.environ.copy()
             env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
-            subprocess.run(
-                [python, "-m", "pytest", "tests/"],
+
+            _run_simple(
+                [python, "-m", "pytest", "tests/", "--full-trace"],
                 env=env,
-                check=True,
             )
 
             print("\n Tests completed")
@@ -226,6 +239,6 @@ if __name__ == "__main__":
             check_venv(args.force, args.no_venv)
 
             paths = ["src", "build/*.py", "tests"]
-            _run([python, "-m", "black"] + paths)
+            _run_simple([python, "-m", "black"] + paths)
 
             print("\nFormatting completed")
