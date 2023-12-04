@@ -92,10 +92,8 @@ class AppManager:
         self._perform_checks()
 
         if self.status != Status.KILL:
-            self.wait_for_discord(Status.ENABLED)
-            self.tray_icon.ti.update_menu()
-
             try:
+                Thread(target=self.wait_for_discord, args=(Status.ENABLED,), daemon=True).start()
                 Thread(target=self.loop.handle_update, daemon=True).start()
                 self.tray_icon.ti.run()
             except (KeyboardInterrupt, SystemExit):
@@ -162,7 +160,6 @@ class AppManager:
         self.rpc_state = new_value
 
         if self.rpc_state:
-            self.status = Status.WAITING_FOR_DISCORD
             self.wait_for_discord(Status.ENABLED)
             self.loop.force_update()
         else:
@@ -176,10 +173,15 @@ class AppManager:
         self.status = Status.WAITING_FOR_DISCORD
         self.tray_icon.ti.update_menu()
 
-        while not self._attempt_to_connect_rp():
+        while not self._attempt_to_connect_rp() and self.status != Status.KILL:
             pass
 
-        self.status = next_status
+        if self.status == Status.KILL:
+            logger.info("Cancelling wait for Discord since status is Status.KILL")
+            return
+        else:
+            self.status = next_status
+            self.tray_icon.ti.update_menu()
 
     def _attempt_to_connect_rp(self) -> bool:
         logger.info("Attempting to connect to Discord")
