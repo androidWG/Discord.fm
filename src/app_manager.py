@@ -160,12 +160,13 @@ class AppManager:
         self.rpc_state = new_value
 
         if self.rpc_state:
-            self.status = Status.ENABLED
+            self.status = Status.WAITING_FOR_DISCORD
+            self.wait_for_discord(Status.ENABLED)
             self.loop.force_update()
         else:
             self.status = Status.DISABLED
             self.discord_rp.exit_rp()
-            self.discord_rp.last_track = None
+            self.discord_rp.clear_last_track()
 
         logger.info(f"Changed state to {self.rpc_state}")
 
