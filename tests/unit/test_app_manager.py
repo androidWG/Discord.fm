@@ -1,8 +1,6 @@
 import unittest
 from unittest.mock import patch
 
-import loop_handler
-import wrappers
 from app_manager import AppManager
 from util.status import Status
 
@@ -37,6 +35,7 @@ class TestAppManager(unittest.TestCase):
         mock_check_process_running.assert_called_once_with("discord_fm", "discord.fm")
         mock_open_settings.assert_not_called()
 
+    @patch("app_manager.AppManager.wait_for_discord")
     @patch("atexit.register")
     @patch("app_manager.AppManager._perform_checks")
     @patch("app_manager.Thread.start")
@@ -160,7 +159,7 @@ class TestAppManager(unittest.TestCase):
 
         self.assertEqual(manager.rpc_state, False)
         self.assertEqual(manager.status, Status.DISABLED)
-        manager.discord_rp.disconnect.assert_called_once()
+        manager.discord_rp.exit_rp.assert_called_once()
         self.assertEqual(manager.discord_rp.last_track, None)
 
     @patch("process.check_process_running")
@@ -183,7 +182,7 @@ class TestAppManager(unittest.TestCase):
         mock_check_process_running.return_value = True
         manager.discord_rp.connected = False
 
-        manager.attempt_to_connect_rp()
+        manager._attempt_to_connect_rp()
 
         mock_check_process_running.assert_called_once_with("Discord", "DiscordCanary")
         manager.discord_rp.connect.assert_called_once()
@@ -196,7 +195,7 @@ class TestAppManager(unittest.TestCase):
         # Test not running
         mock_check_process_running.return_value = False
 
-        manager.attempt_to_connect_rp()
+        manager._attempt_to_connect_rp()
 
         mock_check_process_running.assert_called_once_with("Discord", "DiscordCanary")
         mock_discord_rp.connect.assert_not_called()
@@ -207,35 +206,17 @@ class TestAppManager(unittest.TestCase):
         mock_discord_rp.connect.reset_mock()
         mock_sleep.reset_mock()
 
-        # Test already connected
-        manager.discord_rp.connected = True
-
-        manager.attempt_to_connect_rp()
-
-        mock_check_process_running.assert_not_called()
-        mock_discord_rp.connect.assert_not_called()
-        mock_sleep.assert_not_called()
-
-    @patch("wrappers.discord_rp.DiscordRP")
-    def test_disconnect_rp(self, mock_discord_rp, *mocks):
-        manager = AppManager()
-
-        manager.disconnect_rp()
-
-        mock_discord_rp.return_value.disconnect.assert_called_once()
-        self.assertEqual(manager.discord_rp.last_track, None)
-
     @patch("ui.SettingsWindow")
     @patch("platform.system")
     @patch("ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID")
-    def test_create_settings_window(
+    def test_open_settings(
         self, mock_set_app_id, mock_system, mock_settings_window, *mocks
     ):
         manager = AppManager()
 
         mock_system.return_value = "Windows"
 
-        manager._create_settings_window()
+        manager.open_settings()
 
         mock_set_app_id.assert_called_once()
         mock_settings_window.assert_called_once()

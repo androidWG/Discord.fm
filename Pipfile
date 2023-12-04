@@ -19,6 +19,7 @@ pygobject = {version = ">=3.44.1",platform_system = "=='Linux'"}
 
 [dev-packages]
 packaging = ">=21.3"
+black = "*"
 pytest = "*"
 PyYAML = {version = ">=6.0",platform_system = "=='Linux'"}
 requirements-parser = {version = ">=0.5.0",platform_system = "=='Linux'"}

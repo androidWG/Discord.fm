@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import logging
 
-from pypresence import Presence
+from pypresence import Presence, InvalidID
 
 from wrappers import track_info
 
@@ -27,15 +27,24 @@ class DiscordRP:
         self.connected = True
         logger.info("Connected to Discord")
 
-    def disconnect(self):
-        self.exit_rp()
+    def clear_presence(self):
+        self.presence.clear()
+
+    def clear_last_track(self):
+        self.last_track = None
 
     def exit_rp(self):
         if self.presence is None:
             return
 
-        self.presence.clear()
-        self.presence.close()
+        try:
+            self.presence.clear()
+            self.presence.close()
+        except InvalidID as e:
+            logger.debug(
+                "Caught InvalidID exception while closing presence, Discord was likely closed"
+            )
+
         self.connected = False
         logger.info("Closed Discord Rich Presence")
 
@@ -59,15 +68,19 @@ class DiscordRP:
                         details=name,
                         state=artist,
                         end=int(time_remaining),
+                        buttons=[{"label": "See on Last.fm", "url": track.url}],
                         large_image=track.cover,
-                        large_text="Discord.fm",
+                        small_text="Powered by Discord.fm",
+                        small_image="lastfm",
                     )
                 else:
                     self.presence.update(
                         details=name,
                         state=artist,
+                        buttons=[{"label": "See on Last.fm", "url": track.url}],
                         large_image=track.cover,
-                        large_text="Discord.fm",
+                        small_text="Powered by Discord.fm",
+                        small_image="lastfm",
                     )
             except RuntimeError:
                 logger.warning("pypresence said update thread was already running")

@@ -18,8 +18,9 @@ class TestTrackInfo(TestCase):
     manager = MagicMock()
 
     @patch("pylast.Track.get_cover_image")
+    @patch("pylast.Track.get_url")
     @patch("util.request_handler.RequestHandler.attempt_request")
-    def test_values(self, mock_request_handler: MagicMock, mock_cover: MagicMock):
+    def test_values(self, mock_request_handler: MagicMock, *mock):
         mock_request_handler.return_value = self.duration
 
         result = track_info.TrackInfo(self.manager, self.data1)
@@ -29,8 +30,9 @@ class TestTrackInfo(TestCase):
         self.assertEqual(result.duration, self.duration)
 
     @patch("pylast.Track.get_cover_image")
+    @patch("pylast.Track.get_url")
     @patch("util.request_handler.RequestHandler.attempt_request")
-    def test_equal(self, mock_request_handler: MagicMock, mock_cover: MagicMock):
+    def test_equal(self, mock_request_handler: MagicMock, *mock):
         mock_request_handler.return_value = self.duration
 
         info1 = track_info.TrackInfo(self.manager, self.data1)

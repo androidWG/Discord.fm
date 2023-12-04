@@ -5,7 +5,6 @@ import platform
 import struct
 import subprocess
 import sys
-import threading
 import time
 from threading import Thread
 
@@ -91,7 +90,7 @@ class AppManager:
         self._perform_checks()
 
         if self.status != Status.KILL:
-            self.status = Status.ENABLED
+            self.wait_for_discord(Status.ENABLED)
             self.tray_icon.ti.update_menu()
 
             try:
@@ -114,7 +113,7 @@ class AppManager:
             pypresence.InvalidID,
         ) as e:
             logger.debug(
-                "Exception catched when attempting to exit from Rich Presence",
+                "Exception caught when attempting to exit from Rich Presence",
                 exc_info=e,
             )
         except NameError:
@@ -165,21 +164,27 @@ class AppManager:
             self.loop.force_update()
         else:
             self.status = Status.DISABLED
-            self.discord_rp.disconnect()
+            self.discord_rp.exit_rp()
             self.discord_rp.last_track = None
 
         logger.info(f"Changed state to {self.rpc_state}")
 
-    def attempt_to_connect_rp(self):
-        if self.discord_rp.connected:
-            logger.debug("Already connected to Discord")
-            return
+    def wait_for_discord(self, next_status: Status):
+        self.status = Status.WAITING_FOR_DISCORD
 
+        while not self._attempt_to_connect_rp():
+            pass
+
+        self.status = next_status
+
+    def _attempt_to_connect_rp(self) -> bool:
         logger.info("Attempting to connect to Discord")
+
         if process.check_process_running("Discord", "DiscordCanary"):
             try:
                 self.discord_rp.connect()
                 logger.info("Successfully connected to Discord")
+                return True
             except (
                 FileNotFoundError,
                 pypresence.InvalidPipe,
@@ -189,6 +194,7 @@ class AppManager:
                 struct.error,
             ) as e:
                 logger.debug(f"Received {e} when connecting to Discord RP")
+                return False
             except PermissionError as e:
                 if (
                     not self.second_user_notification_called
@@ -206,24 +212,12 @@ class AppManager:
 
                     util.basic_notification(title, message)
                     self.second_user_notification_called = True
+                    return False
         else:
             time.sleep(10)
-
-    def disconnect_rp(self):
-        if self.discord_rp.connected:
-            self.discord_rp.disconnect()
-            self.discord_rp.last_track = None
-        else:
-            logger.debug("Already disconnected from Discord")
+            return False
 
     def open_settings(self, wait: bool = False):
-        if wait:
-            self._create_settings_window()
-        else:
-            thread = threading.Thread(target=self._create_settings_window, daemon=True)
-            thread.start()
-
-    def _create_settings_window(self):
         logger.debug("Opening settings")
 
         # Set app ID so Windows will show the correct icon on the taskbar

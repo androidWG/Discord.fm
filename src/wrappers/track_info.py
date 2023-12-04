@@ -8,11 +8,13 @@ class TrackInfo:
     artist: str
     duration: int
     cover: str
+    url: str
 
     def __init__(self, manager, lastfm_track: pylast.Track):
         self.name = lastfm_track.title
         self.artist = lastfm_track.artist.name
         self.cover = lastfm_track.get_cover_image(pylast.SIZE_MEDIUM)
+        self.url = lastfm_track.get_url()
 
         handler = request_handler.RequestHandler(
             manager, f'album for track "{self.name}"'
