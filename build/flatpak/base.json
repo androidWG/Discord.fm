@@ -1,7 +1,7 @@
 {
   "app-id": "net.androidWG.Discordfm",
   "runtime": "org.gnome.Platform",
-  "runtime-version": "44",
+  "runtime-version": "45",
   "sdk": "org.gnome.Sdk",
   "command": "discord_fm",
   "finish-args": [
@@ -14,7 +14,7 @@
     "--talk-name=org.kde.StatusNotifierWatcher"
   ],
   "cleanup": [
-    "/usr/lib/python3.10"
+    "/usr/lib/python3.11"
   ],
   "modules": [
     {
@@ -23,16 +23,7 @@
       "build-commands": null,
       "sources": null
     },
-    {
-      "name": "libayatana-appindicator",
-      "buildsystem": "autotools",
-      "sources": [
-        {
-          "type": "git",
-          "url": "https://github.com/AyatanaIndicators/libayatana-appindicator.git"
-        }
-      ]
-    },
+    "../../shared-modules/libappindicator/libappindicator-gtk3-12.10.json",
     {
       "name": "discord.fm",
       "buildsystem": "simple",
