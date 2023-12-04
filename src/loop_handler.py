@@ -8,6 +8,7 @@ from pypresence import PipeClosed
 import process
 import util
 import wrappers.last_fm_user
+from util.scrobble_status import ScrobbleStatus
 from util.status import Status
 from wrappers.system_tray_icon import SystemTrayIcon
 from wrappers.track_info import TrackInfo
@@ -63,9 +64,11 @@ class LoopHandler:
             if track is not None:
                 self.m.discord_rp.update_status(track)
                 self._last_track = track
+                self.m.scrobble_status = ScrobbleStatus.SCROBBLING
             else:
                 logger.debug("Not playing anything")
                 self.m.discord_rp.clear_presence()
+                self.m.scrobble_status = ScrobbleStatus.NOT_SCROBBLING
         except (
             BrokenPipeError,
             PipeClosed,
@@ -75,7 +78,8 @@ class LoopHandler:
         ):
             self._check_discord_running()
 
-        if not self.m.status == Status.KILL:
+        if self.m.status != Status.KILL:
+            self.m.tray_icon.ti.update_menu()
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler_ref,))
 
     def _misc_update(self, misc_scheduler):

@@ -10,7 +10,7 @@ from typing import List
 
 import build
 
-PYINSTALLER_VER = "5.11.0"
+PYINSTALLER_VER = "6.2.0"
 MARKER_NAME = ".setup_done"
 
 current_platform = platform.system()
@@ -96,8 +96,6 @@ def check_venv(force: bool, no_venv: bool):
         sys.path.append(p.join(env_path, "Lib", "site-packages"))
     else:
         sys.path.append(p.join(env_path, "bin"))
-
-    print(f"Python path: {python}\nEnv path: {env_path}\nPip path: {pip}")
 
 
 def __pyinstaller_installed() -> bool:
@@ -215,6 +213,7 @@ if __name__ == "__main__":
     match args.command:
         case "setup":
             check_venv(args.force, args.no_venv)
+            print(f"Python path: {python}\nEnv path: {env_path}\nPip path: {pip}")
             print("\nSetup completed")
         case "build":
             if not args.flatpak:

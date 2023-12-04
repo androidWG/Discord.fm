@@ -6,6 +6,7 @@ from PIL import Image
 from pystray import Icon, Menu, MenuItem
 
 import util
+from util.scrobble_status import ScrobbleStatus
 from util.status import Status
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -31,20 +32,6 @@ class SystemTrayIcon:
 
         menu = Menu(
             MenuItem(
-                "Enable Rich Presence",
-                lambda ic, it: self.m.toggle_rpc(not it.checked),
-                checked=lambda i: self.m.rpc_state,
-                visible=lambda i: self.m.status != Status.STARTUP
-                and self.m.status != Status.UPDATING
-                and self.m.status != Status.WAITING_FOR_DISCORD,
-            ),
-            MenuItem(
-                "Open Settings",
-                self.m.open_settings,
-                visible=lambda i: self.m.status != Status.STARTUP
-                and self.m.status != Status.UPDATING,
-            ),
-            MenuItem(
                 "Starting...",
                 None,
                 enabled=False,
@@ -61,6 +48,32 @@ class SystemTrayIcon:
                 None,
                 enabled=False,
                 visible=lambda i: self.m.status == Status.WAITING_FOR_DISCORD,
+            ),
+            MenuItem(
+                "Not scrobbling anything",
+                None,
+                enabled=False,
+                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.NOT_SCROBBLING
+            ),
+            MenuItem(
+                "Checking current scrobbling...",
+                None,
+                enabled=False,
+                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.FIRST_CHECK
+            ),
+            MenuItem(
+                "Enable Rich Presence",
+                lambda ic, it: self.m.toggle_rpc(not it.checked),
+                checked=lambda i: self.m.rpc_state,
+                visible=lambda i: self.m.status != Status.STARTUP
+                and self.m.status != Status.UPDATING
+                and self.m.status != Status.WAITING_FOR_DISCORD,
+            ),
+            MenuItem(
+                "Open Settings",
+                self.m.open_settings,
+                visible=lambda i: self.m.status != Status.STARTUP
+                and self.m.status != Status.UPDATING,
             ),
             Menu.SEPARATOR,
             MenuItem("Exit", lambda: self._exit_func()),

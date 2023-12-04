@@ -209,3 +209,4 @@ temp_requirements.txt
 dependencies.yaml
 
 build-dir/
+pyinstaller/

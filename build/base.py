@@ -31,8 +31,6 @@ class BuildTool:
         self.py_path = py_path
         self.run_command = [f"{self.py_path} -O -m PyInstaller"]
 
-        print(f"Run command: {self.run_command}")
-
     def _temp(self, value: str | os.PathLike[str]) -> str | os.PathLike[str]:
         self.temp_paths.append(os.path.abspath(value))
         return value
