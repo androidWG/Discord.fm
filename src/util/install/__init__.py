@@ -11,7 +11,7 @@ def get_install() -> BaseInstall:
     if platform.system() == "Windows":
         module = importlib.import_module("util.install.windows")
     elif platform.system() == "Darwin":
-        raise NotImplementedError("macOS is not implemented yet")
+        module = importlib.import_module("util.install.macos")
     elif platform.system() == "Linux":
         raise NotImplementedError("Linux is not implemented yet")
     else:
