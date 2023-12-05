@@ -64,16 +64,16 @@ class WindowsInstall(base.BaseInstall):
                 )
                 return False
 
-    def install(self, installer_path: str):
+    def install(self, path: str):
         """Runs an Inno Setup installer in silent mode under a subprocess and waits for it to finish.
 
-        :param installer_path: Path where the .zip containing the .app folder is located
-        :type installer_path: str
+        :param path: Path where the .zip containing the .app folder is located
+        :type path: str
         """
         logger.info("Installing for Windows...")
 
         command = (
-            f'"{installer_path}" /VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /FORCECLOSEAPPLICATIONS '
+            f'"{path}" /VERYSILENT /SUPPRESSMSGBOXES /CLOSEAPPLICATIONS /FORCECLOSEAPPLICATIONS '
             f"/CURRENTUSER "
         )
         logger.debug(f"Running command: {command}")

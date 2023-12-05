@@ -8,5 +8,5 @@ class BaseInstall:
     def set_startup(self, new_value: bool, exe_path: str) -> bool:
         pass
 
-    def install(self, installer_path: str):
+    def install(self, path: str):
         pass
