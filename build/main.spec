@@ -21,6 +21,7 @@ main_exe = EXE(
     console=False,
     version=r"#VER_MAIN#",
     icon=r"#ICON_MAIN#",
+    contents_directory='.',
 )
 
 coll = COLLECT(
