@@ -50,13 +50,15 @@ class LinuxGenericBuildTool(build.base.BuildTool):
         source_dir = "dist/discord_fm"
         filename = Path(f"dist/discord.fm-generic-linux64-{self.version}.tar.gz")
 
-        print("Copying install/uninstall files")
+        print("Copying additional files")
         shutil.copy("build/linux/install.sh", source_dir)
         shutil.copy("build/linux/uninstall.sh", source_dir)
+        shutil.copy("build/linux/discord_fm.desktop", source_dir)
 
         print("Creating tar.gz archive")
         filename.unlink(True)
         with tarfile.open(filename, "w:gz") as tar:
+            print(f"Adding {source_dir}")
             tar.add(source_dir, arcname=os.path.sep)
 
 
