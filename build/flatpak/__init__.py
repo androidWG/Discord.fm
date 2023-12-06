@@ -8,10 +8,10 @@ from build.flatpak import requirements
 
 class FlatpakBuildTool(BuildTool):
     def prepare_files(self):
-        output = self._temp("build/flatpak/dependencies.json")
-        requirements.make_yaml("build/flatpak/requirements.txt", output)
+        dependencies = self._temp("build/flatpak/dependencies.json")
+        requirements.make_yaml("build/flatpak/requirements.txt", dependencies)
 
-        with open(output, "r") as file:
+        with open(dependencies, "r") as file:
             packages = json.load(file)
         with open("build/flatpak/base.json", "r") as file:
             app = json.load(file)
