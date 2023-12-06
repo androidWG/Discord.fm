@@ -132,3 +132,7 @@ def basic_notification(title: str, message: str):
             app_name="Discord.fm",
             app_icon=icon,
         )
+
+
+def is_running_in_flatpak() -> bool:
+    return os.getenv("container") is not None

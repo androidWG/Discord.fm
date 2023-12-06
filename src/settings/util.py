@@ -2,6 +2,7 @@ import logging
 import os
 from platform import system
 
+import util
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -49,7 +50,12 @@ def setup_app_data_dir(folder_name: str) -> str:
             os.path.expanduser("~/Library/Application Support"), folder_name
         )
     elif current_platform == "Linux":
-        path = os.path.expanduser(f"~/.config/{folder_name.replace('.', '_').lower()}")
+        if util.is_running_in_flatpak() is not None:
+            path = os.path.expanduser("~/.var/app/net.androidwg.discord_fm")
+        else:
+            path = os.path.expanduser(
+                f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
+            )
     else:
         raise NotImplementedError("Platform not supported")
 
@@ -75,9 +81,12 @@ def setup_logs_dir(folder_name: str) -> str:
     elif current_platform == "Darwin":
         path = os.path.join(os.path.expanduser("~/Library/Logs"), folder_name)
     elif current_platform == "Linux":
-        path = os.path.expanduser(
-            f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
-        )
+        if util.is_running_in_flatpak() is not None:
+            path = os.path.expanduser("~/.var/app/net.androidwg.discord_fm")
+        else:
+            path = os.path.expanduser(
+                f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
+            )
     else:
         raise NotImplementedError("Platform not supported")
 
