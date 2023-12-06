@@ -53,13 +53,14 @@ class SystemTrayIcon:
                 "Not scrobbling anything",
                 None,
                 enabled=False,
-                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.NOT_SCROBBLING
+                visible=lambda i: self.m.scrobble_status
+                == ScrobbleStatus.NOT_SCROBBLING,
             ),
             MenuItem(
                 "Checking current scrobbling...",
                 None,
                 enabled=False,
-                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.FIRST_CHECK
+                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.FIRST_CHECK,
             ),
             MenuItem(
                 "Enable Rich Presence",
