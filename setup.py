@@ -221,27 +221,19 @@ if __name__ == "__main__":
             print(f"Python path: {python}\nEnv path: {env_path}\nPip path: {pip}")
             print("\nSetup completed")
         case "build":
-            if not args.flatpak:
-                check_venv(args.force, args.no_venv)
-                check_pyinstaller(args.force)
+            check_venv(args.force, args.no_venv)
+            check_pyinstaller(args.force)
 
-                print("\nBuilding Discord.fm")
-                bt = build.get_build_tool(python)
-                bt.prepare_files()
-                if args.executable:
-                    bt.build()
-                    bt.package()
-                if args.installer:
-                    bt.make_installer()
-                if args.cleanup:
-                    bt.cleanup()
-            else:
-                print("Building inside Flatpak")
-                python = "python3"
-
-                bt = build.get_build_tool(python, True)
-                bt.prepare_files()
+            print("\nBuilding Discord.fm")
+            bt = build.get_build_tool(python, args.flatpak)
+            bt.prepare_files()
+            if args.executable:
                 bt.build()
+                bt.package()
+            if args.installer:
+                bt.make_installer()
+            if args.cleanup:
+                bt.cleanup()
 
             print("\nBuild completed")
         case "run":
