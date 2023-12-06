@@ -62,12 +62,17 @@ def _run_simple(
 ) -> str | None:
     print(f'Running simple command "{cmd}"...\n')
 
+    if isinstance(cmd, str):
+        command = cmd.split(" ")
+    else:
+        command = cmd
+
     if not capture_output:
         output = sys.stdout
     else:
         output = subprocess.PIPE
 
-    result = subprocess.run(cmd, stdout=output, stderr=sys.stderr, **kwargs)
+    result = subprocess.run(command, stdout=output, stderr=sys.stderr, **kwargs)
     return result.stdout.decode("utf-8").strip() if capture_output else None
 
 
@@ -205,7 +210,7 @@ if __name__ == "__main__":
 
     if shutil.which("pipenv"):
         print("Pipenv was not found, installing using pip")
-        _run(["python3 -m pip install pipenv"])
+        _run_simple("python -m pip install pipenv")
 
     if current_platform not in ["Windows", "Linux", "Darwin"]:
         parser.exit(3, f'Platform "{current_platform}" is unsupported!')
