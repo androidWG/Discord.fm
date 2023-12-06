@@ -3,6 +3,7 @@ import shutil
 import subprocess
 import tarfile
 import time
+from pathlib import Path
 
 import build.base
 import process
@@ -47,9 +48,14 @@ class LinuxGenericBuildTool(build.base.BuildTool):
 
     def package(self):
         source_dir = "dist/discord_fm"
-        filename = f"dist/discord.fm-generic-linux64-{self.version}.tar.gz"
+        filename = Path(f"dist/discord.fm-generic-linux64-{self.version}.tar.gz")
+
+        print("Copying install/uninstall files")
+        shutil.copy("build/linux/install.sh", source_dir)
+        shutil.copy("build/linux/uninstall.sh", source_dir)
 
         print("Creating tar.gz archive")
+        filename.unlink(True)
         with tarfile.open(filename, "w:gz") as tar:
             tar.add(source_dir, arcname=os.path.sep)
 
