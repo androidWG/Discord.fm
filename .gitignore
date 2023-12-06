@@ -204,9 +204,10 @@ build/discord_fm*/
 build/settings_ui*/
 
 .flatpak-builder/
+.pipcache/
 com.androidWG.Discordfm.*
 temp_requirements.txt
 dependencies.yaml
-
+Pipfile.lock
 build-dir/
 pyinstaller/
