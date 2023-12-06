@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 import requirements
 import json
@@ -29,12 +30,12 @@ pip_command = [
     "-m",
     "pip",
     "install",
-    "--verbose",
     "--exists-action=i",
     "--ignore-installed",
     "--no-index",
     '--find-links="file://${PWD}"',
     "--prefix=${FLATPAK_DEST}",
+    f"--cache-dir={str(Path('build/.pipcache').absolute().mkdir(exist_ok=True))}",
 ]
 pypi_module = {
     "name": OUTPUT_PACKAGE,
