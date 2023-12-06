@@ -1,0 +1,42 @@
+app-id: net.androidwg.discord_fm
+runtime: org.gnome.Platform
+runtime-version: '45'
+sdk: org.gnome.Sdk
+command: discord_fm
+#rename-desktop-file: discord_fm.desktop
+#rename-icon: discord_fm
+finish-args:
+  # X11/Wayland
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --share=ipc
+  - --device=dri
+  - --share=network
+  - --talk-name=com.canonical.indicator.application
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.kde.StatusNotifierWatcher
+
+modules:
+  - ../../shared-modules/libappindicator/libappindicator-gtk3-introspection-12.10.json
+  - name: discord_fm
+    buildsystem: simple
+    build-commands:
+      - ./install.sh
+#      - install -Dm644 -t /app/share/icons/hicolor/scalable/apps anki.svg
+#      - install -Dm644 -t /app/share/appdata net.androidwg.discord_fm.appdata.xml
+    sources:
+      - type: archive
+        path: /home/anna/Repos/Discord.fm/dist/discord.fm-generic-linux64-0.10.1.tar.gz
+        strip-components: 0
+#        sha256: 2afd121fe6cb9c148cfed6077b690425ce27ee2cd94c135642cda79bfb5e2c45
+#        x-checker-data:
+#          type: anitya
+#          is-main-source: true
+#          project-id: 49
+#          stable-only: true
+#          url-template: https://github.com/ankitects/anki/releases/download/$version/anki-$version-linux-qt6.tar.zst
+      - type: file
+        path: net.androidwg.discord_fm.appdata.xml
+      - type: shell
+        commands:
+          - sed -i 's/PREFIX=~\/.local/PREFIX=\/app/' install.sh
