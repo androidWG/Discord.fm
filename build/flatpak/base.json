@@ -9,6 +9,10 @@
     "--socket=x11",
     "--socket=wayland",
     "--share=network",
+    "--filesystem=/run/user/1000/com.discordapp.Discord",
+    "--filesystem=/run/user/1000/snap.discord",
+    "--filesystem=/run/user/1000/app/com.discordapp.Discord",
+    "--filesystem=/run/user/1000/app/com.discordapp.DiscordCanary",
     "--talk-name=com.canonical.indicator.application",
     "--talk-name=org.freedesktop.Notifications",
     "--talk-name=org.kde.StatusNotifierWatcher"
