@@ -48,8 +48,10 @@ def setup_app_data_dir(folder_name: str) -> str:
         path = os.path.join(
             os.path.expanduser("~/Library/Application Support"), folder_name
         )
-    else:
+    elif current_platform == "Linux":
         path = os.path.expanduser(f"~/.config/{folder_name.replace('.', '_').lower()}")
+    else:
+        raise NotImplementedError("Platform not supported")
 
     make_dir(path)
     clear_executables(path)
@@ -72,10 +74,12 @@ def setup_logs_dir(folder_name: str) -> str:
         path = os.path.join(os.getenv("localappdata"), folder_name)
     elif current_platform == "Darwin":
         path = os.path.join(os.path.expanduser("~/Library/Logs"), folder_name)
-    else:
+    elif current_platform == "Linux":
         path = os.path.expanduser(
             f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
         )
+    else:
+        raise NotImplementedError("Platform not supported")
 
     make_dir(path)
     return path
