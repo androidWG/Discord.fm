@@ -4,15 +4,13 @@
 <dict>
   <key>Label</key>
   <string>net.androidwg.discordfm.launch</string>
+  <key>LimitLoadToSessionType</key>
+  <string>Aqua</string>
   <key>ProgramArguments</key>
   <array>
-    <string>mv</string>
-    <string>~/Applications/Discord.fm.app/</string>
+    <string>~/Applications/Discord.fm.app/Contents/MacOS/Discord.fm</string>
   </array>
-  <key>StartCalendarInterval</key>
-  <dict>
-    <key>Hour</key>
-    <integer>1</integer>
-  </dict>
+  <key>StartInterval</key>
+  <integer>3620</integer>
 </dict>
 </plist>
