@@ -16,8 +16,11 @@ fi
 rm -rf "$PREFIX"/lib/discord_fm "$PREFIX"/bin/discord_fm
 mkdir -p "$PREFIX"/lib/discord_fm
 cp -av --no-preserve=owner,context -- * "$PREFIX"/lib/discord_fm/
-ln -sf "$PREFIX"/lib/discord_fm/discord_fm "$PREFIX"/bin
+mkdir -p "$PREFIX"/bin
+ln -sf "$PREFIX"/lib/discord_fm/discord_fm "$PREFIX"/bin/discord_fm
+mkdir -p "$PREFIX"/share/applications
+mv -Z "$PREFIX"/lib/discord_fm/discord_fm.desktop "$PREFIX"/share/applications/
 
-rm install.sh
+rm "$PREFIX"/lib/discord_fm/install.sh
 
 echo "Install complete. Type 'discord_fm' to run."

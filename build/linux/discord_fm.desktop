@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Discord.fm
+Comment=Show what you're scrobbling on Discord
+GenericName=Last.fm
+Exec=discord_fm %f
+TryExec=discord_fm
+Icon=discord_fm
+Categories=Utilities;
+Terminal=false
+Type=Application
+Version=1.0
