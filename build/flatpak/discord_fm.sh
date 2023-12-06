@@ -1,1 +1,1 @@
-python3 /app/bin/main.py
+python /app/share/discord_fm/main.py
