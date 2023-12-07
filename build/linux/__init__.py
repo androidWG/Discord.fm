@@ -54,6 +54,7 @@ class LinuxGenericBuildTool(build.base.BuildTool):
         shutil.copy("build/linux/install.sh", source_dir)
         shutil.copy("build/linux/uninstall.sh", source_dir)
         shutil.copy("build/linux/discord_fm.desktop", source_dir)
+        shutil.copy("build/linux/discord_fm.svg", source_dir)
 
         print("Creating tar.gz archive")
         filename.unlink(True)
