@@ -93,7 +93,9 @@ class AppManager:
 
         if self.status != Status.KILL:
             try:
-                Thread(target=self.wait_for_discord, args=(Status.ENABLED,), daemon=True).start()
+                Thread(
+                    target=self.wait_for_discord, args=(Status.ENABLED,), daemon=True
+                ).start()
                 Thread(target=self.loop.handle_update, daemon=True).start()
                 self.tray_icon.ti.run()
             except (KeyboardInterrupt, SystemExit):
