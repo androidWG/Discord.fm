@@ -1,9 +1,13 @@
 import json
 import subprocess
 import sys
+import xml.etree.ElementTree
+from datetime import datetime
 
 from build.base import BuildTool
 from build.flatpak import requirements
+
+APP_ID = "net.androidwg.discord_fm"
 
 
 class FlatpakBuildTool(BuildTool):
@@ -13,7 +17,7 @@ class FlatpakBuildTool(BuildTool):
 
         with open(dependencies, "r") as file:
             packages = json.load(file)
-        with open("build/flatpak/base.json", "r") as file:
+        with open(f"build/flatpak/{APP_ID}.json", "r") as file:
             app = json.load(file)
 
         app["modules"][0]["build-commands"] = packages["build-commands"]
@@ -22,6 +26,14 @@ class FlatpakBuildTool(BuildTool):
         manifest = self._temp("build/flatpak/output.json")
         with open(manifest, "w") as file:
             json.dump(app, file, indent=2)
+
+        et = xml.etree.ElementTree.parse(f"build/flatpak/metainfo.xml")
+        releases = et.find("releases").find("release")
+        releases.set("version", self.version.base_version)
+        releases.set("date", datetime.today().strftime("%Y-%m-%d"))
+
+        metainfo = self._temp(f"build/flatpak/{APP_ID}.metainfo.xml")
+        et.write(metainfo)
 
     def build(self):
         commands = [
