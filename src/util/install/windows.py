@@ -8,7 +8,6 @@ import win32com.client
 
 from util.install import BaseInstall
 
-
 REGISTRY_PATH = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{5DD6EAF6-9E8F-4240-ADF1-29FD79B30E3F}_is1"
 LINK_PATH = [
     "Microsoft",
@@ -64,6 +63,8 @@ class WindowsInstall(BaseInstall):
                     "Received error when trying to create shortcut", exc_info=e
                 )
                 return False
+        else:
+            return new_value
 
     def install(self, installer_path: str):
         """Runs an Inno Setup installer in silent mode under a subprocess and waits for it to finish.
