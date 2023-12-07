@@ -35,11 +35,8 @@ def get_install() -> BaseInstall:
 
 
 def get_exe_path():
-    if platform.system() == "Linux":
-        raise NotImplementedError
+    if util.is_frozen() and not util.is_running_in_flatpak():
+        return os.path.dirname(sys.executable)
     else:
-        if util.is_frozen():
-            return os.path.dirname(sys.executable)
-        else:
-            install = get_install()
-            install.get_executable_path()
+        install = get_install()
+        install.get_executable_path()
