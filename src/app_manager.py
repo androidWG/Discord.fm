@@ -188,10 +188,7 @@ class AppManager:
     def _attempt_to_connect_rp(self) -> bool:
         logger.info("Attempting to connect to Discord")
 
-        if (
-            process.check_process_running("Discord", "DiscordCanary")
-            or util.is_running_in_flatpak()
-        ):
+        if util.is_discord_running():
             try:
                 self.discord_rp.connect()
                 logger.info("Successfully connected to Discord")

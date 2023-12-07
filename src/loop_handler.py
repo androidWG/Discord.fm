@@ -5,7 +5,6 @@ from sched import scheduler
 from PIL import Image
 from pypresence import PipeClosed
 
-import process
 import util
 import wrappers.last_fm_user
 from util.scrobble_status import ScrobbleStatus
@@ -109,7 +108,7 @@ class LoopHandler:
             self.sc.enter(self.misc_cooldown, 2, self._misc_update, (misc_scheduler,))
 
     def _check_discord_running(self):
-        if not process.check_process_running("Discord", "DiscordCanary"):
+        if not util.is_discord_running():
             logger.info("Discord was closed, waiting for reopen")
             self.m.wait_for_discord(Status.ENABLED)
             self.m.discord_rp.clear_last_track()
