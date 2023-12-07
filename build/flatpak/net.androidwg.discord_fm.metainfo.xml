@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2023 Anna Rodrigues -->
+<component type="desktop-application">
+  <id>net.androidwg.discord_fm</id>
+  <name>Discord.fm</name>
+  <summary>Show what you're scrobbling on Discord</summary>
+  <developer_name>Anna Rodrigues</developer_name>
+  <description>
+    <p>Discord.fm connects to your Last.fm account and shows what you're currently scrobbling in Discord, using Discord's Rich Presence feature.</p>
+  </description>
+  <project_license>MIT</project_license>
+  <metadata_license>MIT</metadata_license>
+  <categories>
+    <category>Utility</category>
+  </categories>
+  <url type="homepage">https://github.com/androidWG/Discord.fm/</url>
+  <url type="contribute">https://github.com/androidWG/Discord.fm/</url>
+  <url type="bugtracker">https://github.com/androidWG/Discord.fm/issues</url>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.10.0" date="2023-11-09">
+      <description>
+      </description>
+    </release>
+  </releases>
+  <launchable type="desktop-id">net.androidwg.discord_fm.desktop</launchable>
+  <update_contact>annarodrigues.net</update_contact>
+</component>

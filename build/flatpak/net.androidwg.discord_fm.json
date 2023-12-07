@@ -72,6 +72,7 @@
       ]
     },
     "../../shared-modules/libappindicator/libappindicator-gtk3-introspection-12.10.json",
+    "../../shared-modules/libcanberra/libcanberra.json",
     {
       "name": "discord.fm",
       "buildsystem": "simple",
@@ -79,12 +80,28 @@
         "mkdir -p /app/share/discord_fm",
         "mkdir -p /app/bin",
         "cp -r * /app/share/discord_fm",
-        "ln -sf /app/share/discord_fm/discord_fm.sh /app/bin/discord_fm"
+        "ln -sf /app/share/discord_fm/discord_fm.sh /app/bin/discord_fm",
+        "install -Dm644 -t /app/share/metainfo net.androidwg.discord_fm.metainfo.xml",
+        "install -Dm644 -t /app/share/icons/hicolor/scalable/apps net.androidwg.discord_fm.svg",
+        "mkdir -p /app/share/applications",
+        "mv /app/share/discord_fm/net.androidwg.discord_fm.desktop /app/share/applications/"
       ],
       "sources": [
         {
           "type": "dir",
           "path": "../../src"
+        },
+        {
+          "type": "file",
+          "path": "net.androidwg.discord_fm.metainfo.xml"
+        },
+        {
+          "type": "file",
+          "path": "net.androidwg.discord_fm.desktop"
+        },
+        {
+          "type": "file",
+          "path": "net.androidwg.discord_fm.svg"
         },
         {
           "type": "file",
