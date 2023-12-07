@@ -1,8 +1,11 @@
 import logging
 import os
+from pathlib import Path
 from platform import system
 
 import util
+
+APP_ID = "net.androidwg.discord_fm"
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -51,7 +54,7 @@ def setup_app_data_dir(folder_name: str) -> str:
         )
     elif current_platform == "Linux":
         if util.is_running_in_flatpak() is not None:
-            path = os.path.expanduser("~/.var/app/net.androidwg.discord_fm")
+            path = os.path.expanduser(Path("~/.var/app/", APP_ID))
         else:
             path = os.path.expanduser(
                 f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
@@ -82,7 +85,7 @@ def setup_logs_dir(folder_name: str) -> str:
         path = os.path.join(os.path.expanduser("~/Library/Logs"), folder_name)
     elif current_platform == "Linux":
         if util.is_running_in_flatpak() is not None:
-            path = os.path.expanduser("~/.var/app/net.androidwg.discord_fm")
+            path = os.path.expanduser(Path("~/.var/app/", APP_ID))
         else:
             path = os.path.expanduser(
                 f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
