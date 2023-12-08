@@ -156,6 +156,7 @@ def check_pyinstaller(force: bool):
 
 if __name__ == "__main__":
     # region ArgumentParser Setup
+    # TODO: Change to subcommands
     parser = argparse.ArgumentParser(
         description="Setup and manage the Discord.fm project."
     )
@@ -199,7 +200,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--flatpak",
         action="store_true",
-        help="Skips some checks and make sure everything works when building from inside flatpak-builder.",
+        help="Makes a manifest, builds and installs a Flatpak instead of Linux binaries.",
     )
     # endregion
 
