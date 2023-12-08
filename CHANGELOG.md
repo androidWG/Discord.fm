@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
  
 ### Fixed
 
+## [0.10.1] - 2023-12-07
+
+### Fixed
+- Fixed a bug where the app wouldn't accept Windows installers built in GitHub Actions
+
 ## [0.10.0] - 2023-12-07
  
 ### Added
