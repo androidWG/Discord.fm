@@ -53,7 +53,7 @@ def setup_app_data_dir(folder_name: str) -> str:
             os.path.expanduser("~/Library/Application Support"), folder_name
         )
     elif current_platform == "Linux":
-        if util.is_running_in_flatpak() is not None:
+        if util.is_running_in_flatpak():
             path = os.path.expanduser(Path("~/.var/app/", APP_ID))
         else:
             path = os.path.expanduser(
@@ -84,7 +84,7 @@ def setup_logs_dir(folder_name: str) -> str:
     elif current_platform == "Darwin":
         path = os.path.join(os.path.expanduser("~/Library/Logs"), folder_name)
     elif current_platform == "Linux":
-        if util.is_running_in_flatpak() is not None:
+        if util.is_running_in_flatpak():
             path = os.path.expanduser(Path("~/.var/app/", APP_ID))
         else:
             path = os.path.expanduser(
