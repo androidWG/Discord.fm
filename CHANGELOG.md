@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased] - yyyy-mm-dd
  
 ### Added
+
+### Changed
+ 
+### Fixed
+
+## [0.10.0] - 2023-12-07
+ 
+### Added
 - The first entry on the system tray submenu (accessed by right-clicking) is now a status indicator. Previously, it only showed up if the app was being updated and if Discord wasn't open, now it indicates every status of the app except when Discord is open **and** a song is being scrobbled. 
 
 ### Changed
