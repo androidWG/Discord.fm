@@ -20,35 +20,22 @@
 </p>
 
 Multi-platform background service that shows what you're scrobbling on Last.fm to on Discord, with automatic updates,
-cover art image and support for Discord Canary.
+cover art image, support for Discord Canary and a UI for changing settings.
 
-Forked from [Last.fm-Discord-Rich-Presence](https://github.com/Gust4Oliveira/Last.fm-Discord-Rich-Presence)
+Originally forked from [Last.fm-Discord-Rich-Presence](https://github.com/Gust4Oliveira/Last.fm-Discord-Rich-Presence)
 by [Gust4Oliveira](https://github.com/Gust4Oliveira)
 
 ## Setup
-
-### Windows
-
-> **NOTE:** Only 64-bit Windows is supported.
+The app currently supports Windows (minimum **Windows 10**) and Linux through generic binaries with an installer script. Flatpak support is incoming and macOS support is planned.
 
 - Download the [latest release](https://github.com/AndroidWG/Discord.fm/releases/latest)
 - Run the installer
 - Wait a bit and the app's settings will open. Type in your Last.fm username and close the window.
 - Done!
 
-Discord.fm will start with Windows automatically, and a tray icon will appear where you can enable or disable the Rich
-Presence status, open settings or exit the app.
-
-### macOS
-
-macOS support is 85% finished, but no build is available yet. Expect a release in the near future.
-
-### Linux
-
-While some Linux code is written, the app needs a major rewrite to support building for Flatpak (since it is extremely
-sandboxed). No releases are planned in the near future.
-
 ## Setting up dev environment
+
+Discord.fm provides a setup script with some useful functions for devs. A full list of parameters can be viewed by running the command `python setup.py -h` or simply running the script with no flags or commands.
 
 ### Requirements
 
@@ -88,5 +75,3 @@ python setup.py build
 
 The script will set up anything if needed, then build the app and subsequently the installer - both only for the current
 platform. You can pass the flag `--installer-only` or `--build-only` to skip the other step.
-
-A full list of parameters can be viewed by passing the flag `-h` or simply running the script with no flags or commands.
