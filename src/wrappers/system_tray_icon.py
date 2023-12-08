@@ -1,4 +1,6 @@
 import logging
+import platform
+import tkinter
 
 from PIL import Image
 from pystray import Icon, Menu, MenuItem
@@ -15,6 +17,17 @@ class SystemTrayIcon:
         self.m = manager
 
         self._exit_func = manager.close
+        if platform.system() == "Darwin":
+            # TkInter can only create a new NSApplication instance when it is initialized. pystray uses the shared
+            # one or creates one. To avoid NSApplication macOSVersion error when the settings UI is opened,
+            # create a dummy hidden Tk instance so pystray can use it's NSApplication.
+            class DummyWindow(tkinter.Tk):
+                def __init__(self):
+                    super().__init__()
+                    self.withdraw()
+
+            dummy = DummyWindow()
+            dummy.destroy()
         self.ti = self.create_tray_icon()
 
     def create_tray_icon(self):
