@@ -207,3 +207,6 @@ build/settings_ui*/
 com.androidWG.Discordfm.*
 temp_requirements.txt
 dependencies.yaml
+
+pyinstaller/
+Pipfile.lock

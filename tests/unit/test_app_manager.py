@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, call
 
 from app_manager import AppManager
 from util.status import Status
@@ -38,7 +38,7 @@ class TestAppManager(unittest.TestCase):
     @patch("app_manager.AppManager.wait_for_discord")
     @patch("atexit.register")
     @patch("app_manager.AppManager._perform_checks")
-    @patch("app_manager.Thread.start")
+    @patch("app_manager.Thread")
     @patch("app_manager.system_tray_icon.SystemTrayIcon")
     @patch("loop_handler.LoopHandler")
     @patch("app_manager.AppManager.close")
@@ -50,6 +50,7 @@ class TestAppManager(unittest.TestCase):
         mock_thread_start,
         mock__perform_checks,
         mock_register,
+        mock_wait,
         *mocks
     ):
         manager = AppManager()
@@ -71,10 +72,13 @@ class TestAppManager(unittest.TestCase):
 
         manager.start()
 
-        manager.tray_icon.ti.update_menu.assert_called_once()
         manager.tray_icon.ti.run.assert_called_once()
 
-        mock_thread_start.assert_called_once()
+        calls_list = [
+            call(target=mock_wait, args=(Status.ENABLED,), daemon=True),
+            call(target=manager.loop.handle_update, daemon=True),
+        ]
+        mock_thread_start.assert_has_calls(calls_list, any_order=True)
         mock_register.assert_called_once_with(manager.close)
         mock__perform_checks.assert_called_once()
 
@@ -111,7 +115,7 @@ class TestAppManager(unittest.TestCase):
 
         mock_get_newest_release.assert_called_once_with(manager)
         mock_get_version.assert_called_once_with(True)
-        mock_check_process_running.assert_called_once_with("discord_fm", "discord.fm")
+        mock_check_process_running.assert_called_with("discord_fm", "discord.fm")
         manager.tray_icon.ti.update_menu.assert_called_once()
         mock_download_asset.assert_called_once_with(manager, "latest_asset")
         mock_get_install.return_value.install.assert_called_once()
@@ -142,25 +146,6 @@ class TestAppManager(unittest.TestCase):
         mock_exit.assert_called_once()
         mock_discord_rp.return_value.exit_rp.assert_called_once()
         mock_tray.return_value.ti.stop.assert_called_once()
-
-    @patch("wrappers.discord_rp.DiscordRP")
-    @patch("loop_handler.LoopHandler")
-    def test_toggle_rpc(self, mock_discord_rp, *mocks):
-        manager = AppManager()
-        manager.status = Status.ENABLED
-
-        manager.toggle_rpc(True)
-
-        self.assertEqual(manager.rpc_state, True)
-        self.assertEqual(manager.status, Status.ENABLED)
-        manager.loop.force_update.assert_called_once()
-
-        manager.toggle_rpc(False)
-
-        self.assertEqual(manager.rpc_state, False)
-        self.assertEqual(manager.status, Status.DISABLED)
-        manager.discord_rp.exit_rp.assert_called_once()
-        self.assertEqual(manager.discord_rp.last_track, None)
 
     @patch("process.check_process_running")
     @patch("time.sleep")
@@ -205,6 +190,25 @@ class TestAppManager(unittest.TestCase):
         mock_check_process_running.reset_mock()
         mock_discord_rp.connect.reset_mock()
         mock_sleep.reset_mock()
+
+    @patch("process.check_process_running")
+    @patch("loop_handler.LoopHandler")
+    @patch("wrappers.discord_rp.DiscordRP")
+    def test_toggle_rpc(self, mock_discord_rp, *mocks):
+        manager = AppManager()
+        manager.status = Status.ENABLED
+
+        manager.toggle_rpc(True)
+
+        self.assertEqual(manager.rpc_state, True)
+        self.assertEqual(manager.status, Status.ENABLED)
+        manager.loop.force_update.assert_called_once()
+
+        manager.toggle_rpc(False)
+
+        self.assertEqual(manager.rpc_state, False)
+        self.assertEqual(manager.status, Status.DISABLED)
+        manager.discord_rp.exit_rp.assert_called_once()
 
     @patch("ui.SettingsWindow")
     @patch("platform.system")

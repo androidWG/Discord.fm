@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import logging
 
-from pypresence import Presence, InvalidID
+from pypresence import Presence, InvalidID, PipeClosed
 
 from wrappers import track_info
 
@@ -40,9 +40,9 @@ class DiscordRP:
         try:
             self.presence.clear()
             self.presence.close()
-        except InvalidID as e:
+        except (InvalidID, PipeClosed, BrokenPipeError) as e:
             logger.debug(
-                "Caught InvalidID exception while closing presence, Discord was likely closed"
+                f"Caught {e} exception while closing presence, Discord was likely closed"
             )
 
         self.connected = False
@@ -62,25 +62,22 @@ class DiscordRP:
 
             name = track.name + " " if len(track.name) < 2 else track.name
             artist = track.artist + " " if len(track.artist) < 2 else track.artist
-            try:
-                if track.duration != 0:
-                    self.presence.update(
-                        details=name,
-                        state=artist,
-                        end=int(time_remaining),
-                        buttons=[{"label": "See on Last.fm", "url": track.url}],
-                        large_image=track.cover,
-                        small_text="Powered by Discord.fm",
-                        small_image="lastfm",
-                    )
-                else:
-                    self.presence.update(
-                        details=name,
-                        state=artist,
-                        buttons=[{"label": "See on Last.fm", "url": track.url}],
-                        large_image=track.cover,
-                        small_text="Powered by Discord.fm",
-                        small_image="lastfm",
-                    )
-            except RuntimeError:
-                logger.warning("pypresence said update thread was already running")
+            if track.duration != 0:
+                self.presence.update(
+                    details=name,
+                    state=artist,
+                    end=int(time_remaining),
+                    buttons=[{"label": "See on Last.fm", "url": track.url}],
+                    large_image=track.cover,
+                    small_text="Powered by Discord.fm",
+                    small_image="lastfm",
+                )
+            else:
+                self.presence.update(
+                    details=name,
+                    state=artist,
+                    buttons=[{"label": "See on Last.fm", "url": track.url}],
+                    large_image=track.cover,
+                    small_text="Powered by Discord.fm",
+                    small_image="lastfm",
+                )

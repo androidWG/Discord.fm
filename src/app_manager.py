@@ -20,6 +20,7 @@ import util.updates
 import version
 import wrappers.discord_rp
 from process import executable_info
+from util.scrobble_status import ScrobbleStatus
 from util.status import Status
 from wrappers import system_tray_icon
 
@@ -34,6 +35,7 @@ class AppManager:
     def __init__(self):
         self.settings = settings.Settings("Discord.fm")
         self.status = Status(Status.STARTUP)
+        self.scrobble_status = ScrobbleStatus(ScrobbleStatus.FIRST_CHECK)
 
         if self.settings.get("username") == "":
             logger.critical(
@@ -90,10 +92,10 @@ class AppManager:
         self._perform_checks()
 
         if self.status != Status.KILL:
-            self.wait_for_discord(Status.ENABLED)
-            self.tray_icon.ti.update_menu()
-
             try:
+                Thread(
+                    target=self.wait_for_discord, args=(Status.ENABLED,), daemon=True
+                ).start()
                 Thread(target=self.loop.handle_update, daemon=True).start()
                 self.tray_icon.ti.run()
             except (KeyboardInterrupt, SystemExit):
@@ -160,22 +162,28 @@ class AppManager:
         self.rpc_state = new_value
 
         if self.rpc_state:
-            self.status = Status.ENABLED
+            self.wait_for_discord(Status.ENABLED)
             self.loop.force_update()
         else:
             self.status = Status.DISABLED
             self.discord_rp.exit_rp()
-            self.discord_rp.last_track = None
+            self.discord_rp.clear_last_track()
 
         logger.info(f"Changed state to {self.rpc_state}")
 
     def wait_for_discord(self, next_status: Status):
         self.status = Status.WAITING_FOR_DISCORD
+        self.tray_icon.ti.update_menu()
 
-        while not self._attempt_to_connect_rp():
+        while not self._attempt_to_connect_rp() and self.status != Status.KILL:
             pass
 
-        self.status = next_status
+        if self.status == Status.KILL:
+            logger.info("Cancelling wait for Discord since status is Status.KILL")
+            return
+        else:
+            self.status = next_status
+            self.tray_icon.ti.update_menu()
 
     def _attempt_to_connect_rp(self) -> bool:
         logger.info("Attempting to connect to Discord")
