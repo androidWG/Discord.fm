@@ -41,7 +41,7 @@ class AppManager:
             logger.critical(
                 "No username found - please add a username to settings and restart the app"
             )
-            self.open_settings(wait=True)
+            self.open_settings()
 
         self.tray_icon = system_tray_icon.SystemTrayIcon(self)
         self.loop = loop_handler.LoopHandler(self)
@@ -225,7 +225,7 @@ class AppManager:
             time.sleep(10)
             return False
 
-    def open_settings(self, wait: bool = False):
+    def open_settings(self):
         logger.debug("Opening settings")
 
         # Set app ID so Windows will show the correct icon on the taskbar
