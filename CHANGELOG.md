@@ -6,12 +6,20 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
  
 ## [Unreleased] - yyyy-mm-dd
- 
+
 ### Added
 
-### Changed
- 
+### Changed 
+
 ### Fixed
+
+## [0.10.2] - 2023-12-09
+
+### Changed
+- Ensured "Start with System" setting is set on system when the app starts 
+
+### Fixed
+- Fixed a bug where the "Start with System" shortcut would be created leading to the install folder instead of the app
 
 ## [0.10.1] - 2023-12-07
 
