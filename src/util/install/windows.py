@@ -27,10 +27,9 @@ class WindowsInstall(base.BaseInstall):
         logger.debug("Attempting to find Windows install...")
 
         access_registry = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
-        discord_fm_key_location = REGISTRY_PATH
 
         try:
-            access_key = winreg.OpenKey(access_registry, discord_fm_key_location)
+            access_key = winreg.OpenKey(access_registry, REGISTRY_PATH)
         except FileNotFoundError:
             logger.warning("Discord.fm installation not found")
             return None
