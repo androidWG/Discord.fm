@@ -2,6 +2,7 @@ import logging
 import os.path
 import subprocess
 import winreg
+from pathlib import Path
 
 import pywintypes
 import win32com.client
@@ -17,7 +18,7 @@ LINK_PATH = [
     "Startup",
     "Discord.fm.lnk",
 ]
-LINK_ABS_PATH = os.path.join(os.path.expandvars("%appdata%"), *LINK_PATH)
+LINK_ABS_PATH = Path(os.path.expandvars("%appdata%"), *LINK_PATH)
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -41,7 +42,9 @@ class WindowsInstall(base.BaseInstall):
         return exe_location
 
     def get_startup(self):
-        return os.path.isfile(LINK_ABS_PATH)
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut(str(LINK_ABS_PATH))
+        return LINK_ABS_PATH.is_file() and os.path.isfile(shortcut.Targetpath)
 
     def set_startup(self, new_value: bool, exe_path: str) -> bool:
         shortcut_exists = self.get_startup()
@@ -50,7 +53,7 @@ class WindowsInstall(base.BaseInstall):
             return False
         elif not shortcut_exists and new_value:
             shell = win32com.client.Dispatch("WScript.Shell")
-            shortcut = shell.CreateShortCut(LINK_ABS_PATH)
+            shortcut = shell.CreateShortCut(str(LINK_ABS_PATH))
             shortcut.IconLocation = exe_path
             shortcut.Targetpath = exe_path
 
