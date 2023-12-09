@@ -60,6 +60,12 @@ class AppManager:
             logger.error("Discord.fm is already running")
             self.close()
 
+        logger.debug("Setting start with system")
+        installation = util.install.get_install()
+        installation.set_startup(
+            self.settings.get("start_with_system"), util.install.get_exe_path()
+        )
+
         if self.settings.get("auto_update"):
             logger.debug("Checking for updates")
 
