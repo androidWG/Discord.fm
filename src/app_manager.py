@@ -41,7 +41,7 @@ class AppManager:
             logger.critical(
                 "No username found - please add a username to settings and restart the app"
             )
-            self.open_settings(wait=True)
+            self.open_settings()
 
         self.tray_icon = system_tray_icon.SystemTrayIcon(self)
         self.loop = loop_handler.LoopHandler(self)
@@ -59,6 +59,12 @@ class AppManager:
         ) and not util.arg_exists("--ignore-open"):
             logger.error("Discord.fm is already running")
             self.close()
+
+        logger.debug("Setting start with system")
+        installation = util.install.get_install()
+        installation.set_startup(
+            self.settings.get("start_with_system"), util.install.get_exe_path()
+        )
 
         if self.settings.get("auto_update"):
             logger.debug("Checking for updates")
@@ -225,7 +231,7 @@ class AppManager:
             time.sleep(10)
             return False
 
-    def open_settings(self, wait: bool = False):
+    def open_settings(self):
         logger.debug("Opening settings")
 
         # Set app ID so Windows will show the correct icon on the taskbar

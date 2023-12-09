@@ -1,5 +1,4 @@
 import importlib
-import os
 import platform
 import sys
 
@@ -26,7 +25,7 @@ def get_exe_path():
         raise NotImplementedError
     else:
         if util.is_frozen():
-            return os.path.dirname(sys.executable)
+            return sys.executable
         else:
             install = get_install()
-            install.get_executable_path()
+            return install.get_executable_path()
