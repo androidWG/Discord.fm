@@ -60,7 +60,7 @@ class AppManager:
             logger.error("Discord.fm is already running")
             self.close()
 
-        if self.settings.get("auto_update"):
+        if self.settings.get("auto_update") or util.arg_exists("--force-update"):
             logger.debug("Checking for updates")
 
             latest, latest_asset = util.updates.get_newest_release(self)
