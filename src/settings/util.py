@@ -1,5 +1,7 @@
 import logging
 import os
+import re
+import shutil
 from pathlib import Path
 from platform import system
 
@@ -29,8 +31,13 @@ def clear_executables(app_data_path: str):
     :param app_data_path: Path of the app data directory containing the files
     :type app_data_path: str
     """
+    update_folder = Path(app_data_path, "updated_version")
+    if update_folder.is_dir():
+        logger.debug(f"Removing leftover update folder")
+        shutil.rmtree(update_folder)
+
     for file in os.listdir(app_data_path):
-        if file.endswith(".exe"):
+        if re.match(r"\.(?:tar|exe|dmg)(?:.xz|.gz)?$", file):
             logger.debug(f"Removing leftover update file {file}")
             os.remove(os.path.join(app_data_path, file))
 
