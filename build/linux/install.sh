@@ -19,14 +19,14 @@ else
   PREFIX=~/.local
 fi
 
-rm -rf "$PREFIX"/lib/discord_fm "$PREFIX"/bin/discord_fm
-mkdir -p "$PREFIX"/lib/discord_fm
-cp -av --no-preserve=owner,context -- * "$PREFIX"/lib/discord_fm/
+rm -rf "$PREFIX"/share/discord_fm "$PREFIX"/bin/discord_fm
+mkdir -p "$PREFIX"/share/discord_fm
+cp -av --no-preserve=owner,context -- * "$PREFIX"/share/discord_fm/
 mkdir -p "$PREFIX"/bin
-ln -sf "$PREFIX"/lib/discord_fm/discord_fm "$PREFIX"/bin/discord_fm
+ln -sf "$PREFIX"/share/discord_fm/discord_fm "$PREFIX"/bin/discord_fm
 mkdir -p "$PREFIX"/share/icons/hicolor/scalable/apps
 mkdir -p "$PREFIX"/share/applications
-cd "$PREFIX"/lib/discord_fm && (\
+cd "$PREFIX"/share/discord_fm && (\
 mv -Z discord_fm.svg "$PREFIX"/share/icons/hicolor/scalable/apps/;\
 mv -Z discord_fm.desktop "$PREFIX"/share/applications/)
 
