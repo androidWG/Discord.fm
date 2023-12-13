@@ -8,16 +8,16 @@ import util
 
 
 class DarwinBuildTool(build.base.BuildTool):
-    def __init__(self, version):
+    def __init__(self, py_path, version):
         self.py_path = os.path.abspath(r"venv/bin/python")
         self.temp_spec_file = self._temp("temp_spec.spec")
-        super(DarwinBuildTool, self).__init__(version)
+        super(DarwinBuildTool, self).__init__(py_path, version)
 
     def prepare_files(self):
-        tags = [("#VERSION#", f"'{self.version.base_version}'")]
+        tags = [("#VER_MAIN#", f"'{self.version.base_version}'")]
 
         util.replace_instances(
-            "build/macos/mac.spec", tags, out_file=self.temp_spec_file
+            "build/main.spec", tags, out_file=self.temp_spec_file
         )
 
     def build(self):
