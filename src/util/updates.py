@@ -1,6 +1,6 @@
 import logging
-import os
 import platform
+from pathlib import Path
 
 import requests
 from packaging import version
