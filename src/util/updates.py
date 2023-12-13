@@ -75,7 +75,7 @@ def _match_asset(json_output) -> dict | None:
         applicable_assets = (
             x
             for x in json_output["assets"]
-            if "application/x-" in x["content_type"] and name in x["name"]
+            if "application" in x["content_type"] and name in x["name"]
         )
     except StopIteration:
         logger.error("Unexpectedly formatted GitHub asset list")
