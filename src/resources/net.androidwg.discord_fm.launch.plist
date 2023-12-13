@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
   <key>Label</key>
-  <string>net.androidwg.discordfm.launch</string>
+  <string>net.androidwg.discord_fm.launch</string>
   <key>LimitLoadToSessionType</key>
   <string>Aqua</string>
   <key>ProgramArguments</key>

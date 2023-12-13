@@ -8,7 +8,7 @@ from util.install import BaseInstall
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 APP_PATH = Path("~/Applications/Discord.fm.app").expanduser()
-PLIST_NAME = "net.androidwg.discordfm.launch.plist"
+PLIST_NAME = "net.androidwg.discord_fm.launch.plist"
 LAUNCH_AGENTS_PATH = Path("~/Library/LaunchAgents").expanduser()
 PLIST_PATH = Path(LAUNCH_AGENTS_PATH, PLIST_NAME)
 
