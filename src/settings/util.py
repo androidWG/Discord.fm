@@ -1,7 +1,13 @@
 import logging
 import os
+import re
+import shutil
+from pathlib import Path
 from platform import system
 
+import util
+
+APP_ID = "net.androidwg.discord_fm"
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -25,14 +31,19 @@ def clear_executables(app_data_path: str):
     :param app_data_path: Path of the app data directory containing the files
     :type app_data_path: str
     """
+    update_folder = Path(app_data_path, "updated_version")
+    if update_folder.is_dir():
+        logger.debug(f"Removing leftover update folder")
+        shutil.rmtree(update_folder)
+
     for file in os.listdir(app_data_path):
-        if file.endswith(".exe"):
+        if re.match(r"\.(?:tar|exe|dmg)(?:.xz|.gz)?$", file):
             logger.debug(f"Removing leftover update file {file}")
             os.remove(os.path.join(app_data_path, file))
 
 
 def setup_app_data_dir(folder_name: str) -> str:
-    """Gets the folder where to store log files.
+    """Gets the folder where to store app configuration files.
 
     :param folder_name: Name of the folder to create inside the system's app data directory.
     :type folder_name: str
@@ -48,8 +59,15 @@ def setup_app_data_dir(folder_name: str) -> str:
         path = os.path.join(
             os.path.expanduser("~/Library/Application Support"), folder_name
         )
+    elif current_platform == "Linux":
+        if util.is_running_in_flatpak():
+            path = os.path.expanduser(Path("~/.var/app/", APP_ID))
+        else:
+            path = os.path.expanduser(
+                f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
+            )
     else:
-        path = os.path.expanduser(f"~/.{folder_name.replace('.', '_').lower()}")
+        raise NotImplementedError("Platform not supported")
 
     make_dir(path)
     clear_executables(path)
@@ -72,8 +90,15 @@ def setup_logs_dir(folder_name: str) -> str:
         path = os.path.join(os.getenv("localappdata"), folder_name)
     elif current_platform == "Darwin":
         path = os.path.join(os.path.expanduser("~/Library/Logs"), folder_name)
+    elif current_platform == "Linux":
+        if util.is_running_in_flatpak():
+            path = os.path.expanduser(Path("~/.var/app/", APP_ID))
+        else:
+            path = os.path.expanduser(
+                f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
+            )
     else:
-        path = os.path.expanduser(f"~/.{folder_name.replace('.', '_').lower()}")
+        raise NotImplementedError("Platform not supported")
 
     make_dir(path)
     return path

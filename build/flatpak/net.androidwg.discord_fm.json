@@ -1,0 +1,113 @@
+{
+  "app-id": "net.androidwg.discord_fm",
+  "runtime": "org.gnome.Platform",
+  "runtime-version": "45",
+  "sdk": "org.gnome.Sdk",
+  "command": "discord_fm",
+  "finish-args": [
+    "--share=ipc",
+    "--socket=x11",
+    "--socket=wayland",
+    "--share=network",
+    "--filesystem=/run/user/1000/com.discordapp.Discord",
+    "--filesystem=/run/user/1000/snap.discord",
+    "--filesystem=/run/user/1000/app/com.discordapp.Discord",
+    "--filesystem=/run/user/1000/app/com.discordapp.DiscordCanary",
+    "--talk-name=com.canonical.indicator.application",
+    "--talk-name=org.freedesktop.Notifications",
+    "--talk-name=org.kde.StatusNotifierWatcher"
+  ],
+  "cleanup": [
+    "/usr/lib/python3.11"
+  ],
+  "modules": [
+    {
+      "name": "python-requirements",
+      "buildsystem": "simple",
+      "build-commands": null,
+      "sources": null
+    },
+    {
+      "name": "tkinter",
+      "buildsystem": "simple",
+      "build-commands": [
+          "pip install --prefix=${FLATPAK_DEST} ."
+      ],
+      "sources": [
+        {
+          "type": "git",
+          "url": "https://github.com/iwalton3/tkinter-standalone",
+          "commit": "d9cb97c5bd4f814c73678366e0e48220776b6ad3"
+        }
+      ],
+      "modules": [
+        {
+          "name": "tcl8.6",
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://prdownloads.sourceforge.net/tcl/tcl8.6.12-src.tar.gz",
+              "sha256": "26c995dd0f167e48b11961d891ee555f680c175f7173ff8cb829f4ebcde4c1a6"
+            }
+          ],
+          "subdir": "unix",
+          "post-install": [
+            "chmod +w ${FLATPAK_DEST}/lib/libtcl8.6.so"
+          ]
+        },
+        {
+          "name": "tk8.6",
+          "sources": [
+            {
+              "type": "archive",
+              "url": "https://prdownloads.sourceforge.net/tcl/tk8.6.12-src.tar.gz",
+              "sha256": "12395c1f3fcb6bed2938689f797ea3cdf41ed5cb6c4766eec8ac949560310630"
+            }
+          ],
+          "subdir": "unix",
+          "post-install": [
+            "chmod +w ${FLATPAK_DEST}/lib/libtk8.6.so"
+          ]
+        }
+      ]
+    },
+    "../../shared-modules/libappindicator/libappindicator-gtk3-introspection-12.10.json",
+    "../../shared-modules/libcanberra/libcanberra.json",
+    {
+      "name": "discord.fm",
+      "buildsystem": "simple",
+      "build-commands": [
+        "mkdir -p /app/share/discord_fm",
+        "mkdir -p /app/bin",
+        "cp -r * /app/share/discord_fm",
+        "ln -sf /app/share/discord_fm/discord_fm.sh /app/bin/discord_fm",
+        "install -Dm644 -t /app/share/metainfo net.androidwg.discord_fm.metainfo.xml",
+        "install -Dm644 -t /app/share/icons/hicolor/scalable/apps net.androidwg.discord_fm.svg",
+        "mkdir -p /app/share/applications",
+        "mv /app/share/discord_fm/net.androidwg.discord_fm.desktop /app/share/applications/"
+      ],
+      "sources": [
+        {
+          "type": "dir",
+          "path": "../../src"
+        },
+        {
+          "type": "file",
+          "path": "net.androidwg.discord_fm.metainfo.xml"
+        },
+        {
+          "type": "file",
+          "path": "net.androidwg.discord_fm.desktop"
+        },
+        {
+          "type": "file",
+          "path": "net.androidwg.discord_fm.svg"
+        },
+        {
+          "type": "file",
+          "path": "discord_fm.sh"
+        }
+      ]
+    }
+  ]
+}
