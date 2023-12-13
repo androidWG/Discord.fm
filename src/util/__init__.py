@@ -5,6 +5,9 @@ import sys
 from platform import system
 
 from plyer import notification as plyer_notif
+from pypresence.utils import get_ipc_path
+
+import process
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -132,3 +135,18 @@ def basic_notification(title: str, message: str):
             app_name="Discord.fm",
             app_icon=icon,
         )
+
+
+def is_running_in_flatpak() -> bool:
+    return os.getenv("container") is not None
+
+
+def is_discord_running() -> bool:
+    if is_running_in_flatpak():
+        ipc_path = get_ipc_path(0)
+        logger.debug(
+            f"Determining if Discord is running, detected ipc_path: {ipc_path}"
+        )
+        return ipc_path is not None
+    else:
+        return process.check_process_running("Discord", "DiscordCanary")

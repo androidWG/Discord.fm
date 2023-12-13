@@ -1,16 +1,14 @@
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
-from collections import OrderedDict
+from pathlib import Path
 
 import requirements
-import yaml
+import json
 
-import pypi
-import util
-import build.linux.flatpak.ordered_dumper
+import build.flatpak.pypi as pypi
+import build.flatpak.util as util
 
 # Python3 packages that come as part of org.freedesktop.Sdk.
 SYSTEM_PACKAGES = [
@@ -32,11 +30,12 @@ pip_command = [
     "-m",
     "pip",
     "install",
-    "--verbose",
     "--exists-action=i",
+    "--ignore-installed",
     "--no-index",
     '--find-links="file://${PWD}"',
     "--prefix=${FLATPAK_DEST}",
+    f"--cache-dir={str(Path('build/.pipcache').absolute().mkdir(exist_ok=True))}",
 ]
 pypi_module = {
     "name": OUTPUT_PACKAGE,
@@ -48,19 +47,8 @@ sources = {}
 pip_names = []
 
 
-def make_yaml(
-    requirements_path: str, extra_requirements: str = None, output: str = None
-):
-    requirements_file = "temp_requirements.txt"
-    with open(requirements_file, "wb") as wfd:
-        for f in [
-            os.path.expanduser(extra_requirements),
-            os.path.expanduser(requirements_path),
-        ]:
-            with open(f, "rb") as fd:
-                shutil.copyfileobj(fd, wfd, 1024 * 1024 * 10)
-
-    with open(os.path.expanduser(requirements_file), "r") as req_file:
+def make_yaml(requirements_path: str, output: str = None):
+    with open(os.path.expanduser(requirements_path), "r") as req_file:
         reqs = util.parse_continuation_lines(req_file)
         reqs_as_str = "\n".join([r.split("--hash")[0] for r in reqs])
         packages = list(requirements.parse(reqs_as_str))
@@ -73,7 +61,7 @@ def make_yaml(
         "--dest",
         tempdir,
         "-r",
-        requirements_file,
+        requirements_path,
     ]
     if use_hash:
         pip_download.append("--require-hashes")
@@ -93,13 +81,7 @@ def make_yaml(
         filename = OUTPUT_FILENAME
 
     with open(filename, "w") as output:
-
-        def dict_representer(dumper, data):
-            return dumper.represent_dict(data.items())
-
-        build.linux.flatpak.ordered_dumper.OrderedDumper.add_representer(OrderedDict, dict_representer)
-
-        yaml.dump(pypi_module, output, Dumper=build.linux.flatpak.ordered_dumper.OrderedDumper)
+        json.dump(pypi_module, output, indent=2)
         print(f"Output saved to {filename}")
 
 
@@ -170,17 +152,15 @@ def _download_packages(packages, tempdir):
             s = "commit"
             if vcs == "svn":
                 s = "revision"
-            source = OrderedDict(
-                [
-                    ("type", vcs),
-                    ("url", url),
-                    (s, revision),
-                ]
-            )
+            source = {
+                "type": vcs,
+                "url": url,
+                s: revision,
+            }
             is_vcs = True
         else:
             url = pypi.get_pypi_url(name, filename)
-            source = OrderedDict([("type", "file"), ("url", url), ("sha256", sha256)])
+            source = {"type": "file", "url": url, "sha256": sha256}
             is_vcs = False
         sources[name] = {"source": source, "vcs": is_vcs}
 

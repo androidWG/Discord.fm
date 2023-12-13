@@ -3,6 +3,8 @@ import os
 import shutil
 import urllib.request
 
+# TODO: Make cache for data collected
+
 
 def get_pypi_url(name: str, filename: str) -> str:
     url = f"https://pypi.org/pypi/{name}/json"

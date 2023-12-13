@@ -30,6 +30,10 @@ class SystemTrayIcon:
             dummy.destroy()
         self.ti = self.create_tray_icon()
 
+        if platform.system() == "Linux":
+            # Make sure appindicator is used on Linux. For some reason, pystray will always default to X11
+            os.environ["PYSTRAY_BACKEND"] = "appindicator"
+
     def create_tray_icon(self):
         logger.debug("Creating tray icon")
         image_path = util.resource_path(
@@ -60,13 +64,14 @@ class SystemTrayIcon:
                 "Not scrobbling anything",
                 None,
                 enabled=False,
-                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.NOT_SCROBBLING
+                visible=lambda i: self.m.scrobble_status
+                == ScrobbleStatus.NOT_SCROBBLING,
             ),
             MenuItem(
                 "Checking current scrobbling...",
                 None,
                 enabled=False,
-                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.FIRST_CHECK
+                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.FIRST_CHECK,
             ),
             MenuItem(
                 "Enable Rich Presence",

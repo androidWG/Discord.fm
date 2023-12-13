@@ -57,15 +57,22 @@ def _run(
     return results
 
 
-def _run_simple(cmd: str | list[str], capture_output: bool = False, **kwargs) -> str | None:
+def _run_simple(
+    cmd: str | list[str], capture_output: bool = False, **kwargs
+) -> str | None:
     print(f'Running simple command "{cmd}"...\n')
+
+    if isinstance(cmd, str):
+        command = cmd.split(" ")
+    else:
+        command = cmd
 
     if not capture_output:
         output = sys.stdout
     else:
         output = subprocess.PIPE
 
-    result = subprocess.run(cmd, stdout=output, stderr=sys.stderr, **kwargs)
+    result = subprocess.run(command, stdout=output, stderr=sys.stderr, **kwargs)
     return result.stdout.decode("utf-8").strip() if capture_output else None
 
 
@@ -90,11 +97,18 @@ def check_venv(force: bool, no_venv: bool):
 
     # Append site-packages from the virtual env. Needed when we're importing BuildTools and it imports stuff not
     # installed globally
-    sys.path.append(p.join(env_path, "Lib", "site-packages"))
+    if current_platform == "Windows":
+        sys.path.append(p.join(env_path, "Lib", "site-packages"))
+    else:
+        sys.path.append(p.join(env_path, "bin"))
 
 
 def __pyinstaller_installed() -> bool:
-    packages = p.join(env_path, "Lib", "site-packages")
+    if platform.system() == "Windows":
+        packages = p.join(env_path, "Lib", "site-packages")
+    else:
+        packages = p.join(env_path, "bin")
+
     for x in os.listdir(packages):
         path = p.join(packages, x)
         if p.isdir(p.abspath(path)) and x.__contains__("pyinstaller"):
@@ -142,6 +156,7 @@ def check_pyinstaller(force: bool):
 
 if __name__ == "__main__":
     # region ArgumentParser Setup
+    # TODO: Change to subcommands
     parser = argparse.ArgumentParser(
         description="Setup and manage the Discord.fm project."
     )
@@ -174,17 +189,18 @@ if __name__ == "__main__":
         help="Skips cleanup, leaving temporary files and folders",
     )
     parser.add_argument(
-        "-f",
-        "--force",
-        action="store_true",
-        dest="force",
-        help="Force setup from scratch.",
-    )
-    parser.add_argument(
         "--global",
         action="store_true",
         dest="no_venv",
         help="Force script to use global Python instead of venv",
+    )
+    parser.add_argument(
+        "-f", "--force", action="store_true", help="Force setup from scratch."
+    )
+    parser.add_argument(
+        "--flatpak",
+        action="store_true",
+        help="Makes a manifest, builds and installs a Flatpak instead of Linux binaries.",
     )
     # endregion
 
@@ -192,6 +208,10 @@ if __name__ == "__main__":
     if args.command is None:
         parser.print_help()
         parser.exit(1, "No command given")
+
+    if shutil.which("pipenv"):
+        print("Pipenv was not found, installing using pip")
+        _run_simple("python -m pip install pipenv")
 
     if current_platform not in ["Windows", "Linux", "Darwin"]:
         parser.exit(3, f'Platform "{current_platform}" is unsupported!')
@@ -206,10 +226,11 @@ if __name__ == "__main__":
             check_pyinstaller(args.force)
 
             print("\nBuilding Discord.fm")
-            bt = build.get_build_tool(python)
+            bt = build.get_build_tool(python, args.flatpak)
             bt.prepare_files()
             if args.executable:
                 bt.build()
+                bt.package()
             if args.installer:
                 bt.make_installer()
             if args.cleanup:
@@ -229,7 +250,7 @@ if __name__ == "__main__":
             env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
 
             _run_simple(
-                [python, "-m", "pytest", "tests/", "--full-trace"],
+                [python, "-m", "pytest", "tests/"],
                 env=env,
             )
 

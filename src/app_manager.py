@@ -64,15 +64,13 @@ class AppManager:
         installation = util.install.get_install()
         installation.set_startup(self.settings.get("start_with_system"), util.install.get_exe_path())
 
-        if self.settings.get("auto_update"):
+        if self.settings.get("auto_update") or util.arg_exists("--force-update"):
             logger.debug("Checking for updates")
 
-            latest, latest_asset = util.updates.get_newest_release(self)
+            latest, latest_asset = util.updates.get_newest_release_with_asset(self)
             current = version.get_version(True)
-            if (
-                latest is not None
-                and latest > current
-                or util.arg_exists("--force-update")
+            if latest is not None and (
+                latest > current or util.arg_exists("--force-update")
             ):
                 self.status = Status.UPDATING
                 self.tray_icon.ti.update_menu()
@@ -97,7 +95,9 @@ class AppManager:
 
         if self.status != Status.KILL:
             try:
-                Thread(target=self.wait_for_discord, args=(Status.ENABLED,), daemon=True).start()
+                Thread(
+                    target=self.wait_for_discord, args=(Status.ENABLED,), daemon=True
+                ).start()
                 Thread(target=self.loop.handle_update, daemon=True).start()
                 self.tray_icon.ti.run()
             except (KeyboardInterrupt, SystemExit):
@@ -190,7 +190,7 @@ class AppManager:
     def _attempt_to_connect_rp(self) -> bool:
         logger.info("Attempting to connect to Discord")
 
-        if process.check_process_running("Discord", "DiscordCanary"):
+        if util.is_discord_running():
             try:
                 self.discord_rp.connect()
                 logger.info("Successfully connected to Discord")
