@@ -1,6 +1,7 @@
 import logging
 import os
 import subprocess
+import tarfile
 from pathlib import Path
 
 import util
@@ -27,6 +28,9 @@ class LinuxInstall(BaseInstall):
         return exe_path if exe_path.is_file() else None
 
     def get_startup(self):
+        if util.is_running_in_flatpak():
+            raise NotImplementedError
+
         result = subprocess.run(
             ["systemctl", "--user", "is-enabled", SERVICE_ABS_PATH.name],
             stdout=subprocess.PIPE,
@@ -34,6 +38,9 @@ class LinuxInstall(BaseInstall):
         return SERVICE_ABS_PATH.is_file() and "enabled" in result.stdout.decode("utf-8")
 
     def set_startup(self, new_value: bool, exe_path: str) -> bool:
+        if util.is_running_in_flatpak():
+            raise NotImplementedError
+
         shortcut_exists = self.get_startup()
         if shortcut_exists and not new_value:
             subprocess.run(["systemctl", "--user", "disable", SERVICE_ABS_PATH.name])
@@ -57,9 +64,20 @@ class LinuxInstall(BaseInstall):
         else:
             return new_value
 
-    def install(self, installer_path: str):
-        # TODO: Make self updater for non-Flatpak install
-        pass
+    def install(self, installer_path: Path):
+        if util.is_running_in_flatpak():
+            raise NotImplementedError
+
+        installer_folder = installer_path.parent
+        tarball = tarfile.open(installer_path)
+        extract_dest = installer_folder.joinpath("updated_version")
+
+        logging.info(f'Extracting downloaded file "{tarball}"')
+        tarball.extractall(extract_dest)
+        tarball.close()
+
+        logger.debug(f"Running install.sh")
+        subprocess.Popen(extract_dest.joinpath("install.sh"), shell=True)
 
 
 def instance():
