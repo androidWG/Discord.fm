@@ -2,6 +2,7 @@ import importlib
 import os
 import platform
 import sys
+from pathlib import Path
 
 import util
 
@@ -19,7 +20,7 @@ class BaseInstall:
     def set_startup(self, new_value: bool, exe_path: str) -> bool:
         pass
 
-    def install(self, installer_path: str):
+    def install(self, installer_path: Path):
         pass
 
 

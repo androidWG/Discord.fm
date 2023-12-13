@@ -2,6 +2,7 @@ import logging
 import os.path
 import subprocess
 import winreg
+from pathlib import Path
 
 import pywintypes
 import win32com.client
@@ -66,7 +67,7 @@ class WindowsInstall(BaseInstall):
         else:
             return new_value
 
-    def install(self, installer_path: str):
+    def install(self, installer_path: Path):
         """Runs an Inno Setup installer in silent mode under a subprocess and waits for it to finish.
 
         :param installer_path: Path where the .zip containing the .app folder is located

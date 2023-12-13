@@ -35,7 +35,7 @@ def get_newest_release_with_asset(manager) -> tuple[None, None] | tuple[Version,
         return None, None
 
 
-def download_asset(manager, asset: dict) -> str:
+def download_asset(manager, asset: dict) -> Path:
     """Downloads a GitHub asset to the app's data folder and returns the full path of the file."""
     headers = {"Accept": "application/octet-stream", "User-Agent": "Discord.fm"}
 
@@ -47,7 +47,7 @@ def download_asset(manager, asset: dict) -> str:
     response_size = int(request.headers["content-length"])
 
     logger.info(f"Starting writing {response_size} bytes")
-    downloaded_path = os.path.join(manager.settings.app_data_path, asset["name"])
+    downloaded_path = Path(manager.settings.app_data_path, asset["name"])
     with open(downloaded_path, "wb") as file:
         bytes_read = 0
 
@@ -58,7 +58,7 @@ def download_asset(manager, asset: dict) -> str:
             bytes_read += chunk_size
 
     logger.info(f"Successfully finished writing {asset['name']}")
-    return str(downloaded_path)
+    return downloaded_path
 
 
 def _match_asset(json_output) -> dict | None:
