@@ -63,12 +63,10 @@ class AppManager:
         if self.settings.get("auto_update") or util.arg_exists("--force-update"):
             logger.debug("Checking for updates")
 
-            latest, latest_asset = util.updates.get_newest_release(self)
+            latest, latest_asset = util.updates.get_newest_release_with_asset(self)
             current = version.get_version(True)
-            if (
-                latest is not None
-                and latest > current
-                or util.arg_exists("--force-update")
+            if latest is not None and (
+                latest > current or util.arg_exists("--force-update")
             ):
                 self.status = Status.UPDATING
                 self.tray_icon.ti.update_menu()
