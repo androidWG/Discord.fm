@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 from util import resource_path
-from util.install import base
+from util.install import BaseInstall
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -13,7 +13,7 @@ LAUNCH_AGENTS_PATH = Path("~/Library/LaunchAgents").expanduser()
 PLIST_PATH = Path(LAUNCH_AGENTS_PATH, PLIST_NAME)
 
 
-class MacOSInstall(base.BaseInstall):
+class MacOSInstall(BaseInstall):
     def get_executable_path(self) -> str | None:
         logger.debug("Attempting to find macOS install...")
         if APP_PATH.is_dir():
