@@ -12,7 +12,7 @@ APP_ID = "net.androidwg.discord_fm"
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
-def make_dir(path: str):
+def _make_dir(path: Path):
     """Creates a directory specified in path if it doesn't exist, ignoring it if it does.
 
     :param path: Path of the directory to be created.
@@ -25,13 +25,13 @@ def make_dir(path: str):
         logger.debug(f'Folder "{path}" already exists')
 
 
-def clear_executables(app_data_path: str):
+def _clear_executables(app_data_path: Path):
     """Removes all executable files leftover from previous updates.
 
     :param app_data_path: Path of the app data directory containing the files
     :type app_data_path: str
     """
-    update_folder = Path(app_data_path, "updated_version")
+    update_folder = app_data_path.joinpath("updated_version")
     if update_folder.is_dir():
         logger.debug(f"Removing leftover update folder")
         shutil.rmtree(update_folder)
@@ -39,7 +39,7 @@ def clear_executables(app_data_path: str):
     for file in os.listdir(app_data_path):
         if re.match(r"\.(?:tar|exe|dmg)(?:.xz|.gz)?$", file):
             logger.debug(f"Removing leftover update file {file}")
-            os.remove(os.path.join(app_data_path, file))
+            app_data_path.joinpath(file).unlink(missing_ok=True)
 
 
 def setup_app_data_dir(folder_name: str) -> str:
@@ -54,24 +54,22 @@ def setup_app_data_dir(folder_name: str) -> str:
 
     if current_platform == "Windows":
         # Here it's AppData NOT LocalAppData, since settings should always be present for the user
-        path = os.path.join(os.getenv("appdata"), folder_name)
+        path = Path(os.getenv("appdata"), folder_name)
     elif current_platform == "Darwin":
-        path = os.path.join(
-            os.path.expanduser("~/Library/Application Support"), folder_name
-        )
+        path = Path("~/Library/Application Support", folder_name).expanduser()
     elif current_platform == "Linux":
         if util.is_running_in_flatpak():
-            path = os.path.expanduser(Path("~/.var/app/", APP_ID))
+            path = Path("~/.var/app/", APP_ID).expanduser()
         else:
-            path = os.path.expanduser(
-                f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
-            )
+            path = Path(
+                f"~/.config/{folder_name.replace('.', '_').lower()}"
+            ).expanduser()
     else:
         raise NotImplementedError("Platform not supported")
 
-    make_dir(path)
-    clear_executables(path)
-    return path
+    _make_dir(path)
+    _clear_executables(path)
+    return str(path.absolute())
 
 
 def setup_logs_dir(folder_name: str) -> str:
@@ -87,18 +85,18 @@ def setup_logs_dir(folder_name: str) -> str:
 
     if current_platform == "Windows":
         # And here it's LocalAppData NOT AppData, since logs can occupy a lot of space and are not needed by the app
-        path = os.path.join(os.getenv("localappdata"), folder_name)
+        path = Path(os.getenv("localappdata"), folder_name)
     elif current_platform == "Darwin":
-        path = os.path.join(os.path.expanduser("~/Library/Logs"), folder_name)
+        path = Path("~/Library/Logs", folder_name).expanduser()
     elif current_platform == "Linux":
         if util.is_running_in_flatpak():
-            path = os.path.expanduser(Path("~/.var/app/", APP_ID))
+            path = Path("~/.var/app/", APP_ID, "logs").expanduser()
         else:
-            path = os.path.expanduser(
+            path = Path(
                 f"~/.config/{folder_name.replace('.', '_').lower()}/logs"
-            )
+            ).expanduser()
     else:
         raise NotImplementedError("Platform not supported")
 
-    make_dir(path)
-    return path
+    _make_dir(path)
+    return str(path.absolute())
