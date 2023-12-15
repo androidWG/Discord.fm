@@ -62,9 +62,7 @@ class AppManager:
 
         logger.debug("Setting start with system")
         installation = util.install.get_install()
-        installation.set_startup(
-            self.settings.get("start_with_system"), util.install.get_exe_path()
-        )
+        self.settings.define("start_with_system", installation.get_startup())
 
         if self.settings.get("auto_update") or util.arg_exists("--force-update"):
             logger.debug("Checking for updates")
