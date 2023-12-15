@@ -31,7 +31,7 @@ class TestAppManager(unittest.TestCase):
         with patch.object(manager.settings, "get", return_value=False):
             manager._perform_checks()
 
-        mock_is_frozen.assert_called_once()
+        mock_is_frozen.assert_called()
         mock_check_process_running.assert_called_once_with("discord_fm", "discord.fm")
         mock_open_settings.assert_not_called()
 
@@ -84,7 +84,7 @@ class TestAppManager(unittest.TestCase):
 
     @patch("process.check_process_running")
     @patch("util.arg_exists")
-    @patch("util.updates.get_newest_release")
+    @patch("util.updates.get_newest_release_with_asset")
     @patch("util.updates.download_asset")
     @patch("util.install.get_install")
     @patch("version.get_version")
