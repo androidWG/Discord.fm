@@ -6,7 +6,6 @@ import stat
 import subprocess
 import sys
 from os import path as p
-from typing import List
 
 import build
 
@@ -40,26 +39,7 @@ def _delete(path: str | os.PathLike[str]):
     shutil.rmtree(p.abspath(path))
 
 
-def _run(
-    cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
-) -> List[subprocess.CompletedProcess]:
-    if type(cmd_list[0]) is str:
-        commands = [cmd_list]
-    else:
-        commands = cmd_list
-
-    results = []
-    for cmd in commands:
-        print(f'Running command "{cmd}"...\n')
-        result = subprocess.run(cmd, cwd=cwd, stdout=sys.stdout, stderr=sys.stderr)
-        results.append(result)
-
-    return results
-
-
-def _run_simple(
-    cmd: str | list[str], capture_output: bool = False, **kwargs
-) -> str | None:
+def _run_simple(cmd: str | list[str], **kwargs) -> str | None:
     print(f'Running simple command "{cmd}"...\n')
 
     if isinstance(cmd, str):
@@ -67,26 +47,36 @@ def _run_simple(
     else:
         command = cmd
 
-    if not capture_output:
-        output = sys.stdout
-    else:
-        output = subprocess.PIPE
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        **kwargs,
+    )
 
-    result = subprocess.run(command, stdout=output, stderr=sys.stderr, **kwargs)
-    return result.stdout.decode("utf-8").strip() if capture_output else None
+    lines: list[str] = []
+    for line in iter(process.stdout.readline, b""):
+        line_as_string = line.decode().rstrip()
+        lines.append(line_as_string)
+        print(line_as_string)
+
+    result = "\n".join(lines)
+    process.stdout.close()
+    process.wait()
+
+    return result
 
 
 def check_venv(force: bool, no_venv: bool):
     print("\nGetting venv...")
     global python, env_path, pip
 
-    env_name = _run_simple("pipenv --venv", capture_output=True)
+    env_name = _run_simple("pipenv --venv")
     if (not p.isdir(env_name) or env_name == "" or force) and not no_venv:
         print("Running pipenv...\n")
         _run_simple("pipenv --python=3.11 install --dev")
-        env_name = _run_simple("pipenv --venv", capture_output=True)
+        env_name = _run_simple("pipenv --venv")
 
-    python = _run_simple("pipenv --py", capture_output=True)
+    python = _run_simple("pipenv --py")
 
     if no_venv:
         python = "python"
@@ -135,23 +125,23 @@ def check_pyinstaller(force: bool):
         _delete("pyinstaller")
 
         commands = ["git", "clone", "https://github.com/pyinstaller/pyinstaller.git"]
-        _run(commands)
+        _run_simple(commands)
 
         commands = ["git", "checkout", f"tags/v{PYINSTALLER_VER}"]
-        _run(commands, p.abspath("pyinstaller"))
+        _run_simple(commands, cwd=p.abspath("pyinstaller"))
 
         commands = [python, "./waf", "distclean", "all"]
-        _run(commands, p.abspath(p.join("pyinstaller", "bootloader")))
+        _run_simple(commands, cwd=p.abspath(p.join("pyinstaller", "bootloader")))
 
         commands = pip + ["."]
-        _run(commands, p.abspath("pyinstaller"))
+        _run_simple(commands, cwd=p.abspath("pyinstaller"))
 
         _delete("pyinstaller")
     elif platform.system() == "Linux":
         print("Linux does not use PyInstaller, skipping")
     else:
         commands = pip + ["PyInstaller"]
-        _run(commands)
+        _run_simple(commands)
 
 
 if __name__ == "__main__":
@@ -208,10 +198,6 @@ if __name__ == "__main__":
     if args.command is None:
         parser.print_help()
         parser.exit(1, "No command given")
-
-    if shutil.which("pipenv"):
-        print("Pipenv was not found, installing using pip")
-        _run_simple("python -m pip install pipenv")
 
     if current_platform not in ["Windows", "Linux", "Darwin"]:
         parser.exit(3, f'Platform "{current_platform}" is unsupported!')
