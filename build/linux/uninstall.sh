@@ -2,6 +2,12 @@
 
 set -e
 
+PID=$(pidof discord_fm)
+if [ -n "$PID" ]; then
+  echo "Waiting for Discord.fm to finish running"
+  tail --pid="$PID" -f /dev/null
+fi
+
 if [[ $* == *--all-users* ]]; then
 	PREFIX=/usr/local
 else

@@ -7,10 +7,9 @@ if [ "$(dirname "$(realpath "$0")")" != "$(realpath "$PWD")" ]; then
   exit 1
 fi
 
-PID=$(pidof discord_fm)
-if [ -n "$PID" ]; then
+if [[ $(pidof discord_fm) ]]; then
   echo "Waiting for Discord.fm to finish running"
-  tail --pid="$PID" -f /dev/null
+  tail --pid="$(pidof discord_fm)" -f /dev/null
 fi
 
 if [[ $* == *--all-users* ]]; then
@@ -32,4 +31,9 @@ mv -Z discord_fm.desktop "$PREFIX"/share/applications/)
 
 rm install.sh
 
-echo "Install complete. Type 'discord_fm' to run."
+if [[ $* == *--self-start* ]]; then
+  echo "Install complete. Running Discord.fm"
+  "$PREFIX"/bin/discord_fm &
+else
+  echo "Install complete. Type 'discord_fm' to run."
+fi

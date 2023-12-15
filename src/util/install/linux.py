@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import tarfile
+import time
 from pathlib import Path
 
 import util
@@ -25,7 +26,7 @@ class LinuxInstall(BaseInstall):
             install_path = Path("~/.local").expanduser()
 
         exe_path = Path(install_path, "bin/discord_fm")
-        return exe_path if exe_path.is_file() else None
+        return str(exe_path) if exe_path.is_file() else None
 
     def get_startup(self):
         if util.is_running_in_flatpak():
@@ -65,6 +66,8 @@ class LinuxInstall(BaseInstall):
             return new_value
 
     def install(self, installer_path: Path):
+        logger.info("Installing for Linux...")
+
         if util.is_running_in_flatpak():
             raise NotImplementedError
 
@@ -76,8 +79,10 @@ class LinuxInstall(BaseInstall):
         tarball.extractall(extract_dest)
         tarball.close()
 
+        install_sh_path = extract_dest.joinpath("install.sh")
         logger.debug(f"Running install.sh")
-        subprocess.Popen(extract_dest.joinpath("install.sh"), shell=True)
+        subprocess.Popen(["sh", install_sh_path, "--self-start"], cwd=extract_dest)
+        time.sleep(0.4)  # Give the installation script some time to start
 
 
 def instance():
