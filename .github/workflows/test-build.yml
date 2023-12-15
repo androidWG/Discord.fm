@@ -48,7 +48,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Setup environment
+        shell: bash
         run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt install libgirepository1.0-dev
+          fi
           python -m pip install packaging pipenv psutil
           python setup.py setup
 #      - name: Get pip cache dir
