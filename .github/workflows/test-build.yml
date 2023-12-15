@@ -60,5 +60,5 @@ jobs:
       - name: Upload files
         uses: actions/upload-artifact@v3
         with:
-          name: Windows Installer
-          path: dist/discord.fm*setup*.exe
+          name: ${{ matrix.os }} dist files
+          path: dist/discord.fm-*
