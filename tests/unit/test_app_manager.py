@@ -212,7 +212,7 @@ class TestAppManager(unittest.TestCase):
 
     @patch("ui.SettingsWindow")
     @patch("platform.system")
-    @patch("ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID")
+    @patch("ctypes.windll", create=True)
     def test_open_settings(
         self, mock_set_app_id, mock_system, mock_settings_window, *mocks
     ):
@@ -222,5 +222,5 @@ class TestAppManager(unittest.TestCase):
 
         manager.open_settings()
 
-        mock_set_app_id.assert_called_once()
+        mock_set_app_id.shell32.SetCurrentProcessExplicitAppUserModelID.assert_called_once()
         mock_settings_window.assert_called_once()
