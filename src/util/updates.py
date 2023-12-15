@@ -39,7 +39,7 @@ def download_asset(manager, asset: dict) -> Path:
     """Downloads a GitHub asset to the app's data folder and returns the full path of the file."""
     headers = {"Accept": "application/octet-stream", "User-Agent": "Discord.fm"}
 
-    logger.debug(f'Requesting asset "{asset["name"]}" from GitHub')
+    logger.info(f'Requesting asset "{asset["name"]}" from GitHub')
     handler = request_handler.RequestHandler(manager, "GitHub download")
     request = handler.attempt_request(
         requests.get, timeout=3600, url=asset["url"], headers=headers

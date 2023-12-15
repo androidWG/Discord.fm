@@ -38,7 +38,6 @@ class WindowsInstall(BaseInstall):
         exe_location = winreg.QueryValueEx(access_key, "DisplayIcon")[0]
 
         logger.info(f"Found executable - Location: {exe_location}")
-
         return exe_location
 
     def get_startup(self):

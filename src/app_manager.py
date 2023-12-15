@@ -62,7 +62,9 @@ class AppManager:
 
         logger.debug("Setting start with system")
         installation = util.install.get_install()
-        installation.set_startup(self.settings.get("start_with_system"), util.install.get_exe_path())
+        installation.set_startup(
+            self.settings.get("start_with_system"), util.install.get_exe_path()
+        )
 
         if self.settings.get("auto_update") or util.arg_exists("--force-update"):
             logger.debug("Checking for updates")
@@ -75,8 +77,9 @@ class AppManager:
                 self.status = Status.UPDATING
                 self.tray_icon.ti.update_menu()
 
-                logger.info(
-                    f"Found newer version (current v{current} vs. latest v{latest})"
+                logger.warning(
+                    f"{'Forcing update to version' if util.arg_exists('--force-update') else 'Found newer version'}"
+                    f" (current v{current} vs. latest v{latest})"
                 )
                 path = util.updates.download_asset(self, latest_asset)
 
@@ -202,6 +205,7 @@ class AppManager:
                 pypresence.DiscordError,
                 ValueError,
                 struct.error,
+                ConnectionResetError,
             ) as e:
                 logger.debug(f"Received {e} when connecting to Discord RP")
                 return False
