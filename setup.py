@@ -137,11 +137,6 @@ def check_pyinstaller(force: bool):
         _run_simple(commands, cwd=p.abspath("pyinstaller"))
 
         _delete("pyinstaller")
-    elif platform.system() == "Linux":
-        print("Linux does not use PyInstaller, skipping")
-    else:
-        commands = pip + ["PyInstaller"]
-        _run_simple(commands)
 
 
 if __name__ == "__main__":
