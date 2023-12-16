@@ -30,7 +30,7 @@ jobs:
               sudo apt-get install libcairo-dev libgirepository1.0-dev
           fi
           python -m pip install packaging pipenv psutil
-          python setup.py setup --no-venv
+          python setup.py setup --global
       - name: Build
         run: python setup.py build
       - name: Upload files
@@ -59,6 +59,6 @@ jobs:
               sudo apt-get install libcairo-dev libgirepository1.0-dev
           fi
           python -m pip install packaging pipenv psutil
-          python setup.py setup --no-venv
+          python setup.py setup --global
       - name: Run tests
         run: python setup.py test
