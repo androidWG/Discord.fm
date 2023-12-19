@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-## [0.11.0] - yyyy-mm-dd
+## [0.11.0] - 2023-12-18
 
 ### Added
 - Linux support using a generic binary with included installer/uninstaller and self-updating. Flatpak support is planned in the future.
