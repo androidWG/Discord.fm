@@ -4,9 +4,6 @@ import shutil
 import sys
 from platform import system
 
-from plyer import notification as plyer_notif
-from pypresence.utils import get_ipc_path
-
 import process
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -110,6 +107,8 @@ def is_frozen():  # I could just use hasattr() directly but this makes it more c
 
 
 def basic_notification(title: str, message: str):
+    import plyer
+
     logger.debug(f'Sending notification with title "{title}" and message "{message}"')
     if system() == "Windows":
         icon = resource_path("resources", "icon.ico")
@@ -129,7 +128,7 @@ def basic_notification(title: str, message: str):
 
         mac_notif.send()
     else:
-        plyer_notif.notify(
+        plyer.notification.notify(
             title=title,
             message=message,
             app_name="Discord.fm",
@@ -142,8 +141,10 @@ def is_running_in_flatpak() -> bool:
 
 
 def is_discord_running() -> bool:
+    import pypresence.utils
+
     if is_running_in_flatpak():
-        ipc_path = get_ipc_path(0)
+        ipc_path = pypresence.utils.get_ipc_path(0)
         logger.debug(
             f"Determining if Discord is running, detected ipc_path: {ipc_path}"
         )
