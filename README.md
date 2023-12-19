@@ -8,15 +8,16 @@
 ----
 
 <p align="center">
-   <img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows Platform Badge">
-   <img src="https://img.shields.io/badge/MacOS-grey?style=for-the-badge&logo=apple&logoColor=white" alt="macOS Platform Badge">
+   <img src="https://img.shields.io/badge/Windows-blue?style=for-the-badge&logo=windows&logoColor=white&labelColor=black" alt="Windows Platform Badge">
+   <img src="https://img.shields.io/badge/Linux-gold?style=for-the-badge&logo=linux&logoColor=white&labelColor=black
+" alt="Linux Platform Badge">
 </p>
 
 <p align="center">
-   <img alt="GitHub release (latest by date)" src="https://img.shields.io/github/downloads/androidWG/Discord.fm/latest/total?label=downloads&style=flat-square">
-    <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/androidWG/Discord.fm/build-publish.yml?style=flat-square">
-   <img src="https://img.shields.io/github/license/AndroidWG/Discord.fm?style=flat-square" alt="License: MIT">
-   <img src="https://img.shields.io/badge/using-pypresence-00bb88.svg?style=flat-square&logo=discord&logoWidth=20&logoColor=white" alt="Using pypresence package">
+   <img alt="GitHub release downloads (latest by date)" src="https://img.shields.io/github/downloads/androidWG/Discord.fm/latest/total?label=downloads&style=flat-square&labelColor=black">
+    <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/androidWG/Discord.fm/test-build.yml?style=flat-square&labelColor=black&label=build %26 tests">
+   <img src="https://img.shields.io/github/license/AndroidWG/Discord.fm?style=flat-square&labelColor=black" alt="License: MIT">
+   <img src="https://img.shields.io/badge/using-pypresence-00bb88.svg?style=flat-square&logo=discord&logoWidth=20&logoColor=white&labelColor=black" alt="Using pypresence package">
 </p>
 
 Multi-platform background service that shows what you're scrobbling on Last.fm to on Discord, with automatic updates,
