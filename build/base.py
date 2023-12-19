@@ -41,6 +41,9 @@ class BuildTool:
     def build(self):
         pass
 
+    def package(self):
+        pass
+
     def make_installer(self):
         pass
 

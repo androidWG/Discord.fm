@@ -17,9 +17,12 @@ class TestUpdates(unittest.TestCase):
     get_newest_tuple = (version.parse("1.2.3"), asset)
 
     @patch("util.request_handler.RequestHandler.attempt_request")
-    def test_newest_release(self, mock_request: MagicMock):
+    @patch("platform.system")
+    def test_newest_release(self, mock_platform, mock_request: MagicMock):
+        # TODO: Make tests for _match_asset and _get_release_json
         manager = MagicMock()
         manager.settings.get.return_value = False
+        mock_platform.return_value = "Windows"
         mock_request.return_value.json.return_value = {
             "prerelease": True,
             "published_at": "2002-06-01",
@@ -27,7 +30,9 @@ class TestUpdates(unittest.TestCase):
             "assets": [self.asset, self.asset2, self.asset3],
         }
 
-        self.assertEqual(updates.get_newest_release(manager), self.get_newest_tuple)
+        self.assertEqual(
+            updates.get_newest_release_with_asset(manager), self.get_newest_tuple
+        )
 
         manager.settings.get.return_value = True
         mock_request.return_value.json.return_value = [
@@ -51,7 +56,9 @@ class TestUpdates(unittest.TestCase):
             },
         ]
 
-        self.assertEqual(updates.get_newest_release(manager), self.get_newest_tuple)
+        self.assertEqual(
+            updates.get_newest_release_with_asset(manager), self.get_newest_tuple
+        )
 
 
 if __name__ == "__main__":

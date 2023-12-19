@@ -1,4 +1,7 @@
 import logging
+import os
+import platform
+import tkinter
 
 from PIL import Image
 from pystray import Icon, Menu, MenuItem
@@ -15,7 +18,22 @@ class SystemTrayIcon:
         self.m = manager
 
         self._exit_func = manager.close
+        if platform.system() == "Darwin":
+            # TkInter can only create a new NSApplication instance when it is initialized. pystray uses the shared
+            # one or creates one. To avoid NSApplication macOSVersion error when the settings UI is opened,
+            # create a dummy hidden Tk instance so pystray can use it's NSApplication.
+            class DummyWindow(tkinter.Tk):
+                def __init__(self):
+                    super().__init__()
+                    self.withdraw()
+
+            dummy = DummyWindow()
+            dummy.destroy()
         self.ti = self.create_tray_icon()
+
+        if platform.system() == "Linux":
+            # Make sure appindicator is used on Linux. For some reason, pystray will always default to X11
+            os.environ["PYSTRAY_BACKEND"] = "appindicator"
 
     def create_tray_icon(self):
         logger.debug("Creating tray icon")

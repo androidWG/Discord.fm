@@ -16,13 +16,15 @@ filelock = ">=3.7.1"
 pywin32 = {version = ">=306", markers = "sys_platform == 'windows'"}
 aquaui = {version = ">=0.0.1.post2", markers = "sys_platform == 'darwin'"}
 pyobjc = {version = ">=10.0", markers = "sys_platform == 'darwin'"}
-PyYAML = {version = ">=6.0", markers = "sys_platform == 'linux'"}
-requirements-parser = {version = ">=0.5.0", markers = "sys_platform == 'linux'"}
+pygobject = {version = ">=3.44.1", markers = "sys_platform == 'linux'"}
+packaging = ">=21.3"
 
 [dev-packages]
-packaging = ">=21.3"
 black = "*"
 pytest = "*"
+PyYAML = {version = ">=6.0", markers = "sys_platform == 'linux'"}
+requirements-parser = {version = ">=0.5.0", markers = "sys_platform == 'linux'"}
+PyInstaller = {version = ">=5.10.1", markers = "sys_platform == 'linux' or sys_platform == 'darwin'"}
 
 [requires]
 python_version = "3.11"

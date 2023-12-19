@@ -31,7 +31,8 @@ def get_external_process(
 
     try:
         process_list = psutil.process_iter()
-    except psutil.AccessDenied:
+    except psutil.AccessDenied as e:
+        logger.debug("Access denied while attempting to read processes", exc_info=e)
         return []
 
     for process in process_list:

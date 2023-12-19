@@ -13,6 +13,24 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.11.0] - 2023-12-18
+
+### Added
+- Linux support using a generic binary with included installer/uninstaller and self-updating. Flatpak support is planned in the future.
+- macOS support, though self-updating and packaging/distributing still are not finished. Only way to use the app on macOS is running it unfrozen.
+
+### Changed 
+- "Start with system" setting changed to "Start on login" to better describe what it does
+- When the app opens, it will check if the "Start on login" setting is actually active on the OS and change the app setting accordingly.
+  - This should make the setting more useful and less prone to mismatches, however on platforms like Windows, the user can manually disable starting on login without the app's knowledge 
+- The `--force-update` flag now makes the app check and install an update even if `auto_update` setting is false.
+- macOS icon design
+
+### Fixed
+- `ConnectionResetError` exception when attempting to connect to Discord
+- Exception when `--force-update` forces the app to update using invalid GitHub release data
+- Settings being stored inside logs folder on Linux
+
 ## [0.10.2] - 2023-12-09
 
 ### Changed

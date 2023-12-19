@@ -6,7 +6,6 @@ import stat
 import subprocess
 import sys
 from os import path as p
-from typing import List
 
 import build
 
@@ -40,46 +39,44 @@ def _delete(path: str | os.PathLike[str]):
     shutil.rmtree(p.abspath(path))
 
 
-def _run(
-    cmd_list: List[List[str]] | List[str], cwd=os.getcwd()
-) -> List[subprocess.CompletedProcess]:
-    if type(cmd_list[0]) is str:
-        commands = [cmd_list]
-    else:
-        commands = cmd_list
-
-    results = []
-    for cmd in commands:
-        print(f'Running command "{cmd}"...\n')
-        result = subprocess.run(cmd, cwd=cwd, stdout=sys.stdout, stderr=sys.stderr)
-        results.append(result)
-
-    return results
-
-
-def _run_simple(cmd: str | list[str], capture_output: bool = False, **kwargs) -> str | None:
+def _run_simple(cmd: str | list[str], **kwargs) -> str | None:
     print(f'Running simple command "{cmd}"...\n')
 
-    if not capture_output:
-        output = sys.stdout
+    if isinstance(cmd, str):
+        command = cmd.split(" ")
     else:
-        output = subprocess.PIPE
+        command = cmd
 
-    result = subprocess.run(cmd, stdout=output, stderr=sys.stderr, **kwargs)
-    return result.stdout.decode("utf-8").strip() if capture_output else None
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        **kwargs,
+    )
+
+    lines: list[str] = []
+    for line in iter(process.stdout.readline, b""):
+        line_as_string = line.decode().rstrip()
+        lines.append(line_as_string)
+        print(line_as_string)
+
+    result = "\n".join(lines)
+    process.stdout.close()
+    process.wait()
+
+    return result
 
 
 def check_venv(force: bool, no_venv: bool):
     print("\nGetting venv...")
     global python, env_path, pip
 
-    env_name = _run_simple("pipenv --venv", capture_output=True)
+    env_name = _run_simple("pipenv --venv")
     if (not p.isdir(env_name) or env_name == "" or force) and not no_venv:
         print("Running pipenv...\n")
         _run_simple("pipenv --python=3.11 install --dev")
-        env_name = _run_simple("pipenv --venv", capture_output=True)
+        env_name = _run_simple("pipenv --venv")
 
-    python = _run_simple("pipenv --py", capture_output=True)
+    python = _run_simple("pipenv --py")
 
     if no_venv:
         python = "python"
@@ -90,11 +87,18 @@ def check_venv(force: bool, no_venv: bool):
 
     # Append site-packages from the virtual env. Needed when we're importing BuildTools and it imports stuff not
     # installed globally
-    sys.path.append(p.join(env_path, "Lib", "site-packages"))
+    if current_platform == "Windows":
+        sys.path.append(p.join(env_path, "Lib", "site-packages"))
+    else:
+        sys.path.append(p.join(env_path, "bin"))
 
 
 def __pyinstaller_installed() -> bool:
-    packages = p.join(env_path, "Lib", "site-packages")
+    if platform.system() == "Windows":
+        packages = p.join(env_path, "Lib", "site-packages")
+    else:
+        packages = p.join(env_path, "bin")
+
     for x in os.listdir(packages):
         path = p.join(packages, x)
         if p.isdir(p.abspath(path)) and x.__contains__("pyinstaller"):
@@ -121,27 +125,23 @@ def check_pyinstaller(force: bool):
         _delete("pyinstaller")
 
         commands = ["git", "clone", "https://github.com/pyinstaller/pyinstaller.git"]
-        _run(commands)
+        _run_simple(commands)
 
         commands = ["git", "checkout", f"tags/v{PYINSTALLER_VER}"]
-        _run(commands, p.abspath("pyinstaller"))
+        _run_simple(commands, cwd=p.abspath("pyinstaller"))
 
         commands = [python, "./waf", "distclean", "all"]
-        _run(commands, p.abspath(p.join("pyinstaller", "bootloader")))
+        _run_simple(commands, cwd=p.abspath(p.join("pyinstaller", "bootloader")))
 
         commands = pip + ["."]
-        _run(commands, p.abspath("pyinstaller"))
+        _run_simple(commands, cwd=p.abspath("pyinstaller"))
 
         _delete("pyinstaller")
-    elif platform.system() == "Linux":
-        print("Linux does not use PyInstaller, skipping")
-    else:
-        commands = pip + ["PyInstaller"]
-        _run(commands)
 
 
 if __name__ == "__main__":
     # region ArgumentParser Setup
+    # TODO: Change to subcommands
     parser = argparse.ArgumentParser(
         description="Setup and manage the Discord.fm project."
     )
@@ -174,17 +174,18 @@ if __name__ == "__main__":
         help="Skips cleanup, leaving temporary files and folders",
     )
     parser.add_argument(
-        "-f",
-        "--force",
-        action="store_true",
-        dest="force",
-        help="Force setup from scratch.",
-    )
-    parser.add_argument(
         "--global",
         action="store_true",
         dest="no_venv",
         help="Force script to use global Python instead of venv",
+    )
+    parser.add_argument(
+        "-f", "--force", action="store_true", help="Force setup from scratch."
+    )
+    parser.add_argument(
+        "--flatpak",
+        action="store_true",
+        help="Makes a manifest, builds and installs a Flatpak instead of Linux binaries.",
     )
     # endregion
 
@@ -206,10 +207,11 @@ if __name__ == "__main__":
             check_pyinstaller(args.force)
 
             print("\nBuilding Discord.fm")
-            bt = build.get_build_tool(python)
+            bt = build.get_build_tool(python, args.flatpak)
             bt.prepare_files()
             if args.executable:
                 bt.build()
+                bt.package()
             if args.installer:
                 bt.make_installer()
             if args.cleanup:
@@ -229,7 +231,7 @@ if __name__ == "__main__":
             env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
 
             _run_simple(
-                [python, "-m", "pytest", "tests/", "--full-trace"],
+                [python, "-m", "pytest", "tests/"],
                 env=env,
             )
 

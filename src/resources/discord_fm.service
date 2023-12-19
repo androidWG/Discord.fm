@@ -1,0 +1,8 @@
+[Unit]
+Description=Show what you're scrobbling on Discord
+
+[Service]
+ExecStart=#EXECUTABLE_PATH#
+
+[Install]
+WantedBy=default.target

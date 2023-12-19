@@ -4,6 +4,7 @@ import json
 import os
 import random
 import shutil
+from pathlib import Path
 from stat import S_IREAD, S_IWRITE
 from unittest import main, TestCase
 from unittest.mock import MagicMock, patch
@@ -37,6 +38,7 @@ def create_temp_dir():
     return temp_dir
 
 
+@patch("settings.setup_logs_dir")
 @patch("settings.setup_app_data_dir")
 class SettingsClassTests(TestCase):
     temp_dir = create_temp_dir()
@@ -47,7 +49,7 @@ class SettingsClassTests(TestCase):
     locked_json = "locked_json.json"
     an_image = "image.gif"
 
-    def test_read(self, mock_app_data: MagicMock):
+    def test_read(self, mock_app_data: MagicMock, mock_logs: MagicMock):
         mock_app_data.return_value = self.temp_dir
 
         settings.Settings("Test")
@@ -56,7 +58,7 @@ class SettingsClassTests(TestCase):
         settings.Settings("Test", self.valid_json)
         settings.Settings("Test", self.an_image)
 
-    def test_write(self, mock_app_data: MagicMock):
+    def test_write(self, mock_app_data: MagicMock, mock_logs: MagicMock):
         mock_app_data.return_value = self.temp_dir
         path = os.path.join(self.temp_dir, self.locked_json)
         initial_md5 = get_md5(path)
@@ -74,7 +76,7 @@ class SettingsClassTests(TestCase):
 
         os.chmod(result2.config_file_path, S_IWRITE)
 
-    def test_dictionary(self, mock_app_data: MagicMock):
+    def test_dictionary(self, mock_app_data: MagicMock, mock_logs: MagicMock):
         mock_app_data.return_value = self.temp_dir
         with open(os.path.join(self.temp_dir, self.valid_json)) as file:
             data: dict = json.load(file)
@@ -88,7 +90,7 @@ class SettingsClassTests(TestCase):
 
             self.assertEqual(test.settings_dict, data)
 
-    def test_define_and_save(self, mock_app_data: MagicMock):
+    def test_define_and_save(self, mock_app_data: MagicMock, mock_logs: MagicMock):
         mock_app_data.return_value = self.temp_dir
         test = settings.Settings("Test", self.valid_json)
 
@@ -103,7 +105,7 @@ class SettingsClassTests(TestCase):
         self.assertEqual(test.get("username"), new_name)
         self.assertEqual(test.get("auto_update"), new_update)
 
-    def test_invalid_key(self, mock_app_data: MagicMock):
+    def test_invalid_key(self, mock_app_data: MagicMock, mock_logs: MagicMock):
         mock_app_data.return_value = self.temp_dir
         test = settings.Settings("Test")
 
@@ -119,28 +121,30 @@ class UtilsTest(TestCase):
     def test_make_dir(self, mock_app_data):
         mock_app_data.return_value = self.temp_dir
 
-        data1 = os.path.join(self.temp_dir, "test1")
-        data2 = os.path.join(self.temp_dir, "test2")
-        data3 = os.path.join(self.temp_dir, "test3")
+        data1 = Path(self.temp_dir, "test1")
+        data2 = Path(self.temp_dir, "test2")
+        data3 = Path(self.temp_dir, "test3")
         os.mkdir(data2)
 
-        settings.util.make_dir(data1)
-        settings.util.make_dir(data2)
+        settings.util._make_dir(data1)
+        settings.util._make_dir(data2)
 
         with self.assertRaises(PermissionError) and FileLock(data3):
-            settings.util.make_dir(data3)
+            settings.util._make_dir(data3)
 
     def test_executables(self, mock_app_data):
         mock_app_data.return_value = self.temp_dir
 
         exe_list = []
+        download_directory = os.path.join(self.temp_dir, "updated_version")
+        os.mkdir(download_directory)
         for i in range(10):
-            path = os.path.join(self.temp_dir, f"executable{i}.exe")
+            path = os.path.join(download_directory, f"executable{i}.exe")
             with open(path, "wb") as file:
                 file.write(random.randbytes(4096))
                 exe_list.append(file.name)
 
-        settings.util.clear_executables(self.temp_dir)
+        settings.util._clear_executables(Path(self.temp_dir))
 
         for exe in exe_list:
             path = os.path.join(self.temp_dir, exe)

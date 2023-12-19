@@ -10,37 +10,10 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        os: [ windows-latest ]
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Setup environment
-        run: |
-          python -m pip install packaging pipenv psutil
-          python setup.py setup
-      - name: Get pip cache dir
-        id: pipenv-cache
-        run: |
-          echo "dir=$(pipenv --venv)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        with:
-          path: ${{ steps.pipenv-cache.outputs.dir }}
-          key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
-      - name: Run tests
-        run: python setup.py test
   build:
     strategy:
       matrix:
-        os: [ windows-latest ]
+        os: [ ubuntu-latest, windows-latest ]
 
     runs-on: ${{ matrix.os }}
 
@@ -51,21 +24,38 @@ jobs:
         with:
           python-version: "3.11"
       - name: Setup environment
+        shell: bash
         run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt-get install libcairo-dev libgirepository1.0-dev
+          fi
           python -m pip install packaging pipenv psutil
           python setup.py setup
-      - name: Get pip cache dir
-        id: pipenv-cache
-        run: |
-          echo "dir=$(pipenv --venv)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        with:
-          path: ${{ steps.pipenv-cache.outputs.dir }}
-          key: ${{ runner.os }}-pipenv-${{ hashFiles('Pipfile.lock') }}
       - name: Build
         run: python setup.py build
       - name: Upload files
         uses: actions/upload-artifact@v3
         with:
-          name: Windows Installer
-          path: dist/discord.fm*setup*.exe
+          name: ${{ matrix.os }} dist files
+          path: dist/discord.fm-*
+  test:
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest ]
+
+    runs-on: ${{ matrix.os }}
+
+    # TODO: Add cache support
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Setup environment
+        shell: bash
+        run: |
+          python -m pip install packaging pipenv psutil
+          python setup.py setup
+      - name: Run tests
+        run: python setup.py test

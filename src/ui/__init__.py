@@ -53,7 +53,6 @@ class SettingsWindow(Tk):
         )
 
         self.usr_status_text = StringVar(value="Checking...")
-        self.service_btn_text = StringVar(value="Start service")
         self.logs_btn_text = StringVar(value="Open logs folder")
 
         self.start_with_system = BooleanVar(
@@ -124,7 +123,7 @@ class SettingsWindow(Tk):
 
         # region Check Buttons
         start_check = ttk.Checkbutton(
-            self.root, text="Start with system", variable=self.start_with_system
+            self.root, text="Start on login", variable=self.start_with_system
         )
         upd_check = ttk.Checkbutton(
             self.root,

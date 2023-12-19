@@ -41,7 +41,7 @@ class AppManager:
             logger.critical(
                 "No username found - please add a username to settings and restart the app"
             )
-            self.open_settings()
+            self.open_settings(wait=True)
 
         self.tray_icon = system_tray_icon.SystemTrayIcon(self)
         self.loop = loop_handler.LoopHandler(self)
@@ -62,25 +62,22 @@ class AppManager:
 
         logger.debug("Setting start with system")
         installation = util.install.get_install()
-        installation.set_startup(
-            self.settings.get("start_with_system"), util.install.get_exe_path()
-        )
+        self.settings.define("start_with_system", installation.get_startup())
 
-        if self.settings.get("auto_update"):
+        if self.settings.get("auto_update") or util.arg_exists("--force-update"):
             logger.debug("Checking for updates")
 
-            latest, latest_asset = util.updates.get_newest_release(self)
+            latest, latest_asset = util.updates.get_newest_release_with_asset(self)
             current = version.get_version(True)
-            if (
-                latest is not None
-                and latest > current
-                or util.arg_exists("--force-update")
+            if latest is not None and (
+                latest > current or util.arg_exists("--force-update")
             ):
                 self.status = Status.UPDATING
                 self.tray_icon.ti.update_menu()
 
-                logger.info(
-                    f"Found newer version (current v{current} vs. latest v{latest})"
+                logger.warning(
+                    f"{'Forcing update to version' if util.arg_exists('--force-update') else 'Found newer version'}"
+                    f" (current v{current} vs. latest v{latest})"
                 )
                 path = util.updates.download_asset(self, latest_asset)
 
@@ -194,7 +191,7 @@ class AppManager:
     def _attempt_to_connect_rp(self) -> bool:
         logger.info("Attempting to connect to Discord")
 
-        if process.check_process_running("Discord", "DiscordCanary"):
+        if util.is_discord_running():
             try:
                 self.discord_rp.connect()
                 logger.info("Successfully connected to Discord")
@@ -206,6 +203,7 @@ class AppManager:
                 pypresence.DiscordError,
                 ValueError,
                 struct.error,
+                ConnectionResetError,
             ) as e:
                 logger.debug(f"Received {e} when connecting to Discord RP")
                 return False
@@ -231,7 +229,7 @@ class AppManager:
             time.sleep(10)
             return False
 
-    def open_settings(self):
+    def open_settings(self, wait: bool = False):
         logger.debug("Opening settings")
 
         # Set app ID so Windows will show the correct icon on the taskbar
