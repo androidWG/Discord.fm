@@ -9,8 +9,7 @@
 
 <p align="center">
    <img src="https://img.shields.io/badge/Windows-blue?style=for-the-badge&logo=windows&logoColor=white&labelColor=black" alt="Windows Platform Badge">
-   <img src="https://img.shields.io/badge/Linux-gold?style=for-the-badge&logo=linux&logoColor=white&labelColor=black
-" alt="Linux Platform Badge">
+   <img src="https://img.shields.io/badge/Linux-gold?style=for-the-badge&logo=linux&logoColor=white&labelColor=black" alt="Linux Platform Badge">
 </p>
 
 <p align="center">
