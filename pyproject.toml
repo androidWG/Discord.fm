@@ -1,0 +1,47 @@
+[project]
+name = "discord-fm"
+authors = [
+  { name="Anna Rodrigues", email="me@annarodrigues.net" },
+]
+version = "0.11.0"
+description = "Show what you're scrobbling on Discord at all times!"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICENSE.md"]
+dependencies = [
+    "aquaui>=0.0.1 ; sys_platform == 'darwin'",
+    "filelock>=3.17.0",
+    "future>=1.0.0",
+    "packaging>=24.2",
+    "pillow>=11.1.0",
+    "plyer>=2.1.0",
+    "psutil>=6.1.1",
+    "pygobject>=3.44.0 ; sys_platform == 'linux'",
+    "pylast>=5.3.0",
+    "pyobjc>=10.0 ; sys_platform == 'darwin'",
+    "pypresence>=4.3.0",
+    "pystray>=0.19.5",
+    "pywin32>=306 ; sys_platform == 'win32'",
+    "requests>=2.32.3",
+    "pyinstaller>=6.11.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/androidWG/Discord.fm"
+Issues = "https://github.com/androidWG/Discord.fm/issues"
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+# PyInstaller must be built from source on Windows
+pyinstaller = { git = "https://github.com/pyinstaller/pyinstaller.git" }
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "pytest>=8.3.4",
+    "pyyaml>=6.0 ; sys_platform == 'linux'",
+    "requirements-parser>=0.5.0 ; sys_platform == 'linux'",
+]

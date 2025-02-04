@@ -9,7 +9,7 @@ from os import path as p
 
 import build
 
-PYINSTALLER_VER = "6.2.0"
+PYINSTALLER_VER = "6.11.1"
 MARKER_NAME = ".setup_done"
 
 current_platform = platform.system()
@@ -39,6 +39,14 @@ def _delete(path: str | os.PathLike[str]):
     shutil.rmtree(p.abspath(path))
 
 
+def _check_util(cmd: str) -> None:
+    if shutil.which(cmd) is None:
+        print(
+            "git is required to build PyInstaller. Download it from https://git-scm.com/download"
+        )
+        sys.exit(2)
+
+
 def _run_simple(cmd: str | list[str], **kwargs) -> str | None:
     print(f'Running simple command "{cmd}"...\n')
 
@@ -66,126 +74,66 @@ def _run_simple(cmd: str | list[str], **kwargs) -> str | None:
     return result
 
 
-def check_venv(force: bool, no_venv: bool):
-    print("\nGetting venv...")
-    global python, env_path, pip
+def build_pyinstaller() -> None:
+    _check_util("git")
+    _delete("pyinstaller")
 
-    env_name = _run_simple("pipenv --venv")
-    if (not p.isdir(env_name) or env_name == "" or force) and not no_venv:
-        print("Running pipenv...\n")
-        _run_simple("pipenv --python=3.11 install --dev")
-        env_name = _run_simple("pipenv --venv")
-
-    python = _run_simple("pipenv --py")
-
-    if no_venv:
-        python = "python"
-        env_path = os.path.dirname(sys.executable)
-    else:
-        env_path = env_name
-    pip = [python, "-m", "pip", "install"]
-
-    # Append site-packages from the virtual env. Needed when we're importing BuildTools and it imports stuff not
-    # installed globally
-    if current_platform == "Windows":
-        sys.path.append(p.join(env_path, "Lib", "site-packages"))
-    else:
-        sys.path.append(p.join(env_path, "bin"))
-
-
-def __pyinstaller_installed() -> bool:
-    if platform.system() == "Windows":
-        packages = p.join(env_path, "Lib", "site-packages")
-    else:
-        packages = p.join(env_path, "bin")
-
-    for x in os.listdir(packages):
-        path = p.join(packages, x)
-        if p.isdir(p.abspath(path)) and x.__contains__("pyinstaller"):
-            return True
-
-    return False
-
-
-def check_pyinstaller(force: bool):
-    print("\nChecking PyInstaller...")
-
-    if __pyinstaller_installed() and not force:
-        print("PyInstaller is already installed, skipping")
-        return
-
-    print("Installing PyInstaller")
-    if platform.system() == "Windows":
-        if shutil.which("git") is None:
-            print(
-                "git is required to build PyInstaller. Download it from https://git-scm.com/download"
-            )
-            sys.exit(2)
-
-        _delete("pyinstaller")
-
-        commands = ["git", "clone", "https://github.com/pyinstaller/pyinstaller.git"]
-        _run_simple(commands)
-
-        commands = ["git", "checkout", f"tags/v{PYINSTALLER_VER}"]
-        _run_simple(commands, cwd=p.abspath("pyinstaller"))
-
-        commands = [python, "./waf", "distclean", "all"]
-        _run_simple(commands, cwd=p.abspath(p.join("pyinstaller", "bootloader")))
-
-        commands = pip + ["."]
-        _run_simple(commands, cwd=p.abspath("pyinstaller"))
-
-        _delete("pyinstaller")
+    _run_simple("git clone https://github.com/pyinstaller/pyinstaller.git")
+    _run_simple(f"git checkout tags/v{PYINSTALLER_VER}", cwd=p.abspath("pyinstaller"))
+    _run_simple(
+        f"{python} ./waf all", cwd=p.abspath(p.join("pyinstaller", "bootloader"))
+    )
 
 
 if __name__ == "__main__":
     # region ArgumentParser Setup
-    # TODO: Change to subcommands
     parser = argparse.ArgumentParser(
         description="Setup and manage the Discord.fm project."
     )
-    parser.add_argument(
-        "command",
-        type=str,
-        nargs="?",
-        choices=["setup", "build", "run", "format", "test"],
-        help="Command to be executed",
+    # parser.add_argument(
+    #     "--global",
+    #     action="store_true",
+    #     dest="no_venv",
+    #     help="Force script to use global Python instead of venv",
+    # )
+
+    subparsers = parser.add_subparsers(help="Command to be executed", dest="command")
+
+    sub_setup = subparsers.add_parser(
+        "setup", help="Setup Discord.fm development environment"
     )
-    parser.add_argument(
+    sub_setup.add_argument(
+        "--flatpak",
+        action="store_true",
+        help="Makes a manifest, builds and installs a Flatpak instead of Linux binaries.",
+    )
+
+    sub_build = subparsers.add_parser(
+        "build", help="Build Discord.fm distribution binaries"
+    )
+    sub_build.add_argument(
+        "-f", "--force", action="store_true", help="Force setup from scratch."
+    )
+    sub_build.add_argument(
         "-i",
         "--installer-only",
         action="store_false",
         dest="executable",
         help="Builds only the installer for the current platform. Will fail if no distribution executables are found",
     )
-    parser.add_argument(
+    sub_build.add_argument(
         "-b",
         "--build-only",
         action="store_false",
         dest="installer",
         help="Builds only the main executables of the program, and skips building the installer",
     )
-    parser.add_argument(
+    sub_build.add_argument(
         "-d",
         "--dirty",
         action="store_false",
         dest="cleanup",
         help="Skips cleanup, leaving temporary files and folders",
-    )
-    parser.add_argument(
-        "--global",
-        action="store_true",
-        dest="no_venv",
-        help="Force script to use global Python instead of venv",
-    )
-    parser.add_argument(
-        "-f", "--force", action="store_true", help="Force setup from scratch."
-    )
-    parser.add_argument(
-        "--flatpak",
-        action="store_true",
-        help="Makes a manifest, builds and installs a Flatpak instead of Linux binaries.",
     )
     # endregion
 
@@ -199,7 +147,11 @@ if __name__ == "__main__":
 
     match args.command:
         case "setup":
-            check_venv(args.force, args.no_venv)
+            if current_platform == "Windows":
+                build_pyinstaller()
+
+            _run_simple("uv ")
+
             print(f"Python path: {python}\nEnv path: {env_path}\nPip path: {pip}")
             print("\nSetup completed")
         case "build":

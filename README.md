@@ -39,24 +39,23 @@ Discord.fm provides a setup script with some useful functions for devs. A full l
 
 ### Requirements
 
-- Python 3.11 or above
-- [packaging](https://pypi.org/project/packaging/)
-
-#### On Windows
-
-- A C compiler, such as MSVC or GCC (we recommend [MSYS2](https://www.msys2.org/), includes GCC)
-    - [PyInstaller](https://github.com/pyinstaller/pyinstaller) is used to freeze the app for distribution. However,
+- Python 3.12 or above
+- [UV package manager](https://docs.astral.sh/uv/getting-started/installation/)
+- **\[Linux]** [PyGObject dependencies](https://pygobject.gnome.org/getting_started.html) - required by [pystray](https://pystray.readthedocs.io/en/latest/faq.html#how-do-i-use-pystray-in-a-virtualenv-on-linux), follow instructions for "**Installing from PyPI with pip**"
+- A C compiler to build [PyInstaller](https://github.com/pyinstaller/pyinstaller)'s bootloader
+    - **\[Linux]** Most likely comes with your distro
+    - **\[Windows]** Visual Studio with the C++ development option includes MSVC, if you don't have VS I recommend [MSYS2](https://www.msys2.org/) - includes GCC
+    - PyInstaller is used to freeze the app for distribution. However,
       using pip to install it will trigger false positives in many antiviruses. This is why we will need to build it
-      ourselves, and thus the need for a C compiler.
-        - More
-          info [here](https://stackoverflow.com/questions/43777106/program-made-with-pyinstaller-now-seen-as-a-trojan-horse-by-avg)
+      ourselves, and thus the need for a C compiler. More info [here](https://stackoverflow.com/questions/43777106/program-made-with-pyinstaller-now-seen-as-a-trojan-horse-by-avg)
 
-After all requirements are met, just clone the repo and run the setup:
+After all requirements are met, clone the repo and run UV:
 
 ````commandline
 git clone https://github.com/androidWG/Discord.fm
 cd Discord.fm
-python setup.py setup
+uv lock
+uv sync --no-binary-package pyinstaller
 ````
 
 The script should set up everything for you. Then, you can run the app with
