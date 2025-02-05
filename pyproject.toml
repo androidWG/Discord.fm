@@ -1,5 +1,5 @@
 [project]
-name = "discord-fm"
+name = "Discord.fm"
 authors = [
   { name="Anna Rodrigues", email="me@annarodrigues.net" },
 ]
@@ -35,7 +35,7 @@ Issues = "https://github.com/androidWG/Discord.fm/issues"
 package = false
 
 [tool.uv.sources]
-# PyInstaller must be built from source on Windows
+# PyInstaller must be built from source
 pyinstaller = { git = "https://github.com/pyinstaller/pyinstaller.git" }
 
 [dependency-groups]
