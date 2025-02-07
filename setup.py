@@ -10,15 +10,14 @@ from os import path as p
 import build
 
 PYINSTALLER_VER = "6.11.1"
-MARKER_NAME = ".setup_done"
+SYNC_CMD = "uv sync --no-binary-package pyinstaller --dev"
+PYTHON_FIND_CMD = "uv python find"
 
 current_platform = platform.system()
 python = ""
-env_path = ""
-pip = []
 
 
-def _delete(path: str | os.PathLike[str]):
+def _delete(path: str | os.PathLike[str]) -> None:
     files = []
     if p.isfile(path):
         files.append(path)
@@ -39,11 +38,18 @@ def _delete(path: str | os.PathLike[str]):
     shutil.rmtree(p.abspath(path))
 
 
-def _check_util(cmd: str) -> None:
+def _find_tools(global_py: bool = False) -> None:
+    global python
+
+    if global_py:
+        python = shutil.which(python)
+    else:
+        python = _run_simple(PYTHON_FIND_CMD)
+
+
+def _check_util(cmd: str, message: str = None) -> None:
     if shutil.which(cmd) is None:
-        print(
-            "git is required to build PyInstaller. Download it from https://git-scm.com/download"
-        )
+        print(message)
         sys.exit(2)
 
 
@@ -75,7 +81,10 @@ def _run_simple(cmd: str | list[str], **kwargs) -> str | None:
 
 
 def build_pyinstaller() -> None:
-    _check_util("git")
+    _check_util(
+        "git",
+        "git is required to build PyInstaller. Download it from https://git-scm.com/download",
+    )
     _delete("pyinstaller")
 
     _run_simple("git clone https://github.com/pyinstaller/pyinstaller.git")
@@ -90,22 +99,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Setup and manage the Discord.fm project."
     )
-    # parser.add_argument(
-    #     "--global",
-    #     action="store_true",
-    #     dest="no_venv",
-    #     help="Force script to use global Python instead of venv",
-    # )
+    parser.add_argument(
+        "--global",
+        action="store_true",
+        dest="no_venv",
+        help="Force script to use global Python instead of uv's venv",
+    )
 
     subparsers = parser.add_subparsers(help="Command to be executed", dest="command")
 
+    sub_run = subparsers.add_parser("run", help="Run Discord.fm")
+
     sub_setup = subparsers.add_parser(
         "setup", help="Setup Discord.fm development environment"
-    )
-    sub_setup.add_argument(
-        "--flatpak",
-        action="store_true",
-        help="Makes a manifest, builds and installs a Flatpak instead of Linux binaries.",
     )
 
     sub_build = subparsers.add_parser(
@@ -119,21 +125,26 @@ if __name__ == "__main__":
         "--installer-only",
         action="store_false",
         dest="executable",
-        help="Builds only the installer for the current platform. Will fail if no distribution executables are found",
+        help="Builds only the installer for the current platform. Will fail if no distribution executables are found.",
     )
     sub_build.add_argument(
         "-b",
         "--build-only",
         action="store_false",
         dest="installer",
-        help="Builds only the main executables of the program, and skips building the installer",
+        help="Builds only the main executables of the program, and skips building the installer.",
     )
     sub_build.add_argument(
         "-d",
         "--dirty",
         action="store_false",
         dest="cleanup",
-        help="Skips cleanup, leaving temporary files and folders",
+        help="Skips cleanup, leaving temporary files and folders.",
+    )
+    sub_build.add_argument(
+        "--flatpak",
+        action="store_true",
+        help="Builds and installs a Flatpak instead of Linux binaries.",
     )
     # endregion
 
@@ -145,18 +156,18 @@ if __name__ == "__main__":
     if current_platform not in ["Windows", "Linux", "Darwin"]:
         parser.exit(3, f'Platform "{current_platform}" is unsupported!')
 
+    _check_util(
+        "uv",
+        "uv is needed for package management. Instructions at https://docs.astral.sh/uv/getting-started/installation/",
+    )
+
     match args.command:
         case "setup":
-            if current_platform == "Windows":
-                build_pyinstaller()
-
-            _run_simple("uv ")
-
-            print(f"Python path: {python}\nEnv path: {env_path}\nPip path: {pip}")
+            _run_simple(SYNC_CMD)
             print("\nSetup completed")
         case "build":
-            check_venv(args.force, args.no_venv)
-            check_pyinstaller(args.force)
+            _run_simple(SYNC_CMD)
+            _find_tools()
 
             print("\nBuilding Discord.fm")
             bt = build.get_build_tool(python, args.flatpak)
@@ -171,27 +182,10 @@ if __name__ == "__main__":
 
             print("\nBuild completed")
         case "run":
-            check_venv(args.force, args.no_venv)
+            _run_simple(SYNC_CMD)
+            _find_tools()
 
             print("\nRunning main.py...")
-            _run_simple([python, "main.py"], cwd=p.abspath("src"), check=True)
-        case "test":
-            check_venv(args.force, args.no_venv)
-
-            print("\n Running tests with pytest")
-            env = os.environ.copy()
-            env["PYTHONPATH"] = p.abspath("src") + ";" + p.abspath("tests")
-
             _run_simple(
-                [python, "-m", "pytest", "tests/"],
-                env=env,
+                [python, "main.py"], cwd=p.abspath("src"), start_new_session=True
             )
-
-            print("\n Tests completed")
-        case "format":
-            check_venv(args.force, args.no_venv)
-
-            paths = ["src", "build/*.py", "tests"]
-            _run_simple([python, "-m", "black"] + paths)
-
-            print("\nFormatting completed")
