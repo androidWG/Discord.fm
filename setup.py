@@ -86,7 +86,7 @@ class Setup:
     def _check_package(self, pkg: str, message: str = None) -> None:
         _print_subheader("Checking Python packages")
 
-        result = self._run([self.python, "-c", f'"import {pkg}"'], use_stderr=True)
+        result = self._run([self.python, "-c", f'"import {pkg}"'])
         if result == "":
             pass
         elif f"No module named " in result:
@@ -101,9 +101,8 @@ class Setup:
     def _run(
         self,
         cmd: str | list[str],
-        use_stderr: bool = False,
-        echo_stderr: bool = True,
-        echo_stdout: bool = True,
+        echo: bool = True,
+        passthrough_formatting: bool = False,
         **kwargs,
     ) -> str | None:
         if isinstance(cmd, str):
@@ -123,37 +122,33 @@ class Setup:
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             universal_newlines=True,
+            env=env,
             **kwargs,
         )
 
-        out_lines: list[str] = []
-        err_lines: list[str] = []
+        lines: list[str] = []
 
-        for line in process.stderr:
-            err_lines.append(line.rstrip())
-            if echo_stderr and self.output:
+        for line in iter(process.stdout):
+            stripped_line = line.rstrip()
+
+            lines.append(stripped_line)
+            if echo and self.output and stripped_line != "":
                 # Print over old line if there's output
-                if len(err_lines) <= 1 and len(out_lines) == 0:
+                if len(lines) <= 1:
                     print(cmd_print.replace("─", "┬"))
-                print(f"{Colors.GREY} │ {line.rstrip()}{Colors.ENDC}")
+                print(
+                    f"{Colors.GREY} │ {Colors.ENDC if passthrough_formatting else ''}{stripped_line}{Colors.ENDC if not passthrough_formatting else ''}"
+                )
 
-        for line in process.stdout:
-            out_lines.append(line.rstrip())
-            if echo_stdout and self.output:
-                # Same here...
-                if len(out_lines) <= 1 and len(err_lines) == 0:
-                    print(cmd_print.replace("─", "┬"))
-                print(f"{Colors.GREY} │ {line}{Colors.ENDC}")
-
-        result = "\n".join(err_lines if use_stderr else out_lines)
+        result = "\n".join(lines)
         process.stdout.close()
         process.wait()
 
         # Place a newline if no output is printed so the next print doesn't overwrite the command output
-        if len(err_lines) == 0 and len(out_lines) == 0 and self.output:
-            print("\n")
+        # if len(lines) == 0 and self.output:
+        #     print("")
 
         return result
 
@@ -208,10 +203,10 @@ class Setup:
                     TKINTER_MESSAGE,
                 )
 
-                # TODO: Fix no output
                 self._run(
                     [self.python, "main.py"],
                     cwd=p.abspath("src"),
+                    passthrough_formatting=True,
                 )
 
                 sys.exit(0)
