@@ -51,6 +51,8 @@ running the command `python setup.py -h` or simply running the script with no fl
       ourselves, and thus the need for a C compiler. More
       info [here](https://stackoverflow.com/questions/43777106/program-made-with-pyinstaller-now-seen-as-a-trojan-horse-by-avg).
 - tkinter
+- packaging
+    - Simply run `pip install packaging`
 
 #### Platform notes
 
