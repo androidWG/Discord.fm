@@ -12,9 +12,7 @@ import build
 PYINSTALLER_VER = "6.11.1"
 SYNC_CMD = "uv sync --no-binary-package pyinstaller --dev"
 PYTHON_FIND_CMD = "uv python find"
-
-current_platform = platform.system()
-python = ""
+TKINTER_MESSAGE = "tkinter is required to build and run Discord.fm. Check instructions for your OS at https://stackoverflow.com/a/25905642"
 
 
 def _delete(path: str | os.PathLike[str]) -> None:
@@ -38,60 +36,124 @@ def _delete(path: str | os.PathLike[str]) -> None:
     shutil.rmtree(p.abspath(path))
 
 
-def _find_tools(global_py: bool = False) -> None:
-    global python
-
-    if global_py:
-        python = shutil.which(python)
-    else:
-        python = _run_simple(PYTHON_FIND_CMD)
-
-
 def _check_util(cmd: str, message: str = None) -> None:
     if shutil.which(cmd) is None:
         print(message)
         sys.exit(2)
 
 
-def _run_simple(cmd: str | list[str], **kwargs) -> str | None:
-    print(f'Running simple command "{cmd}"...\n')
+class Setup:
+    current_platform = platform.system()
+    python = None
 
-    if isinstance(cmd, str):
-        command = cmd.split(" ")
-    else:
-        command = cmd
+    def __init__(self, parsed_args):
+        if self.current_platform not in ["Windows", "Linux", "Darwin"]:
+            parser.exit(3, f'Platform "{self.current_platform}" is unsupported!')
 
-    process = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
+        self.no_venv = parsed_args.no_venv
+        self.command = parsed_args.command
+
+    def _find_tools(self) -> None:
+        self.python = self._run(PYTHON_FIND_CMD, echo=False)
+
+    def _check_package(self, pkg: str, message: str = None) -> None:
+        result = self._run(f"{self.python} -m {pkg}", use_stderr=True, echo=False)
+        if f"No module named " in result:
+            print(message)
+            sys.exit(4)
+
+    def _run(
+        self,
+        cmd: str | list[str],
+        use_stderr: bool = False,
+        echo: bool = True,
         **kwargs,
-    )
+    ) -> str | None:
+        # print(f'Running command "{cmd}"...\n')
 
-    lines: list[str] = []
-    for line in iter(process.stdout.readline, b""):
-        line_as_string = line.decode().rstrip()
-        lines.append(line_as_string)
-        print(line_as_string)
+        if isinstance(cmd, str):
+            command = cmd.split(" ")
+        else:
+            command = cmd
 
-    result = "\n".join(lines)
-    process.stdout.close()
-    process.wait()
+        env = os.environ.copy()
+        if self.no_venv:
+            env["UV_PYTHON_PREFERENCE"] = "only-system"
 
-    return result
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            **kwargs,
+        )
 
+        lines: list[str] = []
+        out = process.stderr if use_stderr else process.stdout
+        for line in out:
+            lines.append(line.rstrip())
+            if echo:
+                print(line)
 
-def build_pyinstaller() -> None:
-    _check_util(
-        "git",
-        "git is required to build PyInstaller. Download it from https://git-scm.com/download",
-    )
-    _delete("pyinstaller")
+        result = "\n".join(lines)
+        process.stdout.close()
+        process.wait()
 
-    _run_simple("git clone https://github.com/pyinstaller/pyinstaller.git")
-    _run_simple(f"git checkout tags/v{PYINSTALLER_VER}", cwd=p.abspath("pyinstaller"))
-    _run_simple(
-        f"{python} ./waf all", cwd=p.abspath(p.join("pyinstaller", "bootloader"))
-    )
+        return result
+
+    def build_pyinstaller(self) -> None:
+        _check_util(
+            "git",
+            "git is required to clone PyInstaller for building. Download it from https://git-scm.com/download",
+        )
+        _delete("pyinstaller")
+
+        self._run("git clone https://github.com/pyinstaller/pyinstaller.git")
+        self._run(f"git checkout tags/v{PYINSTALLER_VER}", cwd=p.abspath("pyinstaller"))
+        self._run(
+            f"{self.python} ./waf all",
+            cwd=p.abspath(p.join("pyinstaller", "bootloader")),
+        )
+
+    def execute_command(self) -> None:
+        self._run(SYNC_CMD)
+
+        match self.command:
+            case "setup":
+                print("\nSetup completed")
+            case "build":
+                print("\nBuilding Discord.fm")
+                self._find_tools()
+                self._check_package(
+                    "tkinter",
+                    TKINTER_MESSAGE,
+                )
+
+                bt = build.get_build_tool(self.python, args.flatpak)
+                bt.prepare_files()
+                if args.executable:
+                    bt.build()
+                    bt.package()
+                if args.installer:
+                    bt.make_installer()
+                if args.cleanup:
+                    bt.cleanup()
+
+                print("\nBuild completed")
+            case "run":
+                print("\nRunning main.py...")
+                self._find_tools()
+                self._check_package(
+                    "tkinter",
+                    TKINTER_MESSAGE,
+                )
+
+                self._run(
+                    [self.python, "main.py"],
+                    cwd=p.abspath("src"),
+                )
+
+                sys.exit(0)
 
 
 if __name__ == "__main__":
@@ -153,39 +215,10 @@ if __name__ == "__main__":
         parser.print_help()
         parser.exit(1, "No command given")
 
-    if current_platform not in ["Windows", "Linux", "Darwin"]:
-        parser.exit(3, f'Platform "{current_platform}" is unsupported!')
-
     _check_util(
         "uv",
         "uv is needed for package management. Instructions at https://docs.astral.sh/uv/getting-started/installation/",
     )
 
-    match args.command:
-        case "setup":
-            _run_simple(SYNC_CMD)
-            print("\nSetup completed")
-        case "build":
-            _run_simple(SYNC_CMD)
-            _find_tools()
-
-            print("\nBuilding Discord.fm")
-            bt = build.get_build_tool(python, args.flatpak)
-            bt.prepare_files()
-            if args.executable:
-                bt.build()
-                bt.package()
-            if args.installer:
-                bt.make_installer()
-            if args.cleanup:
-                bt.cleanup()
-
-            print("\nBuild completed")
-        case "run":
-            _run_simple(SYNC_CMD)
-            _find_tools()
-
-            print("\nRunning main.py...")
-            _run_simple(
-                [python, "main.py"], cwd=p.abspath("src"), start_new_session=True
-            )
+    setup = Setup(args)
+    setup.execute_command()
