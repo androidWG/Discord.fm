@@ -3,7 +3,7 @@ import os
 import platform
 import sys
 
-from packaging.version import parse, Version
+from packaging.version import Version
 
 sys.path.append(os.path.abspath("src"))
 import version
@@ -11,7 +11,7 @@ import build.base
 
 
 def get_build_tool(py_path: str, flatpak: bool = False) -> build.base.BuildTool:
-    ver: Version = parse(version.get_version())
+    ver: Version = version.get_version(True)
 
     if flatpak:
         module = importlib.import_module("build.flatpak")
