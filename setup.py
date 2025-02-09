@@ -37,7 +37,7 @@ def _delete(path: str | os.PathLike[str]) -> None:
         for root, d, f in os.walk(path):
             files += [p.abspath(p.join(root, x)) for x in f]
     else:
-        print(f'_delete: Ignoring invalid path "{path}"')
+        print(f'_delete: {Colors.WARNING}Ignoring invalid path "{path}"{Colors.ENDC}')
         return
 
     for file in files:
@@ -45,7 +45,7 @@ def _delete(path: str | os.PathLike[str]) -> None:
             os.chmod(file, stat.S_IWRITE)
             os.remove(file)
         except FileNotFoundError:
-            print(f"Unable to find file {file}", file=sys.stderr)
+            print(f"{Colors.FAIL}Unable to find file {file}{Colors.ENDC}")
 
     shutil.rmtree(p.abspath(path))
 
