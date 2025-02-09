@@ -81,12 +81,12 @@ class Setup:
 
     def _find_tools(self) -> None:
         _print_subheader("Finding Python binary")
-        self.python = self._run(PYTHON_FIND_CMD)
+        self.python = self._run(PYTHON_FIND_CMD, padding=3)
 
     def _check_package(self, pkg: str, message: str = None) -> None:
         _print_subheader("Checking Python packages")
 
-        result = self._run([self.python, "-c", f'"import {pkg}"'])
+        result = self._run([self.python, "-c", f'"import {pkg}"'], padding=3)
         if result == "":
             pass
         elif f"No module named " in result:
@@ -103,6 +103,7 @@ class Setup:
         cmd: str | list[str],
         echo: bool = True,
         passthrough_formatting: bool = False,
+        padding: int = 1,
         **kwargs,
     ) -> str | None:
         if isinstance(cmd, str):
@@ -110,7 +111,7 @@ class Setup:
         else:
             command = cmd
 
-        cmd_print = f"{Colors.GREY} ─ {" ".join(command)}{Colors.ENDC}"
+        cmd_print = f"{Colors.GREY}{' '*padding}─ {" ".join(command)}{Colors.ENDC}"
         if self.output:
             # Don't print newline to be able to replace this line later
             print(cmd_print, end="\r")
@@ -129,6 +130,7 @@ class Setup:
         )
 
         lines: list[str] = []
+        message: str = ""
 
         for line in iter(process.stdout):
             stripped_line = line.rstrip()
@@ -138,17 +140,18 @@ class Setup:
                 # Print over old line if there's output
                 if len(lines) <= 1:
                     print(cmd_print.replace("─", "┬"))
-                print(
-                    f"{Colors.GREY} │ {Colors.ENDC if passthrough_formatting else ''}{stripped_line}{Colors.ENDC if not passthrough_formatting else ''}"
-                )
+
+                if message != "":
+                    print(message.replace("┴", "│"))
+
+                message = f"{Colors.GREY}{' '*padding}┴ {Colors.ENDC if passthrough_formatting else ''}{stripped_line}{Colors.ENDC if not passthrough_formatting else ''}"
+                print(message, end="\r")
+
+        print("")
 
         result = "\n".join(lines)
         process.stdout.close()
         process.wait()
-
-        # Place a newline if no output is printed so the next print doesn't overwrite the command output
-        # if len(lines) == 0 and self.output:
-        #     print("")
 
         return result
 
