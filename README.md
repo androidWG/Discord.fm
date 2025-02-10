@@ -5,7 +5,7 @@
   <img src="https://i.imgur.com/EcePBfb.gif" style="max-height: 350px">
 </p>
 
-----
+---
 
 <p align="center">
    <img src="https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logoColor=white" alt="Windows Platform Badge">
@@ -28,25 +28,22 @@ Based on [Last.fm-Discord-Rich-Presence](https://github.com/Gust4Oliveira/Last.f
 
 ### Platform support overview
 
-|                   | Windows | macOS | Linux (generic) | Linux (Flatpak) |
-|-------------------|:-------:|:-----:|:---------------:|:---------------:|
-| Basic Function    |    ✅    |   ✅   |        ✅        |       🟥        |
-| Installer         |    ✅    |  🟥   |        ✅        |       🟧        |
-| Start with System |    ✅    |  🟧   |       🟧        |       🟥        |
-| Updates           |    ✅    |  🟥   |       🟧        |        ➖        |
+|                    | Windows | macOS | Linux (generic) | Linux (Flatpak) |
+| ------------------ | :-----: | :---: | :-------------: | :-------------: |
+| Basic Function     |   ✅    |  🟥   |       ✅        |       🟥        |
+| Building/Packaging |   ✅    |  ✅   |       ✅        |       🟧        |
+| Start with System  |   ✅    |  🟧   |       🟧        |       🟥        |
+| Updates            |   ✅    |  🟥   |       🟧        |       ➖        |
 
-✅ _Fully working_ |
-🟧 _Needs testing/WIP_ |
-🟥 _Not working_ |
-➖ _Not applicable_
+✅ _Fully working_ | 🟧 _Needs testing/WIP_ | 🟥 _Not working_ | ➖ _Not applicable_
 
 ### Instructions
 
-- Download the [latest release](https://github.com/androidWG/Discord.fm/releases/latest)
-- Run the installer
-    - `*setup.exe` on Windows, `install.sh` on Linux (generic)
-- Wait a bit and the app's settings will open. Type in your Last.fm username and close the window.
-- Done!
+-   Download the [latest release](https://github.com/androidWG/Discord.fm/releases/latest)
+-   Run the installer
+    -   `*setup.exe` on Windows, `install.sh` on Linux (generic)
+-   Wait a bit and the app's settings will open. Type in your Last.fm username and close the window.
+-   Done!
 
 ## Setting up dev environment
 
@@ -55,30 +52,30 @@ Discord.fm provides a setup script with some useful functions for devs. A full l
 
 ### Requirements
 
-- Python 3.12 or above
-- [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- C compiler (GCC, MSVC, etc.)
-    - [PyInstaller](https://github.com/pyinstaller/pyinstaller) is used to freeze the app for distribution. However, using pip to install it will trigger false positives in many antiviruses. This is why we will need to build it ourselves, and thus the need for a C compiler. More info [here](https://stackoverflow.com/questions/43777106/program-made-with-pyinstaller-now-seen-as-a-trojan-horse-by-avg).
-- tkinter
-- `packaging` and `psutil`
-    - Simply run `pip install packaging psutil`
+-   Python 3.12 or above
+-   [uv](https://docs.astral.sh/uv/getting-started/installation/)
+-   C compiler (GCC, MSVC, etc.)
+    -   [PyInstaller](https://github.com/pyinstaller/pyinstaller) is used to freeze the app for distribution. However, using pip to install it will trigger false positives in many antiviruses. This is why we will need to build it ourselves, and thus the need for a C compiler. More info [here](https://stackoverflow.com/questions/43777106/program-made-with-pyinstaller-now-seen-as-a-trojan-horse-by-avg).
+-   tkinter
+-   `packaging` and `psutil`
+    -   Simply run `pip install packaging psutil`
 
 #### Platform notes
 
 <details>
 <summary>Windows</summary>
 
-- Visual Studio with the C++ development option includes MSVC, if you don't have VS I recommend [MSYS2](https://www.msys2.org/) - includes GCC
+-   Visual Studio with the C++ development option includes MSVC, if you don't have VS I recommend [MSYS2](https://www.msys2.org/) - includes GCC
 
 </details>
 
 <details>
 <summary>Linux</summary>
 
-- [PyGObject dependencies](https://pygobject.gnome.org/getting_started.html) - required by [pystray](https://pystray.readthedocs.io/en/latest/faq.html#how-do-i-use-pystray-in-a-virtualenv-on-linux), follow instructions for "
-  **Installing from PyPI with pip**"
-- tkinter might not be included in your installation, check by running
-  `python -m tkinter`. Check install help for you distro here: https://stackoverflow.com/a/25905642
+-   [PyGObject dependencies](https://pygobject.gnome.org/getting_started.html) - required by [pystray](https://pystray.readthedocs.io/en/latest/faq.html#how-do-i-use-pystray-in-a-virtualenv-on-linux), follow instructions for "
+    **Installing from PyPI with pip**"
+-   tkinter might not be included in your installation, check by running
+    `python -m tkinter`. Check install help for you distro here: https://stackoverflow.com/a/25905642
 
 </details>
 
@@ -92,10 +89,10 @@ Discord.fm provides a setup script with some useful functions for devs. A full l
 
 After all requirements are met, clone the repo:
 
-````commandline
+```commandline
 git clone https://github.com/androidWG/Discord.fm
 cd Discord.fm
-````
+```
 
 Then run setup:
 
@@ -113,9 +110,9 @@ uv sync --dev
 
 Simply use the `setup.py` script again:
 
-````commandline
+```commandline
 python setup.py build
-````
+```
 
 The script will set up anything if needed, then build the app and subsequently the installer - both only for the current platform. You can pass the flag
 `--installer-only` or `--build-only` to skip the other step.
