@@ -27,7 +27,7 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
-              sudo apt-get install libcairo-dev libgirepository1.0-dev
+              sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
           fi
           python -m pip install packaging pipenv psutil
           python setup.py setup
