@@ -60,8 +60,8 @@ Discord.fm provides a setup script with some useful functions for devs. A full l
 - C compiler (GCC, MSVC, etc.)
     - [PyInstaller](https://github.com/pyinstaller/pyinstaller) is used to freeze the app for distribution. However, using pip to install it will trigger false positives in many antiviruses. This is why we will need to build it ourselves, and thus the need for a C compiler. More info [here](https://stackoverflow.com/questions/43777106/program-made-with-pyinstaller-now-seen-as-a-trojan-horse-by-avg).
 - tkinter
-- packaging
-    - Simply run `pip install packaging`
+- `packaging` and `psutil`
+    - Simply run `pip install packaging psutil`
 
 #### Platform notes
 
