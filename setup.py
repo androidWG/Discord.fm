@@ -21,6 +21,7 @@ class Colors:
     BOLD = "\033[1m"
     UNDERLINE = "\033[4m"
     GREY = "\033[90m"
+    ITALIC = "\033[3m"
 
 
 PYINSTALLER_VER = "6.11.1"
@@ -50,7 +51,11 @@ def _delete(path: str | os.PathLike[str]) -> None:
     shutil.rmtree(p.abspath(path))
 
 
-def _check_util(cmd: str, message: str = None) -> None:
+def _check_util(cmd: str) -> bool:
+    return shutil.which(cmd)
+
+
+def _check_util_and_exit(cmd: str, message: str = None) -> None:
     if shutil.which(cmd) is None:
         print(message)
         sys.exit(2)
@@ -78,6 +83,8 @@ class Setup:
         self.no_venv = parsed_args.no_venv
         self.command = parsed_args.command
         self.output = parsed_args.output
+
+        self._args = parsed_args
 
     def _find_tools(self) -> None:
         _print_subheader("Finding Python binary")
@@ -160,7 +167,7 @@ class Setup:
         self._run(SYNC_CMD)
 
     def build_pyinstaller(self) -> None:
-        _check_util(
+        _check_util_and_exit(
             "git",
             "git is required to clone PyInstaller for building. Download it from https://git-scm.com/download",
         )
@@ -187,14 +194,30 @@ class Setup:
                     TKINTER_MESSAGE,
                 )
 
-                bt = build.get_build_tool(self.python, args.flatpak)
+                _print_subheader("Checking other packages")
+                if self.current_platform == "Darwin":
+                    if not _check_util("appdmg"):
+                        if not _check_util("npm"):
+                            print(
+                                f"{Colors.FAIL}npm not found - it is needed to install appdmg to package macOS builds for distribution. "
+                                f"Download at https://nodejs.org/en/download/{Colors.ENDC}"
+                            )
+                            sys.exit(2)
+                        else:
+                            print(
+                                f"{Colors.FAIL}appdmg not found - it is needed to package macOS builds for distribution. "
+                                f"Install using {Colors.GREY}npm install -g appdmg {Colors.FAIL}{Colors.ITALIC}(you might need to use sudo){Colors.ENDC}"
+                            )
+                            sys.exit(2)
+
+                bt = build.get_build_tool(self.python, self._args.flatpak)
                 bt.prepare_files()
-                if args.executable:
+                if self._args.executable:
                     bt.build()
                     bt.package()
-                if args.installer:
+                if self._args.installer:
                     bt.make_installer()
-                if args.cleanup:
+                if self._args.cleanup:
                     bt.cleanup()
 
                 _print_header("Build completed", Colors.OKGREEN)
@@ -281,7 +304,7 @@ if __name__ == "__main__":
         parser.print_help()
         parser.exit(1, "No command given")
 
-    _check_util(
+    _check_util_and_exit(
         "uv",
         "uv is needed for package management. Instructions at https://docs.astral.sh/uv/getting-started/installation/",
     )

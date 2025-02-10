@@ -82,6 +82,14 @@ Discord.fm provides a setup script with some useful functions for devs. A full l
 
 </details>
 
+<details>
+<summary>macOS</summary>
+
+-   [appdmg](https://github.com/LinusU/node-appdmg) is needed to create a distribution-ready file (.dmg) on macOS. You'll need [node](https://nodejs.org/en/download/) to run it, once you have it it can be installed with `npm install -g appdmg`
+</details>
+
+---
+
 After all requirements are met, clone the repo:
 
 ````commandline
