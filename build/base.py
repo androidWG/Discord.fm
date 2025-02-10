@@ -7,10 +7,10 @@ from packaging.version import Version
 
 class BuildTool:
     """
-    Base class for a standardized build system, divided in three steps: preparing files, building, making an
+    Base class for a standardized build system, divided in four steps: preparing files, building, making an
     installer, and cleaning up temporary files and folders.
 
-    The `temp_paths` parameter holds the paths of any files or fodlers that should be deleted during cleanup. Using
+    The `temp_paths` parameter holds the paths of any files or folders that should be deleted during cleanup. Using
     the `_temp` method, you can easily set a variable to a string and at the same time append it to the `temp_paths`
     parameter. Example::
         temp_file = _temp("path/to/file.txt")

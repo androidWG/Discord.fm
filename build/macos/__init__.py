@@ -16,9 +16,7 @@ class DarwinBuildTool(build.base.BuildTool):
     def prepare_files(self):
         tags = [("#VER_MAIN#", f"'{self.version.base_version}'")]
 
-        util.replace_instances(
-            "build/main.spec", tags, out_file=self.temp_spec_file
-        )
+        util.replace_instances("build/main.spec", tags, out_file=self.temp_spec_file)
 
     def build(self):
         main_args = [
