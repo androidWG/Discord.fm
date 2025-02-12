@@ -213,14 +213,20 @@ class Setup:
                             )
                             sys.exit(2)
 
+                # TODO: Add message and exit code when build failed
                 bt = build.get_build_tool(self.python, self._args.flatpak)
+                _print_subheader("Preparing files")
                 bt.prepare_files()
                 if self._args.executable:
+                    _print_subheader("Building executable")
                     bt.build()
+                    _print_subheader("Packaging")
                     bt.package()
                 if self._args.installer:
+                    _print_subheader("Building installer")
                     bt.make_installer()
                 if self._args.cleanup:
+                    _print_subheader("Cleaning up")
                     bt.cleanup()
 
                 _print_header("Build completed", Colors.OKGREEN)
