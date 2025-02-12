@@ -67,6 +67,7 @@ class DiscordRP:
                     activity_type=ActivityType.LISTENING,
                     details=name,
                     state=artist,
+                    start=int(start_time),
                     end=int(time_remaining),
                     buttons=[{"label": "See on Last.fm", "url": track.url}],
                     large_image=track.cover,
