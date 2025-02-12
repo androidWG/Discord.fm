@@ -12,11 +12,10 @@ class WindowsBuildTool(build.base.BuildTool):
         self.icon_main = r"src\resources\icon.ico"
         self.icon_settings = r"src\resources\settings.ico"
 
-        self.temp_spec_file = self._temp("build.spec")
-
         super(WindowsBuildTool, self).__init__(py_path, version)
 
     def prepare_files(self):
+        self.temp_spec_file = self._temp("build.spec")
         temp_ver_main_file = self._temp("file_version_main.temp")
 
         main_tags = [

@@ -1,4 +1,5 @@
 import argparse
+from glob import glob
 import os
 import platform
 import shutil
@@ -86,11 +87,18 @@ class Setup:
         self._args = parsed_args
 
     def _find_tools(self) -> None:
-        _print_subheader("Finding Python binary")
+        _print_subheader("Finding Python and adding .venv to path")
         self.python = self._run(PYTHON_FIND_CMD, padding=3)[1]
+        if self.current_platform == "Windows":
+            venv_path = ".venv/Lib/site-packages"
+        else:
+            venv_path = glob(".venv/lib/python3*/site-packages")[0]
+
+        if os.path.isdir(venv_path):
+            sys.path.append(p.abspath(venv_path))
 
     def _check_package(self, pkg: str, message: str = None) -> None:
-        _print_subheader("Checking Python packages")
+        _print_subheader(f"Checking Python package '{pkg}'")
 
         result = self._run([self.python, "-c", f'"import {pkg}"'], padding=3)[1]
         if result == "":
@@ -123,9 +131,8 @@ class Setup:
             print(cmd_print, end="\r")
 
         env = os.environ.copy()
-        env["PYTHONPATH"] = (
-            f"{p.abspath('src')}{";" if self.current_platform == "Windows" else ":"}{p.abspath('tests')}"
-        )
+        sep = ";" if self.current_platform == "Windows" else ":"
+        env["PYTHONPATH"] = str([p.abspath("src"), sep, p.abspath("tests")])
         if self.no_venv:
             env["UV_PYTHON_PREFERENCE"] = "only-system"
 
@@ -197,6 +204,10 @@ class Setup:
                     "tkinter",
                     TKINTER_MESSAGE,
                 )
+                self._check_package(
+                    "psutil",
+                    "psutil is required to build Discord.fm. Install using pip install psutil",
+                )
 
                 _print_subheader("Checking other packages")
                 if self.current_platform == "Darwin":
@@ -213,6 +224,8 @@ class Setup:
                                 f"Install using {Colors.GREY}npm install -g appdmg {Colors.FAIL}{Colors.ITALIC}(you might need to use sudo){Colors.ENDC}"
                             )
                             sys.exit(2)
+                elif self.current_platform == "Windows":
+                    _check_util_and_exit("")
 
                 # TODO: Add message and exit code when build failed
                 bt = build.get_build_tool(self.python, self._args.flatpak)

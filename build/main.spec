@@ -41,7 +41,7 @@ if platform.system() == "Darwin":
                  bundle_identifier="net.androidwg.discord_fm",
                  version=r"#VER_MAIN#",
                  info_plist={
-                     "CFBundleVersion": "#VER_MAIN#",
+                     "CFBundleVersion": r"#VER_MAIN#",
                      "LSUIElement": True,
                      "LSBackgroundOnly": True
             }
