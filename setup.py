@@ -52,7 +52,7 @@ def _delete(path: str | os.PathLike[str]) -> None:
 
 
 def _check_util(cmd: str) -> bool:
-    return shutil.which(cmd)
+    return shutil.which(cmd) is None
 
 
 def _check_util_and_exit(cmd: str, message: str = None) -> None:
