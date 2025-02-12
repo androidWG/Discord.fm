@@ -12,13 +12,15 @@ import util
 
 class LinuxGenericBuildTool(build.base.BuildTool):
     def __init__(self, py_path, version):
+        self.temp_spec_file = None
         self.icon_main = "resources/icon.png"
         self.icon_settings = "resources/settings.png"
 
-        self.temp_spec_file = self._temp("build.spec")
         super(LinuxGenericBuildTool, self).__init__(py_path, version)
 
     def prepare_files(self):
+        self.temp_spec_file = self._temp("build.spec")
+
         spec_tags = [
             ("#VER_MAIN#", "/usr"),
             ("#ICON_MAIN#", os.path.abspath(self.icon_main)),

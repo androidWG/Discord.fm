@@ -1,4 +1,3 @@
-import os.path
 import subprocess
 import time
 
@@ -9,10 +8,11 @@ import util
 
 class DarwinBuildTool(build.base.BuildTool):
     def __init__(self, py_path, version):
-        self.temp_spec_file = self._temp("temp_spec.spec")
+        self.temp_spec_file = None
         super(DarwinBuildTool, self).__init__(py_path, version)
 
     def prepare_files(self):
+        self.temp_spec_file = self._temp("temp_spec.spec")
         tags = [("#VER_MAIN#", f"'{self.version.base_version}'")]
 
         util.replace_instances("build/main.spec", tags, out_file=self.temp_spec_file)

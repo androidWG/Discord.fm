@@ -9,6 +9,7 @@ import util
 
 class WindowsBuildTool(build.base.BuildTool):
     def __init__(self, py_path, version):
+        self.temp_spec_file = None
         self.icon_main = r"src\resources\icon.ico"
         self.icon_settings = r"src\resources\settings.ico"
 
@@ -60,7 +61,7 @@ class WindowsBuildTool(build.base.BuildTool):
             raise RuntimeError("Failed to run Pyinstaller")
 
     def make_installer(
-            self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+        self, inno_install=r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
     ):
         temp_setup_script = self._temp("inno_setup.temp")
 
