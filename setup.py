@@ -124,6 +124,9 @@ class Setup:
             print(cmd_print, end="\r")
 
         env = os.environ.copy()
+        env["PYTHONPATH"] = (
+            f"{p.abspath('src')}{";" if self.current_platform == "Windows" else ":"}{p.abspath('tests')}"
+        )
         if self.no_venv:
             env["UV_PYTHON_PREFERENCE"] = "only-system"
 
@@ -236,6 +239,16 @@ class Setup:
                 )
 
                 sys.exit(0)
+            case "test":
+                _print_header("Testing")
+                self._find_tools()
+
+                self._run(
+                    [self.python, "-m", "pytest", "tests/", "-x"],
+                    passthrough_formatting=True,
+                )
+
+                _print_header("Tests completed")
 
 
 if __name__ == "__main__":
@@ -260,6 +273,8 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(help="Command to be executed", dest="command")
 
     sub_run = subparsers.add_parser("run", help="Run Discord.fm")
+
+    sub_test = subparsers.add_parser("test", help="Test Discord.fm using pytest")
 
     sub_setup = subparsers.add_parser(
         "setup", help="Setup Discord.fm development environment"
