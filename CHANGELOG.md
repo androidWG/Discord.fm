@@ -5,11 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
  
-## [Unreleased] - yyyy-mm-dd
+## [0.12.0] - yyyy-mm-dd
 
 ### Added
 
 ### Changed 
+- Using Discord's new Listening Activity, showing progress bar.
+- Moved to `uv` package manager. This change only affects developers/running unfrozen.
 
 ### Fixed
 
