@@ -19,7 +19,7 @@ class TestAppManager(unittest.TestCase):
         mock_arg_exists,
         mock_check_process_running,
         mock_is_frozen,
-        *mocks
+        *mocks,
     ):
         manager = AppManager()
         manager.status = Status.STARTUP
@@ -51,7 +51,7 @@ class TestAppManager(unittest.TestCase):
         mock__perform_checks,
         mock_register,
         mock_wait,
-        *mocks
+        *mocks,
     ):
         manager = AppManager()
 
@@ -100,7 +100,7 @@ class TestAppManager(unittest.TestCase):
         mock_get_newest_release,
         mock_arg_exists,
         mock_check_process_running,
-        *mocks
+        *mocks,
     ):
         manager = AppManager()
         manager.status = Status.STARTUP
@@ -159,7 +159,7 @@ class TestAppManager(unittest.TestCase):
         mock_basic_notification,
         mock_sleep,
         mock_check_process_running,
-        *mocks
+        *mocks,
     ):
         manager = AppManager()
 

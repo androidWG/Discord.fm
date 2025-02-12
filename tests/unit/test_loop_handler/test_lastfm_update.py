@@ -51,13 +51,13 @@ class TestLastfmUpdate:
         mock_user.now_playing.return_value = "Track Name"
         handler.user = mock_user
 
-        with mock.patch.object(
-            handler.m.discord_rp, "update_status"
-        ) as mock_update_status, mock.patch.object(
-            handler.m.discord_rp, "clear_presence"
-        ) as mock_clear, mock.patch.object(
-            handler.sc, "enter"
-        ) as mock_enter:
+        with (
+            mock.patch.object(
+                handler.m.discord_rp, "update_status"
+            ) as mock_update_status,
+            mock.patch.object(handler.m.discord_rp, "clear_presence") as mock_clear,
+            mock.patch.object(handler.sc, "enter") as mock_enter,
+        ):
             handler._lastfm_update(mock.sentinel.scheduler_ref)
 
         mock_update_status.assert_called_once_with("Track Name")
@@ -74,15 +74,14 @@ class TestLastfmUpdate:
         mock_user.now_playing.return_value = None
         handler.user = mock_user
 
-        with mock.patch.object(
-            handler.m, "attempt_to_connect_rp"
-        ) as mock_connect_rp, mock.patch.object(
-            handler.m.discord_rp, "update_status"
-        ) as mock_update_status, mock.patch.object(
-            handler.m.discord_rp, "clear_presence"
-        ) as mock_clear, mock.patch.object(
-            handler.sc, "enter"
-        ) as mock_enter:
+        with (
+            mock.patch.object(handler.m, "attempt_to_connect_rp") as mock_connect_rp,
+            mock.patch.object(
+                handler.m.discord_rp, "update_status"
+            ) as mock_update_status,
+            mock.patch.object(handler.m.discord_rp, "clear_presence") as mock_clear,
+            mock.patch.object(handler.sc, "enter") as mock_enter,
+        ):
             handler._lastfm_update(mock.sentinel.scheduler_ref)
 
         mock_connect_rp.assert_not_called()
