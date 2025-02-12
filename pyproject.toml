@@ -37,6 +37,8 @@ package = false
 [tool.uv.sources]
 # PyInstaller must be built from source
 pyinstaller = { git = "https://github.com/pyinstaller/pyinstaller.git" }
+# pypresence needs latest unreleased version which supports activity_type
+pypresence = { git = "https://github.com/qwertyquerty/pypresence", rev = "d6709d33befb2063b46b523cb5abf7e373734df2" }
 
 [dependency-groups]
 dev = [

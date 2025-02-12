@@ -25,7 +25,6 @@ class Colors:
 
 
 PYINSTALLER_VER = "6.11.1"
-SYNC_CMD = "uv sync --no-binary-package pyinstaller --dev"
 PYTHON_FIND_CMD = "uv python find"
 TKINTER_MESSAGE = f"{Colors.FAIL}tkinter is required to build and run Discord.fm. Check instructions for your OS at https://stackoverflow.com/a/25905642{Colors.ENDC}"
 
@@ -167,7 +166,9 @@ class Setup:
 
     def sync(self):
         _print_header("Syncing")
-        self._run(SYNC_CMD)
+        self._run(
+            "uv sync --no-binary-package pyinstaller --no-binary-package pypresence --dev"
+        )
 
     def build_pyinstaller(self) -> None:
         _check_util_and_exit(

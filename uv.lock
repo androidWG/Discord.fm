@@ -169,7 +169,7 @@ requires-dist = [
     { name = "pyinstaller", git = "https://github.com/pyinstaller/pyinstaller.git" },
     { name = "pylast", specifier = ">=5.3.0" },
     { name = "pyobjc", marker = "sys_platform == 'darwin'", specifier = ">=10.0" },
-    { name = "pypresence", specifier = ">=4.3.0" },
+    { name = "pypresence", git = "https://github.com/qwertyquerty/pypresence?rev=d6709d33befb2063b46b523cb5abf7e373734df2" },
     { name = "pystray", specifier = ">=0.19.5" },
     { name = "pywin32", marker = "sys_platform == 'win32'", specifier = ">=306" },
     { name = "requests", specifier = ">=2.32.3" },
@@ -2930,11 +2930,7 @@ wheels = [
 [[package]]
 name = "pypresence"
 version = "4.3.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f4/2e/d110f862720b5e3ba1b0b719657385fc4151929befa2c6981f48360aa480/pypresence-4.3.0.tar.gz", hash = "sha256:a6191a3af33a9667f2a4ef0185577c86b962ee70aa82643c472768a6fed1fbf3", size = 10696 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1e/40/1d30b30e18f81eb71365681223971a9822a89b3d6ee5269dd2aa955bc228/pypresence-4.3.0-py2.py3-none-any.whl", hash = "sha256:af878c6d49315084f1b108aec86b31915080614d9421d6dd3a44737aba9ff13f", size = 11778 },
-]
+source = { git = "https://github.com/qwertyquerty/pypresence?rev=d6709d33befb2063b46b523cb5abf7e373734df2#d6709d33befb2063b46b523cb5abf7e373734df2" }
 
 [[package]]
 name = "pystray"
