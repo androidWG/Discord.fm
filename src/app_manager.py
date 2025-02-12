@@ -64,7 +64,11 @@ class AppManager:
         installation = util.install.get_install()
         self.settings.define("start_with_system", installation.get_startup())
 
-        if self.settings.get("auto_update") or util.arg_exists("--force-update"):
+        if (
+            self.settings.get("auto_update")
+            or util.arg_exists("--force-update")
+            and not util.arg_exists("--skip-update")
+        ):
             logger.debug("Checking for updates")
 
             latest, latest_asset = util.updates.get_newest_release_with_asset(self)
