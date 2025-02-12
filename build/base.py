@@ -26,6 +26,7 @@ class BuildTool:
 
     temp_paths: List[str | os.PathLike[str]] = []
 
+    # TODO: Add support for custom runner instead of Popen (such as setup.py's _run command)
     def __init__(self, py_path: str, version: Version):
         self.version = version
         self.py_path = py_path

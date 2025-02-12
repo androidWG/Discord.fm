@@ -7,9 +7,6 @@ from pathlib import Path
 import util
 
 
-# TODO: Move this module to root
-
-
 class BaseInstall:
     def get_executable_path(self):
         pass
