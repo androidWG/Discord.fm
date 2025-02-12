@@ -45,20 +45,30 @@ Based on [Last.fm-Discord-Rich-Presence](https://github.com/Gust4Oliveira/Last.f
 -   Wait a bit and the app's settings will open. Type in your Last.fm username and close the window.
 -   Done!
 
-## Setting up dev environment
+## Setting up dev environment or running as a Python script
 
 Discord.fm provides a setup script with some useful functions for devs. A full list of parameters can be viewed by running the command
 `python setup.py -h` or simply running the script with no flags or commands.
+
+The app can also be run unfrozen by running `python setup.py run`. Check requirements and full instructions below:
 
 ### Requirements
 
 -   Python 3.12 or above
 -   [uv](https://docs.astral.sh/uv/getting-started/installation/)
+-   tkinter
+-   `packaging` Python package
+
+#### Build requirements
+
 -   C compiler (GCC, MSVC, etc.)
     -   [PyInstaller](https://github.com/pyinstaller/pyinstaller) is used to freeze the app for distribution. However, using pip to install it will trigger false positives in many antiviruses. This is why we will need to build it ourselves, and thus the need for a C compiler. More info [here](https://stackoverflow.com/questions/43777106/program-made-with-pyinstaller-now-seen-as-a-trojan-horse-by-avg).
--   tkinter
--   `packaging` and `psutil`
-    -   Simply run `pip install packaging psutil`
+-   `psutil` Python package
+-   `appdmg` Node package (**macOS only**)
+-   [Inno Setup](https://jrsoftware.org/isinfo.php) (**Windows only** for installer building)
+
+> [!WARNING] > On **Linux** PyGObject dependencies are required by [pystray](https://pystray.readthedocs.io/en/latest/faq.html#how-do-i-use-pystray-in-a-virtualenv-on-linux) for running or building - follow instructions for
+> "**Installing from PyPI with pip**" for your distro on this link: https://pygobject.gnome.org/getting_started.html
 
 #### Platform notes
 
@@ -72,8 +82,6 @@ Discord.fm provides a setup script with some useful functions for devs. A full l
 <details>
 <summary>Linux</summary>
 
--   [PyGObject dependencies](https://pygobject.gnome.org/getting_started.html) - required by [pystray](https://pystray.readthedocs.io/en/latest/faq.html#how-do-i-use-pystray-in-a-virtualenv-on-linux), follow instructions for "
-    **Installing from PyPI with pip**"
 -   tkinter might not be included in your installation, check by running
     `python -m tkinter`. Check install help for you distro here: https://stackoverflow.com/a/25905642
 
@@ -94,25 +102,19 @@ git clone https://github.com/androidWG/Discord.fm
 cd Discord.fm
 ```
 
-Then run setup:
+The setup script will set everything up when you before running any of its commands. You can set it up yourself manually too - the script checks for dependencies and other things, but ultimately setup is a single call for `uv sync` with arguments. Copy the command under the `sync` method in the `setup.py` file and run to install dependencies.
+
+### Running
 
 ```commandline
-python setup.py setup
-```
-
-The script should set up everything for you. You can set it up yourself manually too:
-
-```commandline
-uv sync --dev
+python setup.py run
 ```
 
 ### Building
-
-Simply use the `setup.py` script again:
 
 ```commandline
 python setup.py build
 ```
 
-The script will set up anything if needed, then build the app and subsequently the installer - both only for the current platform. You can pass the flag
+The script will set up anything if needed, then build the app and subsequently the installer (only on Windows) - both only for the current platform. You can pass the flag
 `--installer-only` or `--build-only` to skip the other step.
