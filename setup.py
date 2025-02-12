@@ -88,12 +88,12 @@ class Setup:
 
     def _find_tools(self) -> None:
         _print_subheader("Finding Python binary")
-        self.python = self._run(PYTHON_FIND_CMD, padding=3)
+        self.python = self._run(PYTHON_FIND_CMD, padding=3)[1]
 
     def _check_package(self, pkg: str, message: str = None) -> None:
         _print_subheader("Checking Python packages")
 
-        result = self._run([self.python, "-c", f'"import {pkg}"'], padding=3)
+        result = self._run([self.python, "-c", f'"import {pkg}"'], padding=3)[1]
         if result == "":
             pass
         elif f"No module named " in result:
@@ -112,7 +112,7 @@ class Setup:
         passthrough_formatting: bool = False,
         padding: int = 1,
         **kwargs,
-    ) -> str | None:
+    ) -> tuple[bool, str]:
         if isinstance(cmd, str):
             command = cmd.split(" ")
         else:
@@ -163,7 +163,7 @@ class Setup:
         process.stdout.close()
         process.wait()
 
-        return result
+        return process.returncode, result
 
     def sync(self):
         _print_header("Syncing")
@@ -243,12 +243,17 @@ class Setup:
                 _print_header("Testing")
                 self._find_tools()
 
-                self._run(
+                result = self._run(
                     [self.python, "-m", "pytest", "tests/", "-x"],
                     passthrough_formatting=True,
                 )
 
-                _print_header("Tests completed")
+                if result[0] != 0:
+                    _print_header("Tests failed, check report above", Colors.FAIL)
+                    sys.exit(1)
+                else:
+                    _print_header("Tests passed", Colors.OKGREEN)
+                    sys.exit(0)
 
 
 if __name__ == "__main__":
