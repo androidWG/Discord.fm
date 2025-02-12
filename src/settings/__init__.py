@@ -5,7 +5,6 @@ import urllib.parse
 
 from settings.util import setup_app_data_dir, setup_logs_dir
 
-
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
 
@@ -20,7 +19,7 @@ class Settings:
 
     def load(self):
         self.__settings_dict = {  # Put default setting values here
-            "debug": False,
+            "debug": True,
             "cooldown": 4,
             "username": "",
             "max_logs": 5,
