@@ -28,7 +28,7 @@ SetupIconFile={#LocalPath}\src\resources\settings.ico
 SolidCompression=yes
 UninstallDisplayName={#Name}
 UninstallDisplayIcon={app}\discord_fm.exe
-MinVersion=0,6.1
+MinVersion=6.1sp1
 WizardStyle=modern
 WizardSizePercent=100
 RestartIfNeededByRun=False
@@ -47,10 +47,10 @@ AppendDefaultGroupName=False
 DefaultGroupName={#Name}
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=commandline
-VersionInfoCompany=androidWG/Sam Rodrigues
+VersionInfoCompany=androidWG/Anna Rodrigues
 VersionInfoProductTextVersion={#Version}
-ArchitecturesInstallIn64BitMode=x64
-ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64os
+ArchitecturesAllowed=x64compatible
 DisableReadyMemo=True
 
 [Languages]
