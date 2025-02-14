@@ -157,10 +157,10 @@ class SettingsWindow(Tk):
         ver_lbl.grid(column=1, row=0)
 
         self.bar.columnconfigure(0, weight=5)
-        self.bar.pack(fill=X)
         # endregion
 
         self.root.pack()
+        self.bar.pack(fill=X)
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         Thread(target=self._check_username, daemon=True).start()
