@@ -57,7 +57,7 @@ def _check_util(cmd: str) -> bool:
 
 def _check_util_and_exit(cmd: str, message: str = None) -> None:
     if shutil.which(cmd) is None:
-        print(message)
+        print(f"{Colors.FAIL}{message}{Colors.ENDC}")
         sys.exit(2)
 
 
@@ -210,7 +210,7 @@ class Setup:
                 )
 
                 _print_subheader("Checking other packages")
-                if self.current_platform == "Darwin":
+                if self.current_platform == "Darwin" and self._args.package:
                     if not _check_util("appdmg"):
                         if not _check_util("npm"):
                             print(
@@ -224,8 +224,11 @@ class Setup:
                                 f"Install using {Colors.GREY}npm install -g appdmg {Colors.FAIL}{Colors.ITALIC}(you might need to use sudo){Colors.ENDC}"
                             )
                             sys.exit(2)
-                elif self.current_platform == "Windows":
-                    _check_util_and_exit("")
+                elif self.current_platform == "Windows" and self._args.installer:
+                    _check_util_and_exit(
+                        r"C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+                        "Inno Setup is required to build the installer for Windows. Download at https://jrsoftware.org/isdl.php",
+                    )
 
                 # TODO: Add message and exit code when build failed
                 bt = build.get_build_tool(self.python, self._args.flatpak)
@@ -234,8 +237,9 @@ class Setup:
                 if self._args.executable:
                     _print_subheader("Building executable")
                     bt.build()
-                    _print_subheader("Packaging")
-                    bt.package()
+                    if self._args.package:
+                        _print_subheader("Packaging")
+                        bt.package()
                 if self._args.installer:
                     _print_subheader("Building installer")
                     bt.make_installer()
@@ -324,6 +328,12 @@ if __name__ == "__main__":
         action="store_false",
         dest="installer",
         help="Builds only the main executables of the program, and skips building the installer.",
+    )
+    sub_build.add_argument(
+        "--skip-packaging",
+        action="store_false",
+        dest="package",
+        help="Don't package executables for distribution (only some platforms perform packaging).",
     )
     sub_build.add_argument(
         "-d",
