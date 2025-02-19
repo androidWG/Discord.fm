@@ -13,6 +13,7 @@ permissions:
 env:
   PY_VERSION: 3.12
   PYTHONIOENCODING: utf-8:replace
+  DISPLAY: :0
 
 jobs:
   test_and_build:

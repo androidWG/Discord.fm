@@ -128,7 +128,7 @@ class Setup:
         cmd_print = f"{Colors.GREY}{' '*padding}─ {" ".join(command)}{Colors.ENDC}"
         if self.output:
             # Don't print newline to be able to replace this line later
-            print(cmd_print.encode("utf-8"), end="\r")
+            print(cmd_print, end="\r")
 
         env = os.environ.copy()
         sep = ";" if self.current_platform == "Windows" else ":"

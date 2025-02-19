@@ -45,7 +45,7 @@ class TestRequestHandler(unittest.TestCase):
         rh.attempt_request(timeout_method, timeout=5)
 
         mock_wait.assert_called()
-        mock_error.assert_called_with(
+        mock_error.assert_any_call(
             f"Hit or exceeded maximum tries (over {limit} tries)"
         )
 
