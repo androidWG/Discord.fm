@@ -6,8 +6,8 @@ from util.status import Status
 
 
 @patch("wrappers.last_fm_user.LastFMUser")
-@patch("loop_handler.SystemTrayIcon")
-@patch("loop_handler.TrackInfo")
+@patch("loop_handler.system_tray_icon.SystemTrayIcon")
+@patch("loop_handler.track_info.TrackInfo")
 @patch("loop_handler.Image")
 @patch("loop_handler.scheduler")
 class TestLastfmUpdate:
