@@ -25,17 +25,17 @@ jobs:
     # TODO: Add cache support
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python $PY_VERSION
+      - name: Set up Python ${{env.PY_VERSION}}
         uses: actions/setup-python@v4
         with:
-          python-version: "$PY_VERSION"
+          python-version: ${{env.PY_VERSION}}
       - name: Setup environment
         shell: bash
         run: |
           if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ]; then
               curl -LsSf https://astral.sh/uv/install.sh | sh
           fi
-          PRESETUP_CMD
+          $PY_VERSION
           python setup.py setup
       - name: Run tests
         run: python -m pytest tests/
@@ -49,10 +49,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python $PY_VERSION
+      - name: Set up Python ${{env.PY_VERSION}}
         uses: actions/setup-python@v4
         with:
-          python-version: "$PY_VERSION"
+          python-version: ${{env.PY_VERSION}}
       - name: Setup environment
         shell: bash
         run: |
@@ -62,7 +62,7 @@ jobs:
           if [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
           fi
-          PRESETUP_CMD
+          $PRESETUP_CMD
           python setup.py setup
       - name: Build
         run: python setup.py build
