@@ -18,13 +18,27 @@ jobs:
   test:
     strategy:
       matrix:
+        fail-fast: true
         os: [ windows-latest, ubuntu-latest ]
 
     runs-on: ${{ matrix.os }}
 
-    # TODO: Add cache support
     steps:
       - uses: actions/checkout@v3
+#      - name: Cache node modules
+#        id: cache-python
+#        uses: actions/cache@v4
+#        env:
+#          cache-name: cache-python-uv
+#        with:
+#          path: |
+#            .venv/
+#            ~/.cache/uv
+#          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('uv.lock') }}
+#          restore-keys: |
+#            ${{ runner.os }}-test-${{ env.cache-name }}-
+#            ${{ runner.os }}-test-
+#            ${{ runner.os }}-
       - name: Set up Python ${{env.PY_VERSION}}
         uses: actions/setup-python@v4
         with:
@@ -32,10 +46,10 @@ jobs:
       - name: Setup environment
         shell: bash
         run: |
-          if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ]; then
-              curl -LsSf https://astral.sh/uv/install.sh | sh
-          else
+          if [ "$RUNNER_OS" == "Windows" ]; then
               powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+          else
+              curl -LsSf https://astral.sh/uv/install.sh | sh
           fi
           ${{env.PRESETUP_CMD}}
       - name: Run tests
@@ -43,6 +57,7 @@ jobs:
   build:
     needs: test
     strategy:
+      fail-fast: false
       matrix:
         os: [ ubuntu-latest, windows-latest ]
 
@@ -57,14 +72,16 @@ jobs:
       - name: Setup environment
         shell: bash
         run: |
-          if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ]; then
-              curl -LsSf https://astral.sh/uv/install.sh | sh
-          else
+          if [ "$RUNNER_OS" == "Windows" ]; then
               powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+          else
+              curl -LsSf https://astral.sh/uv/install.sh | sh
           fi
+          
           if [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
           fi
+          
           ${{env.PRESETUP_CMD}}
       - name: Build
         run: python setup.py build

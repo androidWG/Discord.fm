@@ -1,11 +1,11 @@
 import argparse
-from glob import glob
 import os
 import platform
 import shutil
 import stat
 import subprocess
 import sys
+from glob import glob
 from os import path as p
 
 import build
@@ -174,7 +174,7 @@ class Setup:
     def sync(self):
         _print_header("Syncing")
         self._run(
-            "uv sync --no-binary-package pyinstaller --no-binary-package pypresence --dev"
+            "uv sync --dev --no-binary-package pyinstaller --no-binary-package pypresence"
         )
 
     def build_pyinstaller(self) -> None:
