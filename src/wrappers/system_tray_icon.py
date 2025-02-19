@@ -3,8 +3,8 @@ import os
 import platform
 import tkinter
 
+import pystray
 from PIL import Image
-from pystray import Icon, Menu, MenuItem
 
 import util
 from util.scrobble_status import ScrobbleStatus
@@ -42,47 +42,47 @@ class SystemTrayIcon:
         except AttributeError:
             return None, None
 
-    def _create_menu(self) -> Menu:
-        return Menu(
-            MenuItem(
+    def _create_menu(self) -> pystray.Menu:
+        return pystray.Menu(
+            pystray.MenuItem(
                 "Starting...",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.status == Status.STARTUP,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Downloading update...",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.status == Status.UPDATING,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Discord not open",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.status == Status.WAITING_FOR_DISCORD,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Not scrobbling anything",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.scrobble_status
                 == ScrobbleStatus.NOT_SCROBBLING,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 f"Scrobbling {self._get_current_scrobbling()[0]} by {self._get_current_scrobbling()[1]}",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.scrobble_status == ScrobbleStatus.SCROBBLING,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Checking current scrobbling...",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.scrobble_status == ScrobbleStatus.FIRST_CHECK
                 and self.m.status != Status.WAITING_FOR_DISCORD,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Enable Rich Presence",
                 lambda ic, it: self.m.toggle_rpc(not it.checked),
                 checked=lambda i: self.m.rpc_state,
@@ -90,14 +90,14 @@ class SystemTrayIcon:
                 and self.m.status != Status.UPDATING
                 and self.m.status != Status.WAITING_FOR_DISCORD,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Open Settings",
                 self.m.open_settings,
                 visible=lambda i: self.m.status != Status.STARTUP
                 and self.m.status != Status.UPDATING,
             ),
-            Menu.SEPARATOR,
-            MenuItem("Exit", lambda: self._exit_func()),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem("Exit", lambda: self._exit_func()),
         )
 
     def update_tray_icon(self):
@@ -112,5 +112,5 @@ class SystemTrayIcon:
 
         menu = self._create_menu()
 
-        icon = Icon("Discord.fm", icon=icon, title="Discord.fm", menu=menu)
+        icon = pystray.Icon("Discord.fm", icon=icon, title="Discord.fm", menu=menu)
         return icon

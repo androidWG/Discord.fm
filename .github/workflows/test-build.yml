@@ -12,9 +12,11 @@ permissions:
 
 env:
   PY_VERSION: 3.12
+  PYTHONIOENCODING: utf-8:replace
 
 jobs:
-  test:
+  test_and_build:
+    name: Test and Build for distribution
     strategy:
       fail-fast: false
       matrix:
