@@ -12,7 +12,7 @@ permissions:
 
 env:
   PY_VERSION: 3.12
-  PRESETUP_CMD: pip install packaging psutil
+  PRESETUP_CMD: pip install packaging psutil pytest
 
 jobs:
   test:
@@ -38,9 +38,8 @@ jobs:
               powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
           fi
           ${{env.PRESETUP_CMD}}
-          python setup.py setup
       - name: Run tests
-        run: python -m pytest tests/
+        run: python setup.py test
   build:
     needs: test
     strategy:
@@ -67,7 +66,6 @@ jobs:
               sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
           fi
           ${{env.PRESETUP_CMD}}
-          python setup.py setup
       - name: Build
         run: python setup.py build
       - name: Upload files
