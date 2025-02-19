@@ -17,8 +17,8 @@ env:
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
-        fail-fast: true
         os: [ windows-latest, ubuntu-latest ]
 
     runs-on: ${{ matrix.os }}
