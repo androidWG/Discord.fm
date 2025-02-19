@@ -69,6 +69,12 @@ class SystemTrayIcon:
                 == ScrobbleStatus.NOT_SCROBBLING,
             ),
             MenuItem(
+                "Scrobbling",
+                None,
+                enabled=False,
+                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.SCROBBLING,
+            ),
+            MenuItem(
                 "Checking current scrobbling...",
                 None,
                 enabled=False,
