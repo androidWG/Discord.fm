@@ -12,7 +12,6 @@ permissions:
 
 env:
   PY_VERSION: 3.12
-  PRESETUP_CMD: pip install packaging psutil pytest
 
 jobs:
   test:
@@ -20,82 +19,57 @@ jobs:
       fail-fast: false
       matrix:
         os: [ windows-latest, ubuntu-latest ]
+        include:
+          - os: ubuntu-latest
+            UV_CACHE: ~/.cache/uv
+            UV_INSTALL: curl -LsSf https://astral.sh/uv/install.sh | sh
+          - os: windows-latest
+            UV_CACHE: C:\Users\runneradmin\AppData\Local\uv\cache
+            UV_INSTALL: |
+              powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+              set Path=C:\Users\runneradmin\.local\bin;%Path%
+
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3
-#      - name: Cache node modules
-#        id: cache-python
-#        uses: actions/cache@v4
-#        env:
-#          cache-name: cache-python-uv
-#        with:
-#          path: |
-#            .venv/
-#            ~/.cache/uv
-#          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('uv.lock') }}
-#          restore-keys: |
-#            ${{ runner.os }}-test-${{ env.cache-name }}-
-#            ${{ runner.os }}-test-
-#            ${{ runner.os }}-
+      - name: Cache Python and UV
+        id: cache-python
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-python-uv
+        with:
+          path: |
+            .venv
+            ${{matrix.UV_CACHE}}
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
       - name: Set up Python ${{env.PY_VERSION}}
         uses: actions/setup-python@v4
         with:
           python-version: ${{env.PY_VERSION}}
-      - name: Setup environment
+      - name: Install requirements
         shell: bash
         run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-              powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-          else
-              curl -LsSf https://astral.sh/uv/install.sh | sh
-          fi
+          ${{matrix.UV_INSTALL}}
           
           if [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
           fi
           
-          ${{env.PRESETUP_CMD}}
-          
-          python setup.py setup
+          pip install packaging psutil
+      - name: Run setup
+        run: python setup.py setup
       - name: Run tests
         run: python setup.py test
-  build:
-    needs: test
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, windows-latest ]
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{env.PY_VERSION}}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{env.PY_VERSION}}
-      - name: Setup environment
-        shell: bash
-        run: |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-              powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-          else
-              curl -LsSf https://astral.sh/uv/install.sh | sh
-          fi
-          
-          if [ "$RUNNER_OS" == "Linux" ]; then
-              sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
-          fi
-          
-          ${{env.PRESETUP_CMD}}
-          
-          python setup.py setup
       - name: Build
         run: python setup.py build
       - name: Upload files
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os }} dist files
-          path: dist/discord.fm-*
+          path: dist/discord.fm-*.*
