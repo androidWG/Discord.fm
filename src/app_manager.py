@@ -18,10 +18,10 @@ import util
 import util.install
 import util.updates
 import version
-import wrappers.discord_rp
 from process import executable_info
 from util.scrobble_status import ScrobbleStatus
 from util.status import Status
+from wrappers import discord_rp
 from wrappers import system_tray_icon
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -45,7 +45,7 @@ class AppManager:
 
         self.tray_icon = system_tray_icon.SystemTrayIcon(self)
         self.loop = loop_handler.LoopHandler(self)
-        self.discord_rp = wrappers.discord_rp.DiscordRP()
+        self.discord_rp = discord_rp.DiscordRP()
 
     def get_debug(self) -> bool:
         return self.settings.get("debug")

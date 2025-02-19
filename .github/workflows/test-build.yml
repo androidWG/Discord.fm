@@ -21,13 +21,15 @@ jobs:
         os: [ windows-latest, ubuntu-latest ]
         include:
           - os: ubuntu-latest
-            UV_CACHE: ~/.cache/uv
-            UV_INSTALL: curl -LsSf https://astral.sh/uv/install.sh | sh
+            uv_cache: ~/.cache/uv
+            uv_install: curl -LsSf https://astral.sh/uv/install.sh | sh
+            shell: bash
           - os: windows-latest
-            UV_CACHE: C:\Users\runneradmin\AppData\Local\uv\cache
-            UV_INSTALL: |
-              powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-              set Path=C:\Users\runneradmin\.local\bin;%Path%
+            uv_cache: C:\Users\runneradmin\AppData\Local\uv\cache
+            uv_install: |
+              irm https://astral.sh/uv/install.ps1 | iex
+              $env:Path = "C:\Users\runneradmin\.local\bin;$env:Path"
+            shell: powershell
 
 
     runs-on: ${{ matrix.os }}
@@ -42,7 +44,7 @@ jobs:
         with:
           path: |
             .venv
-            ${{matrix.UV_CACHE}}
+            ${{matrix.uv_cache}}
           key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('uv.lock') }}
           restore-keys: |
             ${{ runner.os }}-test-${{ env.cache-name }}-
@@ -53,9 +55,9 @@ jobs:
         with:
           python-version: ${{env.PY_VERSION}}
       - name: Install requirements
-        shell: bash
+        shell: ${{matrix.shell}}
         run: |
-          ${{matrix.UV_INSTALL}}
+          ${{matrix.uv_install}}
           
           if [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
