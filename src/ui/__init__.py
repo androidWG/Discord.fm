@@ -131,7 +131,10 @@ class SettingsWindow(Tk):
             variable=self.auto_update,
         )
         beta_check = ttk.Checkbutton(
-            self.root, text="Include pre-release versions", variable=self.pre_releases
+            self.root,
+            text="Include pre-release versions",
+            variable=self.pre_releases,
+            state=DISABLED,
         )
         start_check.grid(column=0, sticky=W, pady=VERT_PAD)
         upd_check.grid(column=0, sticky=W, pady=VERT_PAD)
