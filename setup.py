@@ -132,7 +132,7 @@ class Setup:
 
         env = os.environ.copy()
         sep = ";" if self.current_platform == "Windows" else ":"
-        env["PYTHONPATH"] = str([p.abspath("src"), sep, p.abspath("tests")])
+        env["PYTHONPATH"] = str(p.abspath("src") + sep + p.abspath("tests"))
         if self.no_venv:
             env["UV_PYTHON_PREFERENCE"] = "only-system"
 
