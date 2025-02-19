@@ -77,7 +77,7 @@ class AppManager:
                 latest > current or util.arg_exists("--force-update")
             ):
                 self.status = Status.UPDATING
-                self.tray_icon.ti.update_menu()
+                self.tray_icon.update_tray_icon()
 
                 logger.warning(
                     f"{'Forcing update to version' if util.arg_exists('--force-update') else 'Found newer version'}"
@@ -180,7 +180,7 @@ class AppManager:
 
     def wait_for_discord(self, next_status: Status):
         self.status = Status.WAITING_FOR_DISCORD
-        self.tray_icon.ti.update_menu()
+        self.tray_icon.update_tray_icon()
 
         while not self._attempt_to_connect_rp() and self.status != Status.KILL:
             pass
@@ -190,7 +190,7 @@ class AppManager:
             return
         else:
             self.status = next_status
-            self.tray_icon.ti.update_menu()
+            self.tray_icon.update_tray_icon()
 
     def _attempt_to_connect_rp(self) -> bool:
         logger.info("Attempting to connect to Discord")

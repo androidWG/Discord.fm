@@ -116,7 +116,7 @@ class TestAppManager(unittest.TestCase):
         mock_get_newest_release.assert_called_once_with(manager)
         mock_get_version.assert_called_once_with(True)
         mock_check_process_running.assert_called_with("discord_fm", "discord.fm")
-        manager.tray_icon.ti.update_menu.assert_called_once()
+        manager.tray_icon.update_tray_icon.assert_called_once()
         mock_download_asset.assert_called_once_with(manager, "latest_asset")
         mock_get_install.return_value.install.assert_called_once()
         mock_close.assert_called_once()

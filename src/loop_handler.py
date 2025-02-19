@@ -64,6 +64,7 @@ class LoopHandler:
                 self.m.discord_rp.update_status(track)
                 self._last_track = track
                 self.m.scrobble_status = ScrobbleStatus.SCROBBLING
+                self.m.tray_icon.update_tray_icon()
             else:
                 logger.debug("Not playing anything")
                 self.m.discord_rp.clear_presence()
@@ -78,7 +79,7 @@ class LoopHandler:
             self._check_discord_running()
 
         if self.m.status != Status.KILL:
-            self.m.tray_icon.ti.update_menu()
+            self.m.tray_icon.update_tray_icon()
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler_ref,))
 
     def _misc_update(self, misc_scheduler):

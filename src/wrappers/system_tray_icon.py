@@ -35,14 +35,15 @@ class SystemTrayIcon:
             # Make sure appindicator is used on Linux. For some reason, pystray will always default to X11
             os.environ["PYSTRAY_BACKEND"] = "appindicator"
 
-    def create_tray_icon(self):
-        logger.debug("Creating tray icon")
-        image_path = util.resource_path(
-            "resources", "white" if util.check_dark_mode() else "black", "icon.png"
-        )
-        icon = Image.open(image_path)
+    def _get_current_scrobbling(self) -> tuple[str | None, str | None]:
+        try:
+            track = self.m.loop.get_last_track()
+            return track.name, track.artist
+        except AttributeError:
+            return None, None
 
-        menu = Menu(
+    def _create_menu(self) -> Menu:
+        return Menu(
             MenuItem(
                 "Starting...",
                 None,
@@ -69,7 +70,7 @@ class SystemTrayIcon:
                 == ScrobbleStatus.NOT_SCROBBLING,
             ),
             MenuItem(
-                "Scrobbling",
+                f"Scrobbling {self._get_current_scrobbling()[0]} by {self._get_current_scrobbling()[1]}",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.scrobble_status == ScrobbleStatus.SCROBBLING,
@@ -98,6 +99,18 @@ class SystemTrayIcon:
             Menu.SEPARATOR,
             MenuItem("Exit", lambda: self._exit_func()),
         )
+
+    def update_tray_icon(self):
+        self.ti.menu = self._create_menu()
+
+    def create_tray_icon(self):
+        logger.debug("Creating tray icon")
+        image_path = util.resource_path(
+            "resources", "white" if util.check_dark_mode() else "black", "icon.png"
+        )
+        icon = Image.open(image_path)
+
+        menu = self._create_menu()
 
         icon = Icon("Discord.fm", icon=icon, title="Discord.fm", menu=menu)
         return icon
