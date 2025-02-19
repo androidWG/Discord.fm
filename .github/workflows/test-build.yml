@@ -23,13 +23,11 @@ jobs:
           - os: ubuntu-latest
             uv_cache: ~/.cache/uv
             uv_install: curl -LsSf https://astral.sh/uv/install.sh | sh
-            shell: bash
           - os: windows-latest
             uv_cache: C:\Users\runneradmin\AppData\Local\uv\cache
             uv_install: |
-              irm https://astral.sh/uv/install.ps1 | iex
-              $env:Path = "C:\Users\runneradmin\.local\bin;$env:Path"
-            shell: powershell
+              powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+              export PATH=$PATH:"/C/Users/runneradmin/.local/bin"
 
 
     runs-on: ${{ matrix.os }}
@@ -44,20 +42,20 @@ jobs:
         with:
           path: |
             .venv
-            ${{matrix.uv_cache}}
+            ${{ matrix.uv_cache }}
           key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('uv.lock') }}
           restore-keys: |
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      - name: Set up Python ${{env.PY_VERSION}}
+      - name: Set up Python ${{ env.PY_VERSION }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{env.PY_VERSION}}
+          python-version: ${{ env.PY_VERSION }}
       - name: Install requirements
-        shell: ${{matrix.shell}}
+        shell: bash
         run: |
-          ${{matrix.uv_install}}
+          ${{ matrix.uv_install }}
           
           if [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
