@@ -34,8 +34,10 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ]; then
               curl -LsSf https://astral.sh/uv/install.sh | sh
+          else
+              powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
           fi
-          $PY_VERSION
+          ${{env.PRESETUP_CMD}}
           python setup.py setup
       - name: Run tests
         run: python -m pytest tests/
@@ -58,11 +60,13 @@ jobs:
         run: |
           if [ "$RUNNER_OS" == "Linux" ] || [ "$RUNNER_OS" == "macOS" ]; then
               curl -LsSf https://astral.sh/uv/install.sh | sh
+          else
+              powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
           fi
           if [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
           fi
-          $PRESETUP_CMD
+          ${{env.PRESETUP_CMD}}
           python setup.py setup
       - name: Build
         run: python setup.py build
