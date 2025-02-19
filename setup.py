@@ -128,7 +128,7 @@ class Setup:
         cmd_print = f"{Colors.GREY}{' '*padding}─ {" ".join(command)}{Colors.ENDC}"
         if self.output:
             # Don't print newline to be able to replace this line later
-            print(cmd_print, end="\r")
+            print(cmd_print.encode("utf-8"), end="\r")
 
         env = os.environ.copy()
         sep = ";" if self.current_platform == "Windows" else ":"
@@ -173,9 +173,13 @@ class Setup:
 
     def sync(self):
         _print_header("Syncing")
-        self._run(
+        result = self._run(
             "uv sync --dev --no-binary-package pyinstaller --no-binary-package pypresence"
         )
+
+        if result[0] != 0:
+            print(f"{Colors.FAIL}Failed syncing with uv. Please check log{Colors.ENDC}")
+            sys.exit(1)
 
     def build_pyinstaller(self) -> None:
         _check_util_and_exit(
