@@ -77,6 +77,7 @@ def delete_old_logs(manager):
     :param manager: AppManager object with the name and settings info
     :type manager: AppManager
     """
+    # TODO: Add support for RotatingFileHandler (.log, .log.1, .log.2 files)
     logs = []
 
     print("Deleting old logs")
@@ -86,9 +87,9 @@ def delete_old_logs(manager):
             logs.append(file)
 
     logs.sort(reverse=True)
-    del logs[: manager.settings.get("max_logs")]
+    logs_to_delete = logs[manager.settings.get("max_logs"):]
 
-    for log in logs:
+    for log in logs_to_delete:
         try:
             path = os.path.join(manager.settings.logs_path, log)
             print(f"Deleting file {path}")
@@ -142,13 +143,11 @@ def setup_logging(manager):
                 "stream": "ext://sys.stdout",
             },
             "file": {
-                "class": "logging.handlers.RotatingFileHandler",
+                "class": "logging.FileHandler",
                 "encoding": "utf-8",
                 "filename": log_path,
                 "level": "DEBUG" if manager.get_debug() else "INFO",
                 "formatter": "millisecondFormatter",
-                "maxBytes": 512000,
-                "backupCount": 2,
             },
         },
         "loggers": {
