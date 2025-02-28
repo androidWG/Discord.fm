@@ -208,6 +208,7 @@ class AppManager:
                 ValueError,
                 struct.error,
                 ConnectionResetError,
+                BrokenPipeError,
             ) as e:
                 logger.debug(f"Received {e} when connecting to Discord RP")
                 return False
