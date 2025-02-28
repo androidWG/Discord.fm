@@ -196,13 +196,11 @@ patches/mtime-cache.json
 
 spec/fixtures/logo.png
 
-electron/
-eel/
 */bdist*/
 *.pid
 build/discord_fm*/
 build/settings_ui*/
-
+build_temp/
 .flatpak-builder/
 .pipcache/
 com.androidWG.Discordfm.*

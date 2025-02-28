@@ -20,7 +20,7 @@ main_exe = EXE(
     exclude_binaries=True,
     name="discord_fm",
     console=False,
-    version=r"#VER_MAIN#",
+    version=r"#VERSION_FILE#" if platform.system() == "Windows" else None,
     icon=r"#ICON_MAIN#",
     contents_directory='.',
 )
@@ -39,9 +39,9 @@ if platform.system() == "Darwin":
                  name="Discord.fm.app",
                  icon="build/macos/macos_icon.icns",
                  bundle_identifier="net.androidwg.discord_fm",
-                 version=r"#VER_MAIN#",
+                 version=r"#VERSION#",
                  info_plist={
-                     "CFBundleVersion": r"#VER_MAIN#",
+                     "CFBundleVersion": r"#VERSION#",
                      "LSUIElement": True,
                      "LSBackgroundOnly": True
             }
