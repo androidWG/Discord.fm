@@ -9,7 +9,11 @@ import util
 
 class UtilTests(unittest.TestCase):
     def test_replace(self):
-        original = os.path.join("tests", "unit", "fixtures", "script.txt")
+        original = os.path.abspath(
+            os.path.join("tests", "unit", "fixtures", "script.txt")
+        )
+        print("Original file at " + original)
+
         with tempfile.TemporaryDirectory() as temp_dir:
             p_data1 = os.path.join(temp_dir, "script.txt")
             p_data2 = os.path.join(temp_dir, "script.txt")

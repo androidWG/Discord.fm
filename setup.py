@@ -280,7 +280,7 @@ class Setup:
                 self._find_tools()
 
                 result = self._run(
-                    [self.python, "-m", "pytest", "tests/"],
+                    [self.python, "-m", "pytest", "tests/", "-s"],
                     passthrough_formatting=True,
                     env={"PYSTRAY_BACKEND": ["dummy"]},
                 )
