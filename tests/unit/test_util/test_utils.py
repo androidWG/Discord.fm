@@ -9,18 +9,22 @@ import util
 
 class UtilTests(unittest.TestCase):
     def test_replace(self):
-        original = os.path.abspath(
+        p_original = os.path.abspath(
             os.path.join("tests", "unit", "fixtures", "script.txt")
         )
-        print("Original file at " + original)
+
+        p_replaced = os.path.abspath(
+            os.path.join("tests", "unit", "fixtures", "script_changed.txt")
+        )
 
         with tempfile.TemporaryDirectory() as temp_dir:
             print("Temporary directory at " + temp_dir)
 
-            p_data1 = os.path.join(temp_dir, "script.txt")
-            p_data2 = os.path.join(temp_dir, "script.txt")
-            shutil.copyfile(original, p_data1)
-            shutil.copyfile(original, p_data2)
+            p_data1 = os.path.join(temp_dir, "script1.txt")
+            p_data2 = os.path.join(temp_dir, "script2.txt")
+            p_data3 = os.path.join(temp_dir, "script3.txt")
+            shutil.copyfile(p_original, p_data1)
+            shutil.copyfile(p_original, p_data3)
 
             tags = [
                 ("#SHREK#", "Rick Astley"),
@@ -29,26 +33,31 @@ class UtilTests(unittest.TestCase):
                 ("#dragon#", "dinosaur"),
             ]
 
-            try:
-                f_data = open(p_data1, encoding="utf-8")
-                util.replace_instances(p_data1, tags)
-                f_result1 = open(p_data2, encoding="utf-8")
-                self.assertEqual(f_data.read(), f_result1.read())
+            f_original = open(p_original, encoding="utf-8")
+            f_replaced = open(p_replaced, encoding="utf-8")
+            original_text = f_original.read()
+            replaced_text = f_replaced.read()
+            f_original.close()
+            f_replaced.close()
 
-                p_changed = os.path.join(
-                    "tests", "unit", "fixtures", "script_changed.txt"
-                )
-                f_changed = open(p_changed, encoding="utf-8")
+            # Test replacing with same file name
+            util.replace_instances(p_data1, tags)
+            f_data1 = open(p_data1, encoding="utf-8")
+            self.assertEqual(f_data1.read(), replaced_text)
 
-                result2_path = os.path.join(temp_dir, "test.txt")
-                util.replace_instances(p_data1, tags, result2_path)
-                f_result2 = open(result2_path, encoding="utf-8")
-                self.assertEqual(f_changed.read(), f_result2.read())
-            finally:
-                f_data.close()
-                f_changed.close()
-                f_result1.close()
-                f_result2.close()
+            # Test replacing with new file name
+            util.replace_instances(p_data1, tags, p_data2)
+            f_data2 = open(p_data2, encoding="utf-8")
+            self.assertEqual(f_data2.read(), replaced_text)
+
+            # Test no tags to replace
+            util.replace_instances(p_data3, [])
+            f_data3 = open(p_data3, encoding="utf-8")
+            self.assertEqual(f_data3.read(), original_text)
+
+            f_data1.close()
+            f_data2.close()
+            f_data3.close()
 
     @patch("sys.argv", ["-test", "-t", "--lorem", "--IPSUM"])
     def test_arg_exists(self):
