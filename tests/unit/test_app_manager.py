@@ -1,7 +1,6 @@
 import unittest
 from unittest.mock import patch, call
 
-from app_manager import AppManager
 from util.status import Status
 
 
@@ -21,6 +20,8 @@ class TestAppManager(unittest.TestCase):
         mock_is_frozen,
         *mocks,
     ):
+        from app_manager import AppManager
+
         manager = AppManager()
         manager.status = Status.STARTUP
 
@@ -53,6 +54,8 @@ class TestAppManager(unittest.TestCase):
         mock_wait,
         *mocks,
     ):
+        from app_manager import AppManager
+
         manager = AppManager()
 
         # Test kill status
@@ -102,6 +105,8 @@ class TestAppManager(unittest.TestCase):
         mock_check_process_running,
         *mocks,
     ):
+        from app_manager import AppManager
+
         manager = AppManager()
         manager.status = Status.STARTUP
 
@@ -125,6 +130,8 @@ class TestAppManager(unittest.TestCase):
     @patch("app_manager.AppManager.close")
     @patch("loop_handler.LoopHandler")
     def test_reload(self, mock_loop, mock_close, mock_discord_rp, *mocks):
+        from app_manager import AppManager
+
         manager = AppManager()
         manager.status = Status.DISABLED
 
@@ -138,6 +145,8 @@ class TestAppManager(unittest.TestCase):
     @patch("app_manager.system_tray_icon.SystemTrayIcon")
     @patch("sys.exit")
     def test_close(self, mock_exit, mock_tray, mock_discord_rp, *mocks):
+        from app_manager import AppManager
+
         manager = AppManager()
         manager.status = Status.KILL
 
@@ -147,6 +156,7 @@ class TestAppManager(unittest.TestCase):
         mock_discord_rp.return_value.exit_rp.assert_called_once()
         mock_tray.return_value.ti.stop.assert_called_once()
 
+    @patch("util.install.get_install")
     @patch("process.check_process_running")
     @patch("time.sleep")
     @patch("util.basic_notification")
@@ -161,6 +171,8 @@ class TestAppManager(unittest.TestCase):
         mock_check_process_running,
         *mocks,
     ):
+        from app_manager import AppManager
+
         manager = AppManager()
 
         # Test running
@@ -195,6 +207,8 @@ class TestAppManager(unittest.TestCase):
     @patch("loop_handler.LoopHandler")
     @patch("wrappers.discord_rp.DiscordRP")
     def test_toggle_rpc(self, mock_discord_rp, *mocks):
+        from app_manager import AppManager
+
         manager = AppManager()
         manager.status = Status.ENABLED
 
@@ -216,6 +230,8 @@ class TestAppManager(unittest.TestCase):
     def test_open_settings(
         self, mock_set_app_id, mock_system, mock_settings_window, *mocks
     ):
+        from app_manager import AppManager
+
         manager = AppManager()
 
         mock_system.return_value = "Windows"

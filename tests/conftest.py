@@ -7,6 +7,6 @@ import pytest
 @pytest.fixture(scope="session", autouse=True)
 def default_session_fixture() -> Iterator[None]:
     print("Patching pystray")
-    with patch("pystray._xorg.Icon"):
+    with patch("Xlib.display.Display"):
         yield
     print("Patching complete. Unpatching")

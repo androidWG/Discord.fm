@@ -1,7 +1,6 @@
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
-from loop_handler import LoopHandler
 from util.status import Status
 
 
@@ -14,6 +13,8 @@ class TestLastfmUpdate:
     manager = MagicMock()
 
     def test_disabled_status(self, *mocks):
+        from loop_handler import LoopHandler
+
         handler = LoopHandler(self.manager)
         handler.m.status = Status.DISABLED
 
@@ -25,6 +26,8 @@ class TestLastfmUpdate:
         )
 
     def test_waiting_for_discord_status(self, *mocks):
+        from loop_handler import LoopHandler
+
         handler = LoopHandler(self.manager)
         handler.m.status = Status.WAITING_FOR_DISCORD
 
@@ -36,6 +39,8 @@ class TestLastfmUpdate:
         )
 
     def test_kill_status(self, *mocks):
+        from loop_handler import LoopHandler
+
         handler = LoopHandler(self.manager)
         handler.m.status = Status.KILL
 
@@ -44,6 +49,8 @@ class TestLastfmUpdate:
         # Assert that no further actions are taken
 
     def test_track_not_none(self, *mocks):
+        from loop_handler import LoopHandler
+
         handler = LoopHandler(self.manager)
         handler.m.status = Status.ENABLED
 
@@ -67,6 +74,8 @@ class TestLastfmUpdate:
         )
 
     def test_track_none(self, *mocks):
+        from loop_handler import LoopHandler
+
         handler = LoopHandler(self.manager)
         handler.m.status = Status.ENABLED
 

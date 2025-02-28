@@ -1,7 +1,6 @@
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
-from loop_handler import LoopHandler
 from util.status import Status
 
 
@@ -14,6 +13,8 @@ class TestMiscUpdate:
     manager = MagicMock()
 
     def test_misc_update_disabled_status(self, *mocks):
+        from loop_handler import LoopHandler
+
         handler = LoopHandler(self.manager)
         handler.m.status = Status.DISABLED
 
@@ -28,6 +29,8 @@ class TestMiscUpdate:
         )
 
     def test_misc_update_kill_status(self, *mocks):
+        from loop_handler import LoopHandler
+
         handler = LoopHandler(self.manager)
         handler.m.status = Status.KILL
 
@@ -36,6 +39,8 @@ class TestMiscUpdate:
         # Assert that no further actions are taken
 
     def test_misc_update_username_changed(self, *mocks):
+        from loop_handler import LoopHandler
+
         handler = LoopHandler(self.manager)
         handler.m.status = Status.ENABLED
         handler.m.settings.get.return_value = "OldUsername"
@@ -56,6 +61,8 @@ class TestMiscUpdate:
         )
 
     def test_misc_update_username_not_changed(self, *mocks):
+        from loop_handler import LoopHandler
+
         handler = LoopHandler(self.manager)
         handler.m.status = Status.ENABLED
         handler.m.settings.get.return_value = "OldUsername"
