@@ -15,6 +15,8 @@ class UtilTests(unittest.TestCase):
         print("Original file at " + original)
 
         with tempfile.TemporaryDirectory() as temp_dir:
+            print("Temporary directory at " + temp_dir)
+
             p_data1 = os.path.join(temp_dir, "script.txt")
             p_data2 = os.path.join(temp_dir, "script.txt")
             shutil.copyfile(original, p_data1)
