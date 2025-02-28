@@ -73,7 +73,8 @@ class SystemTrayIcon:
                 f"Scrobbling {self._get_current_scrobbling()[0]} by {self._get_current_scrobbling()[1]}",
                 None,
                 enabled=False,
-                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.SCROBBLING,
+                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.SCROBBLING
+                and self.m.status == Status.ENABLED,
             ),
             pystray.MenuItem(
                 "Checking current scrobbling...",
