@@ -66,7 +66,7 @@ class LoopHandler:
                 self.m.scrobble_status = ScrobbleStatus.SCROBBLING
                 self.m.tray_icon.update_tray_icon()
             else:
-                logger.debug("Not playing anything")
+                logger.info("Not playing anything")
                 self.m.discord_rp.clear_presence()
                 self.m.scrobble_status = ScrobbleStatus.NOT_SCROBBLING
         except (

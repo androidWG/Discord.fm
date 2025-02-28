@@ -272,7 +272,7 @@ class Setup:
                 self._find_tools()
 
                 result = self._run(
-                    [self.python, "-m", "pytest", "tests/", "-x"],
+                    [self.python, "-m", "pytest", "tests/"],
                     passthrough_formatting=True,
                 )
 
