@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
  
-## [0.11.0] - yyyy-mm-dd
+## [0.11.0] - 2025-03-01
 
 ### Added
 
@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 -   Moved to `uv` package manager and improved setup script. This change only affects developers/running unfrozen.
 
 ### Fixed
+
+- `BrokenPipeError` exception when attempting to connect to Discord while it's opening
 
 ## [0.11.0] - 2023-12-18
 
