@@ -118,6 +118,7 @@ class Setup:
         echo: bool = True,
         passthrough_formatting: bool = False,
         padding: int = 1,
+        env: dict[str, list[str]] = None,
         **kwargs,
     ) -> tuple[bool, str]:
         if isinstance(cmd, str):
@@ -130,18 +131,25 @@ class Setup:
             # Don't print newline to be able to replace this line later
             print(cmd_print, end="\r")
 
-        env = os.environ.copy()
         sep = ";" if self.current_platform == "Windows" else ":"
-        env["PYTHONPATH"] = str(p.abspath("src") + sep + p.abspath("tests"))
+        processed_env = os.environ.copy()
+        if env is not None:
+            for key, value in env.items():
+                if key in processed_env:
+                    processed_env[key] = processed_env[key] + sep + sep.join(value)
+                else:
+                    processed_env[key] = sep.join(value)
+
+        processed_env["PYTHONPATH"] = str(p.abspath("src") + sep + p.abspath("tests"))
         if self.no_venv:
-            env["UV_PYTHON_PREFERENCE"] = "only-system"
+            processed_env["UV_PYTHON_PREFERENCE"] = "only-system"
 
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             universal_newlines=True,
-            env=env,
+            env=processed_env,
             **kwargs,
         )
 
@@ -274,6 +282,7 @@ class Setup:
                 result = self._run(
                     [self.python, "-m", "pytest", "tests/"],
                     passthrough_formatting=True,
+                    env={"PYSTRAY_BACKEND": ["dummy"]},
                 )
 
                 if result[0] != 0:

@@ -1,14 +1,14 @@
 from unittest import mock
 from unittest.mock import MagicMock, patch
 
+from loop_handler import LoopHandler
+
 
 @patch("loop_handler.scheduler")
 class TestLoopHandler:
     manager = MagicMock()
 
     def test_handle_update(self, *mocks):
-        from loop_handler import LoopHandler
-
         handler = LoopHandler(self.manager)
 
         handler.handle_update()
@@ -24,8 +24,6 @@ class TestLoopHandler:
         handler.sc.run.assert_called_once()
 
     def test_force_update(self, *mocks):
-        from loop_handler import LoopHandler
-
         handler = LoopHandler(self.manager)
         handler.sc.queue = [mock.sentinel.event1, mock.sentinel.event2]
 
@@ -42,8 +40,6 @@ class TestLoopHandler:
         )
 
     def test_get_last_track(self, *mocks):
-        from loop_handler import LoopHandler
-
         handler = LoopHandler(self.manager)
         handler._last_track = mock.sentinel.track
 
