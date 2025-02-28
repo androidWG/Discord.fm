@@ -67,11 +67,7 @@ jobs:
       - name: Run setup
         run: python setup.py setup
       - name: Run tests
-        run: | 
-          if [ "$RUNNER_OS" == "Linux" ]; then
-              export PYSTRAY_BACKEND="appindicator"
-          fi
-          python setup.py test
+        run: python setup.py test
       - name: Build
         run: python setup.py build
       - name: Upload files
