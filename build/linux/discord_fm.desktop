@@ -8,4 +8,4 @@ Icon=discord_fm
 Categories=Utility;
 Terminal=false
 Type=Application
-Version=1.0
+Version=#VERSION#

@@ -131,7 +131,10 @@ class SettingsWindow(Tk):
             variable=self.auto_update,
         )
         beta_check = ttk.Checkbutton(
-            self.root, text="Include pre-release versions", variable=self.pre_releases
+            self.root,
+            text="Include pre-release versions",
+            variable=self.pre_releases,
+            state=DISABLED,
         )
         start_check.grid(column=0, sticky=W, pady=VERT_PAD)
         upd_check.grid(column=0, sticky=W, pady=VERT_PAD)
@@ -157,10 +160,10 @@ class SettingsWindow(Tk):
         ver_lbl.grid(column=1, row=0)
 
         self.bar.columnconfigure(0, weight=5)
-        self.bar.pack(fill=X)
         # endregion
 
         self.root.pack()
+        self.bar.pack(fill=X)
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         Thread(target=self._check_username, daemon=True).start()

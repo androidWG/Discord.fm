@@ -6,8 +6,8 @@ from util.status import Status
 
 
 @patch("wrappers.last_fm_user.LastFMUser")
-@patch("loop_handler.SystemTrayIcon")
-@patch("loop_handler.TrackInfo")
+@patch("loop_handler.system_tray_icon.SystemTrayIcon")
+@patch("loop_handler.track_info.TrackInfo")
 @patch("loop_handler.Image")
 @patch("loop_handler.scheduler")
 class TestMiscUpdate:
@@ -41,9 +41,10 @@ class TestMiscUpdate:
         handler.m.settings.get.return_value = "OldUsername"
         handler.user.user.name = "NewUsername"
 
-        with mock.patch.object(handler.m, "reload") as mock_reload, mock.patch.object(
-            handler.sc, "enter"
-        ) as mock_enter:
+        with (
+            mock.patch.object(handler.m, "reload") as mock_reload,
+            mock.patch.object(handler.sc, "enter") as mock_enter,
+        ):
             handler._misc_update(mock.sentinel.misc_scheduler)
 
         mock_reload.assert_called_once()
@@ -60,9 +61,10 @@ class TestMiscUpdate:
         handler.m.settings.get.return_value = "OldUsername"
         handler.user.user.name = "OldUsername"
 
-        with mock.patch.object(handler.m, "reload") as mock_reload, mock.patch.object(
-            handler.sc, "enter"
-        ) as mock_enter:
+        with (
+            mock.patch.object(handler.m, "reload") as mock_reload,
+            mock.patch.object(handler.sc, "enter") as mock_enter,
+        ):
             handler._misc_update(mock.sentinel.misc_scheduler)
 
         mock_reload.assert_not_called()

@@ -95,9 +95,11 @@ def _get_release_json(manager) -> dict | None:
     base_url = "https://api.github.com/repos/AndroidWG/Discord.fm/releases"
     result = handler.attempt_request(
         requests.get,
-        url=base_url + "/latest"
-        if not manager.settings.get("pre_releases")
-        else base_url,
+        url=(
+            base_url + "/latest"
+            if not manager.settings.get("pre_releases")
+            else base_url
+        ),
         headers=headers,
     )
     json_output = result.json()

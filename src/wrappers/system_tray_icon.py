@@ -3,8 +3,8 @@ import os
 import platform
 import tkinter
 
+import pystray
 from PIL import Image
-from pystray import Icon, Menu, MenuItem
 
 import util
 from util.scrobble_status import ScrobbleStatus
@@ -35,47 +35,55 @@ class SystemTrayIcon:
             # Make sure appindicator is used on Linux. For some reason, pystray will always default to X11
             os.environ["PYSTRAY_BACKEND"] = "appindicator"
 
-    def create_tray_icon(self):
-        logger.debug("Creating tray icon")
-        image_path = util.resource_path(
-            "resources", "white" if util.check_dark_mode() else "black", "icon.png"
-        )
-        icon = Image.open(image_path)
+    def _get_current_scrobbling(self) -> tuple[str | None, str | None]:
+        try:
+            track = self.m.loop.get_last_track()
+            return track.name, track.artist
+        except AttributeError:
+            return None, None
 
-        menu = Menu(
-            MenuItem(
+    def _create_menu(self) -> pystray.Menu:
+        return pystray.Menu(
+            pystray.MenuItem(
                 "Starting...",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.status == Status.STARTUP,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Downloading update...",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.status == Status.UPDATING,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Discord not open",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.status == Status.WAITING_FOR_DISCORD,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Not scrobbling anything",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.scrobble_status
                 == ScrobbleStatus.NOT_SCROBBLING,
             ),
-            MenuItem(
+            pystray.MenuItem(
+                f"Scrobbling {self._get_current_scrobbling()[0]} by {self._get_current_scrobbling()[1]}",
+                None,
+                enabled=False,
+                visible=lambda i: self.m.scrobble_status == ScrobbleStatus.SCROBBLING
+                and self.m.status == Status.ENABLED,
+            ),
+            pystray.MenuItem(
                 "Checking current scrobbling...",
                 None,
                 enabled=False,
                 visible=lambda i: self.m.scrobble_status == ScrobbleStatus.FIRST_CHECK
                 and self.m.status != Status.WAITING_FOR_DISCORD,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Enable Rich Presence",
                 lambda ic, it: self.m.toggle_rpc(not it.checked),
                 checked=lambda i: self.m.rpc_state,
@@ -83,15 +91,27 @@ class SystemTrayIcon:
                 and self.m.status != Status.UPDATING
                 and self.m.status != Status.WAITING_FOR_DISCORD,
             ),
-            MenuItem(
+            pystray.MenuItem(
                 "Open Settings",
                 self.m.open_settings,
                 visible=lambda i: self.m.status != Status.STARTUP
                 and self.m.status != Status.UPDATING,
             ),
-            Menu.SEPARATOR,
-            MenuItem("Exit", lambda: self._exit_func()),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem("Exit", lambda: self._exit_func()),
         )
 
-        icon = Icon("Discord.fm", icon=icon, title="Discord.fm", menu=menu)
+    def update_tray_icon(self):
+        self.ti.menu = self._create_menu()
+
+    def create_tray_icon(self):
+        logger.debug("Creating tray icon")
+        image_path = util.resource_path(
+            "resources", "white" if util.check_dark_mode() else "black", "icon.png"
+        )
+        icon = Image.open(image_path)
+
+        menu = self._create_menu()
+
+        icon = pystray.Icon("Discord.fm", icon=icon, title="Discord.fm", menu=menu)
         return icon

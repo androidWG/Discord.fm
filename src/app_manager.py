@@ -18,10 +18,10 @@ import util
 import util.install
 import util.updates
 import version
-import wrappers.discord_rp
 from process import executable_info
 from util.scrobble_status import ScrobbleStatus
 from util.status import Status
+from wrappers import discord_rp
 from wrappers import system_tray_icon
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
@@ -45,7 +45,7 @@ class AppManager:
 
         self.tray_icon = system_tray_icon.SystemTrayIcon(self)
         self.loop = loop_handler.LoopHandler(self)
-        self.discord_rp = wrappers.discord_rp.DiscordRP()
+        self.discord_rp = discord_rp.DiscordRP()
 
     def get_debug(self) -> bool:
         return self.settings.get("debug")
@@ -64,7 +64,11 @@ class AppManager:
         installation = util.install.get_install()
         self.settings.define("start_with_system", installation.get_startup())
 
-        if self.settings.get("auto_update") or util.arg_exists("--force-update"):
+        if (
+            self.settings.get("auto_update")
+            or util.arg_exists("--force-update")
+            and not util.arg_exists("--skip-update")
+        ):
             logger.debug("Checking for updates")
 
             latest, latest_asset = util.updates.get_newest_release_with_asset(self)
@@ -73,7 +77,7 @@ class AppManager:
                 latest > current or util.arg_exists("--force-update")
             ):
                 self.status = Status.UPDATING
-                self.tray_icon.ti.update_menu()
+                self.tray_icon.update_tray_icon()
 
                 logger.warning(
                     f"{'Forcing update to version' if util.arg_exists('--force-update') else 'Found newer version'}"
@@ -176,7 +180,7 @@ class AppManager:
 
     def wait_for_discord(self, next_status: Status):
         self.status = Status.WAITING_FOR_DISCORD
-        self.tray_icon.ti.update_menu()
+        self.tray_icon.update_tray_icon()
 
         while not self._attempt_to_connect_rp() and self.status != Status.KILL:
             pass
@@ -186,7 +190,7 @@ class AppManager:
             return
         else:
             self.status = next_status
-            self.tray_icon.ti.update_menu()
+            self.tray_icon.update_tray_icon()
 
     def _attempt_to_connect_rp(self) -> bool:
         logger.info("Attempting to connect to Discord")
@@ -204,6 +208,7 @@ class AppManager:
                 ValueError,
                 struct.error,
                 ConnectionResetError,
+                BrokenPipeError,
             ) as e:
                 logger.debug(f"Received {e} when connecting to Discord RP")
                 return False

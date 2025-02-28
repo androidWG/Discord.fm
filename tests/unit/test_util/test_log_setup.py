@@ -2,7 +2,7 @@ import os.path
 import random
 import tempfile
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 import util.log_setup
 
@@ -43,7 +43,7 @@ class LogSetupTests(unittest.TestCase):
 
     def _delete_all_logs(self):
         for file in os.listdir(self.temp_dir.name):
-            if file.__contains__(".log"):
+            if file.endswith(".log"):
                 os.remove(os.path.join(self.temp_dir.name, file))
 
     def _check_files_contains(self, files: list) -> list:
@@ -72,8 +72,13 @@ def create_random_files(
 ):
     files = []
     for x in range(file_count):
-        text_name = filename + str(random.randint(100, 999)) + extension
-        path = os.path.join(temp_dir, text_name)
+        while True:
+            text_name = f"{filename}{random.randint(100, 9999):04}{extension}"
+            path = os.path.join(temp_dir, text_name)
+
+            if path not in files:
+                break
+
         files.append(path)
 
         with open(path, "wb") as file:

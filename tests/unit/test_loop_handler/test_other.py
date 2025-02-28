@@ -1,6 +1,5 @@
-from unittest.mock import MagicMock, patch
-
 from unittest import mock
+from unittest.mock import MagicMock, patch
 
 from loop_handler import LoopHandler
 

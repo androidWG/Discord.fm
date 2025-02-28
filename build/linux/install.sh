@@ -30,6 +30,7 @@ mv -Z discord_fm.svg "$PREFIX"/share/icons/hicolor/scalable/apps/;\
 mv -Z discord_fm.desktop "$PREFIX"/share/applications/)
 
 rm install.sh
+chmod +x unisntall.sh
 
 if [[ $* == *--self-start* ]]; then
   echo "Install complete. Running Discord.fm"

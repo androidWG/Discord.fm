@@ -83,9 +83,9 @@ def check_dark_mode() -> bool:
             return False
         return value == 0
     elif system() == "Darwin":
+        # TODO: Maybe add proper checking for dark mode on macOS and Linux
         return True
     else:
-        # TODO: Maybe add proper checking for dark mode if possible?
         return True
 
 

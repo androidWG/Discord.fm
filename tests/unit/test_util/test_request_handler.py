@@ -28,30 +28,33 @@ def bad_method():
     raise OSError("Test exception handling")
 
 
+@patch("util.request_handler.wait_for_internet")
 class TestRequestHandler(unittest.TestCase):
     manager = MagicMock()
 
-    def test_successful_request(self):
+    def test_successful_request(self, *mocks):
         rh = util.request_handler.RequestHandler(self.manager, "test")
-        self.assertEqual(rh.attempt_request(mock_method), test_phrase)
+        result = rh.attempt_request(mock_method)
+        self.assertEqual(result, test_phrase)
 
     @patch("logging.Logger.warning")
-    @patch("util.request_handler.wait_for_internet")
-    def test_limited_tries(self, mock_wait: MagicMock, mock_error: MagicMock):
+    def test_limited_tries(self, mock_error: MagicMock, mock_wait: MagicMock):
         limit = 5
         rh = util.request_handler.RequestHandler(
             self.manager, "test2", limit_tries=limit
         )
-        rh.attempt_request(timeout_method, timeout=5)
+        rh.attempt_request(timeout_method)
 
         mock_wait.assert_called()
-        mock_error.assert_called_with(
+        mock_error.assert_any_call(
             f"Hit or exceeded maximum tries (over {limit} tries)"
         )
 
-    def test_exception_request(self):
+    def test_exception_request(self, *mocks):
         rh = util.request_handler.RequestHandler(self.manager, "test3")
-        self.assertRaises(OSError, rh.attempt_request, bad_method)
+        with self.assertRaises(OSError):
+            result = rh.attempt_request(bad_method)
+            print(result)
 
 
 if __name__ == "__main__":

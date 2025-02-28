@@ -29,7 +29,8 @@ class RequestHandler:
     _inactive_timer = None
     _timeout_timer = None
     _interrupt_request = False
-    _current_thread = 0
+    _thread_started = threading.Event()
+    _current_thread = None
     _result = None
     _bucket = queue.Queue()
     _tries = 0
@@ -84,11 +85,12 @@ class RequestHandler:
                 self._cancel_timers()
                 return None
 
+            self._thread_started.clear()
             thread = threading.Thread(
                 target=self._wrapper, args=(request_func, args, kwargs)
             )
             thread.start()
-            self._current_thread = thread.ident
+            self._thread_started.wait()
 
             while thread.is_alive():
                 if self.m.status == Status.KILL:
@@ -96,7 +98,7 @@ class RequestHandler:
                     self.m.close()
 
                 if self._interrupt_request:
-                    logger.info(f"Request for {self.message} timed out")
+                    logger.info(f"Request for {self.message} took too long")
                     self._tries += 1
                     continue
 
@@ -150,6 +152,9 @@ class RequestHandler:
 
     def _wrapper(self, func, args, kwargs):
         thread_id = threading.get_ident()
+        self._current_thread = thread_id
+        self._thread_started.set()
+
         logger.debug(f"Thread ID: {thread_id}")
         exc = None
         try:
@@ -158,7 +163,7 @@ class RequestHandler:
         except Exception as e:
             exc = e
 
-        if self._current_thread != thread_id:
+        if self._current_thread != thread_id and self._current_thread is not None:
             logger.debug(
                 f"current_thread is mismatched with this thread ({self._current_thread} "
                 f"vs. {thread_id})"

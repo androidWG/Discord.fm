@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import logging
 
-from pypresence import Presence, InvalidID, PipeClosed
+from pypresence import Presence, InvalidID, PipeClosed, ActivityType
 
 from wrappers import track_info
 
@@ -11,7 +11,7 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 
 class DiscordRP:
     def __init__(self):
-        self.presence = None
+        self.presence: Presence | None = None
         self.last_track = None
         self.connected = False
 
@@ -64,8 +64,10 @@ class DiscordRP:
             artist = track.artist + " " if len(track.artist) < 2 else track.artist
             if track.duration != 0:
                 self.presence.update(
+                    activity_type=ActivityType.LISTENING,
                     details=name,
                     state=artist,
+                    start=int(start_time),
                     end=int(time_remaining),
                     buttons=[{"label": "See on Last.fm", "url": track.url}],
                     large_image=track.cover,
@@ -74,6 +76,7 @@ class DiscordRP:
                 )
             else:
                 self.presence.update(
+                    activity_type=ActivityType.LISTENING,
                     details=name,
                     state=artist,
                     buttons=[{"label": "See on Last.fm", "url": track.url}],

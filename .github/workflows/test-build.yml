@@ -1,6 +1,7 @@
 name: Build, test & upload new version
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "main" ]
   pull_request:
@@ -9,53 +10,68 @@ on:
 permissions:
   contents: read
 
+env:
+  PY_VERSION: 3.12
+  PYTHONIOENCODING: utf-8:replace
+
 jobs:
-  build:
+  test_and_build:
+    name: Test and Build for distribution
     strategy:
+      fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest ]
+        os: [ windows-latest, ubuntu-latest ]
+        include:
+          - os: ubuntu-latest
+            uv_cache: ~/.cache/uv
+            uv_install: curl -LsSf https://astral.sh/uv/install.sh | sh
+          - os: windows-latest
+            uv_cache: C:\Users\runneradmin\AppData\Local\uv\cache
+            uv_install: |
+              powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+              export PATH=$PATH:"/C/Users/runneradmin/.local/bin"
+
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python 3.11
+      - name: Cache Python and UV
+        id: cache-python
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-python-uv
+        with:
+          path: |
+            .venv
+            ${{ matrix.uv_cache }}
+          key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-test-${{ env.cache-name }}-
+            ${{ runner.os }}-test-
+            ${{ runner.os }}-
+      - name: Set up Python ${{ env.PY_VERSION }}
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
-      - name: Setup environment
+          python-version: ${{ env.PY_VERSION }}
+      - name: Install requirements
         shell: bash
         run: |
+          ${{ matrix.uv_install }}
+          
           if [ "$RUNNER_OS" == "Linux" ]; then
               sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
           fi
-          python -m pip install packaging pipenv psutil
-          python setup.py setup
+          
+          pip install packaging psutil
+      - name: Run setup
+        run: python setup.py setup
+      - name: Run tests
+        run: python setup.py test
       - name: Build
         run: python setup.py build
       - name: Upload files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }} dist files
-          path: dist/discord.fm-*
-  test:
-    strategy:
-      matrix:
-        os: [ windows-latest, ubuntu-latest ]
-
-    runs-on: ${{ matrix.os }}
-
-    # TODO: Add cache support
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-      - name: Setup environment
-        shell: bash
-        run: |
-          python -m pip install packaging pipenv psutil
-          python setup.py setup
-      - name: Run tests
-        run: python setup.py test
+          path: dist/discord.fm-*.*

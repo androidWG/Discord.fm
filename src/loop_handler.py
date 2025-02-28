@@ -6,11 +6,11 @@ from PIL import Image
 from pypresence import PipeClosed
 
 import util
-import wrappers.last_fm_user
 from util.scrobble_status import ScrobbleStatus
 from util.status import Status
-from wrappers.system_tray_icon import SystemTrayIcon
-from wrappers.track_info import TrackInfo
+from wrappers import last_fm_user
+from wrappers import system_tray_icon
+from wrappers import track_info
 
 logger = logging.getLogger("discord_fm").getChild(__name__)
 
@@ -18,8 +18,8 @@ logger = logging.getLogger("discord_fm").getChild(__name__)
 class LoopHandler:
     def __init__(self, manager):
         self.m = manager
-        self.tray: SystemTrayIcon = manager.tray_icon
-        self.user = wrappers.last_fm_user.LastFMUser(manager)
+        self.tray: system_tray_icon.SystemTrayIcon = manager.tray_icon
+        self.user = last_fm_user.LastFMUser(manager)
         self.sc = scheduler(time.time)
 
         self._last_track = None
@@ -64,8 +64,9 @@ class LoopHandler:
                 self.m.discord_rp.update_status(track)
                 self._last_track = track
                 self.m.scrobble_status = ScrobbleStatus.SCROBBLING
+                self.m.tray_icon.update_tray_icon()
             else:
-                logger.debug("Not playing anything")
+                logger.info("Not playing anything")
                 self.m.discord_rp.clear_presence()
                 self.m.scrobble_status = ScrobbleStatus.NOT_SCROBBLING
         except (
@@ -78,7 +79,7 @@ class LoopHandler:
             self._check_discord_running()
 
         if self.m.status != Status.KILL:
-            self.m.tray_icon.ti.update_menu()
+            self.m.tray_icon.update_tray_icon()
             self.sc.enter(self.cooldown, 1, self._lastfm_update, (scheduler_ref,))
 
     def _misc_update(self, misc_scheduler):
@@ -114,7 +115,7 @@ class LoopHandler:
             self.m.discord_rp.clear_last_track()
 
     def reload_lastfm(self):
-        self.user = wrappers.last_fm_user.LastFMUser(self.m)
+        self.user = last_fm_user.LastFMUser(self.m)
 
-    def get_last_track(self) -> TrackInfo | None:
+    def get_last_track(self) -> track_info.TrackInfo | None:
         return self._last_track
