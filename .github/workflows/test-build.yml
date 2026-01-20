@@ -60,9 +60,9 @@ jobs:
           ${{ matrix.uv_install }}
           
           if [ "$RUNNER_OS" == "Linux" ]; then
+              sudo apt-get update
               sudo apt-get install libcairo-dev libgirepository1.0-dev python3-gi gobject-introspection gir1.2-gtk-3.0 gir1.2-appindicator3-0.1
-          fi
-          
+          fi         
           pip install packaging psutil
       - name: Run setup
         run: python setup.py setup
