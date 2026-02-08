@@ -143,11 +143,13 @@ def setup_logging(manager):
                 "stream": "ext://sys.stdout",
             },
             "file": {
-                "class": "logging.FileHandler",
+                "class": "logging.handlers.RotatingFileHandler",
                 "encoding": "utf-8",
                 "filename": log_path,
                 "level": "DEBUG" if manager.get_debug() else "INFO",
                 "formatter": "millisecondFormatter",
+                "maxBytes": 5 * 1024 * 1024,  # 5 MB
+                "backupCount": 3,
             },
         },
         "loggers": {
